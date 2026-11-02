@@ -5,8 +5,8 @@ what changed first.
 
 ## 1.3.1 (2026-11-02)
 - The setup guide is now in the repository: GUIDE.md to read on GitHub, and
-  GUIDE.pdf to download or print. Its install step links to this repository's
-  releases.
+  GUIDE.pdf to download or print. Its install step links straight to the skill
+  pack download.
 - A README written for job seekers: what it does, what you need, and the
   setup step by step. The technical reference moved to TECHNICAL.md.
 

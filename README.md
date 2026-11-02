@@ -3,7 +3,7 @@
 Turn Claude into a careful, personal job-search assistant: set it up in one
 60–90 minute sitting, no coding needed. Free and open source.
 
-**[Read the step-by-step guide](GUIDE.md)** · **[Download the guide as a PDF](https://github.com/hantcd/job-search-assistant/releases/latest/download/GUIDE.pdf)** · **[Download the skill pack](https://github.com/hantcd/job-search-assistant/releases/latest/download/job-search-assistant-all.zip)**
+**[Read the step-by-step guide](GUIDE.md)** · **[Download the guide as a PDF](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf)** · **[Download the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip)**
 
 ## What it does
 
@@ -74,7 +74,7 @@ The **[guide](GUIDE.md)** walks you through every step with the exact text to
 paste into Claude and a checklist after each one. In short:
 
 1. **Create a project in Claude** called *Job Search Assistant*. Download
-   [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/releases/latest/download/job-search-assistant-all.zip),
+   [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
    attach it in a chat in the project and say *Install these 14 skills*, then
    click **Save** on each card. *(About 10 minutes.)*
 2. **Chat 1: Claude reads your documents.** Attach your folder and paste the
@@ -101,14 +101,11 @@ common problems, each with the exact words to say to Claude.
 
 ## Downloads
 
-All files are on the
-**[latest release](https://github.com/hantcd/job-search-assistant/releases/latest)**:
-
 | file | what it's for |
 |---|---|
-| `GUIDE.pdf` | the step-by-step guide, to read offline or print |
-| `job-search-assistant-all.zip` | all 14 skills in one file: attach it in a Claude chat to install them (in Cowork, it also installs as a plugin) |
-| `job-tracker.zip`, `job-scout.zip`, ... | the same skills one at a time, to upload under **Customize > Skills** instead |
+| [GUIDE.pdf](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf) | the step-by-step guide, to read offline or print |
+| [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip) | all 14 skills in one file: attach it in a Claude chat to install them (in Cowork, it also installs as a plugin) |
+| [Single-skill zips](https://github.com/hantcd/job-search-assistant/tree/main/dist) | the same skills one at a time, to upload under **Customize > Skills** instead |
 
 ## Questions
 
