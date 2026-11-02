@@ -1,0 +1,27 @@
+{
+  "description": "Job Search Assistant safeguards: never send for the person, check the job list after every change, run the posting check on everything read.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__.*__(send|reply|forward|post|publish|submit|create_event|update_event|respond_to_event)",
+        "hooks": [
+          {"type": "command", "command": "python3", "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/no_send.py"], "timeout": 10}
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit)$",
+        "hooks": [
+          {"type": "command", "command": "python3", "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/check_joblist.py"], "timeout": 30}
+        ]
+      },
+      {
+        "matcher": "^(WebFetch|mcp__.*__(get_page_text|read_page|fetch_page|get_job_details|search_jobs|get_message|get_thread|search_threads))$",
+        "hooks": [
+          {"type": "command", "command": "python3", "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/flag_page.py"], "timeout": 30}
+        ]
+      }
+    ]
+  }
+}

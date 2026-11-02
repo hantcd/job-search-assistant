@@ -1,0 +1,54 @@
+{
+ "_note": "Fictional: Aoife Byrne's job list on 2026-10-20.",
+ "jobs": [
+  {"id": "acme-junior-data-analyst", "company": "Acme Ltd", "title": "Junior Data Analyst", "location": "Dublin (hybrid)",
+   "url": "https://job-boards.greenhouse.io/acme/jobs/1", "other_links": [], "ref": "R-101", "posted": "2026-10-01",
+   "first_found": "2026-10-01", "last_checked": "2026-10-19", "status": "applied", "applied": "2026-10-09",
+   "route": "portal", "role_family": "data analyst", "career_value": 78, "attainability": 64,
+   "confidence": "MEDIUM", "legitimacy": "HIGH CONFIDENCE", "notes": ""},
+  {"id": "brightwater-insurance-data-analyst", "company": "Brightwater Insurance", "title": "Data Analyst",
+   "location": "Dublin", "url": "https://brightwater.example/jobs/9", "status": "interview", "applied": "2026-09-20",
+   "last_reply": "2026-10-02", "route": "referral", "role_family": "data analyst",
+   "interviews": [{"date": "2026-10-19", "stage": "first round"}], "notes": ""},
+  {"id": "corrib-bank-graduate-analyst", "company": "Corrib Bank", "title": "Graduate Analyst",
+   "location": "Galway", "url": "https://corrib.example/careers/44", "status": "applied", "applied": "2026-09-15",
+   "route": "agency", "role_family": "finance analyst", "notes": ""},
+  {"id": "liffey-labs-bi-analyst", "company": "Liffey Labs", "title": "BI Analyst", "location": "Dublin",
+   "url": "https://jobs.ashbyhq.com/liffeylabs/3", "status": "open", "deadline": "2026-10-23", "posted": "2026-10-18",
+   "notes": ""}
+ ],
+ "applications": [
+  {"job_id": "acme-junior-data-analyst", "pack_made": "2026-10-08", "base_cv": "data analyst",
+   "screening_weights": {"search": 40, "scan": 35, "read": 25}, "timing_call": "APPLY NOW + REACH OUT",
+   "submitted": "2026-10-09"}
+ ],
+ "contacts": [
+  {"id": "siobhan-kelly-acme", "name": "Siobhan Kelly", "role": "Analytics Manager", "company": "Acme Ltd",
+   "email": "siobhan.kelly@acme.ie", "email_confidence": "medium", "found_how": "company pattern from a press release address",
+   "privacy_risk": "MEDIUM", "privacy_decision": "use (2026-10-09)", "senior": false},
+  {"id": "declan-moore-acme", "name": "Declan Moore", "role": "Recruiter", "company": "Acme Ltd",
+   "email_confidence": "", "privacy_risk": ""},
+  {"id": "niamh-walsh-corrib", "name": "Niamh Walsh", "role": "Head of Analytics", "company": "Corrib Bank",
+   "email_confidence": "", "privacy_risk": "", "senior": true},
+  {"id": "tom-ryan-liffey", "name": "Tom Ryan", "role": "Data Lead", "company": "Liffey Labs",
+   "email_confidence": "", "privacy_risk": "", "do_not_contact": true}
+ ],
+ "outreach": [
+  {"contact_id": "siobhan-kelly-acme", "job_id": "acme-junior-data-analyst", "channel": "email", "status": "sent",
+   "messages": [{"date": "2026-10-09T09:10", "direction": "out", "slot": "Fri morning", "text": "..."}]},
+  {"contact_id": "declan-moore-acme", "job_id": "acme-junior-data-analyst", "channel": "linkedin", "status": "drafted",
+   "messages": [], "draft": {"text": "Hi Declan..."}},
+  {"contact_id": "niamh-walsh-corrib", "channel": "email", "status": "replied",
+   "messages": [{"date": "2026-10-13", "direction": "out", "text": "..."},
+                {"date": "2026-10-16", "direction": "in", "text": "Happy to chat next week."}]},
+  {"contact_id": "tom-ryan-liffey", "channel": "linkedin", "status": "sent",
+   "messages": [{"date": "2026-10-01", "direction": "out", "text": "..."}]}
+ ],
+ "run_log": [{"time": "2026-10-20T08:02", "task": "daily job search", "sources_checked": 14, "new": 3, "errors": 0}],
+ "events": [
+  {"name": "Dublin Data Meetup", "date": "2026-10-29", "place": "Dublin", "registration_opens": "2026-10-20",
+   "places_limited": true, "registered": false},
+  {"name": "PyCon Ireland", "date": "2026-11-14", "place": "Dublin", "registered": true,
+   "people_to_meet": ["Siobhan Kelly"], "speaker_call_deadline": "2026-10-25"}
+ ]
+}

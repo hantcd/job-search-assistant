@@ -1,0 +1,3 @@
+Junior Data Analyst, Acme Ltd, Dublin (hybrid)
+Requirements: SQL; experience with Power BI or Tableau; Python (pandas); strong MS Excel; stakeholder management.
+Nice to have: dbt, Snowflake, A/B testing. Fluent English.

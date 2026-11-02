@@ -1,0 +1,19 @@
+# Personal files never belong in this repository
+PROFILE.md
+EVIDENCE.md
+VOICE.md
+PREFERENCES_AND_SCORING.md
+MASTER_PLAN.md
+PROJECT_INSTRUCTIONS.md
+CHANGELOG.personal.md
+TESTS.md
+jobsearch/
+applications/
+*.pdf
+!tests/fixtures/**/*.pdf
+!GUIDE.pdf
+__pycache__/
+*.pyc
+
+# eval run output
+evals/results/

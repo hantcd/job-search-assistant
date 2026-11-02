@@ -1,0 +1,1 @@
+linkedin_search.html and linkedin_detail.html: verbatim excerpts of LinkedIn guest responses captured on 2026-07-14 by portapulito, from ai-job-search (MIT, Mads Lorentzen), tests/fixtures of linkedin-search. Used offline only.

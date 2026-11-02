@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "job-search-assistant",
+  "description": "The Job Search Assistant skill pack for Claude",
+  "owner": {"name": "Job Search Assistant authors"},
+  "plugins": [
+    {
+      "name": "job-search-assistant",
+      "description": "14 skills: job tracker, scout, company research, CVs, cover letters, application packs, connector, follow-ups, LinkedIn, Reddit, interviews, offers, weekly check and networking; read-only reviewer agents and hooks that stop Claude sending.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

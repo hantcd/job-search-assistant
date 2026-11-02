@@ -1,0 +1,31 @@
+{
+ "_note": "Skills, tools and qualifications the keyword and truth checks recognise, across industries. Each entry: the usual wording first, then other wordings that mean the same thing. A job ad's own wording wins: if the ad says 'MS Excel', use 'MS Excel' where true. Add your field's terms to your keyword bank; this list is a starting point, not a limit.",
+ "terms": [
+  ["Excel", "MS Excel", "Microsoft Excel"],
+  ["PowerPoint", "MS PowerPoint"],
+  ["Word", "MS Word", "Microsoft Word"],
+  ["Power BI", "PowerBI"],
+  ["Tableau"], ["Looker"], ["Google Analytics", "GA4"], ["Google Sheets"],
+  ["SQL"], ["PostgreSQL", "Postgres"], ["MySQL"], ["Snowflake"], ["BigQuery"], ["dbt"],
+  ["Python"], ["R"], ["Java"], ["JavaScript", "JS"], ["TypeScript", "TS"], ["C#", "C sharp"], ["C++", "CPP"], ["Go", "Golang"], ["Rust"], ["Kotlin"], ["Swift"], ["PHP"], ["Ruby"], ["Scala"], ["MATLAB"], ["SAS"], ["SPSS"], ["Stata"],
+  ["pandas"], ["NumPy"], ["scikit-learn", "sklearn"], ["PyTorch"], ["TensorFlow"], ["Spark", "Apache Spark", "PySpark"], ["Airflow", "Apache Airflow"], ["Kafka", "Apache Kafka"],
+  ["React", "React.js", "ReactJS"], ["Node.js", "Node", "NodeJS"], ["Django"], ["Flask"], ["Spring", "Spring Boot"], [".NET", "dotnet"],
+  ["AWS", "Amazon Web Services"], ["Azure", "Microsoft Azure"], ["GCP", "Google Cloud", "Google Cloud Platform"],
+  ["Docker"], ["Kubernetes", "K8s"], ["Terraform"], ["Linux"], ["Git", "GitHub", "GitLab"], ["CI/CD", "continuous integration"],
+  ["REST", "RESTful", "REST API"], ["GraphQL"], ["microservices"],
+  ["machine learning", "ML"], ["artificial intelligence", "AI"], ["natural language processing", "NLP"], ["large language models", "LLMs", "LLM"], ["computer vision"],
+  ["A/B testing", "AB testing", "split testing"], ["data visualisation", "data visualization"], ["ETL", "extract, transform, load"], ["statistics", "statistical analysis"],
+  ["Agile"], ["Scrum"], ["Kanban"], ["Jira"], ["Confluence"], ["PRINCE2"], ["PMP"], ["Six Sigma", "Lean Six Sigma"], ["stakeholder management"], ["project management"],
+  ["Salesforce", "SFDC"], ["HubSpot"], ["CRM", "customer relationship management"], ["SEO", "search engine optimisation", "search engine optimization"], ["SEM", "search engine marketing"], ["PPC", "pay-per-click"], ["Google Ads", "AdWords"], ["Meta Ads", "Facebook Ads"], ["copywriting"], ["content marketing"], ["social media marketing"], ["email marketing"], ["Mailchimp"],
+  ["Figma"], ["Adobe Creative Suite", "Adobe CC", "Creative Cloud"], ["Photoshop", "Adobe Photoshop"], ["Illustrator", "Adobe Illustrator"], ["InDesign", "Adobe InDesign"], ["Premiere Pro", "Adobe Premiere"], ["UX", "user experience"], ["UI", "user interface"], ["user research"], ["wireframing"], ["prototyping"],
+  ["SAP"], ["Oracle"], ["Workday"], ["NetSuite"], ["Xero"], ["Sage"], ["QuickBooks"],
+  ["ACCA"], ["ACA", "Chartered Accountant"], ["CIMA"], ["CPA"], ["CFA"], ["IFRS"], ["US GAAP", "GAAP"], ["financial modelling", "financial modeling"], ["budgeting"], ["forecasting"], ["accounts payable", "AP"], ["accounts receivable", "AR"], ["reconciliations", "account reconciliation"], ["audit", "auditing"], ["tax"], ["AML", "anti-money laundering"], ["KYC", "know your customer"], ["risk management"], ["compliance"],
+  ["GDPR", "General Data Protection Regulation"], ["ISO 27001"], ["SOC 2"], ["CIPD"], ["recruitment", "talent acquisition"], ["payroll"], ["employee relations"], ["L&D", "learning and development"],
+  ["supply chain"], ["logistics"], ["procurement"], ["inventory management"], ["ERP"], ["lean"],
+  ["customer service", "customer support"], ["account management"], ["business development"], ["B2B"], ["B2C"], ["SaaS"], ["negotiation"],
+  ["GMP", "Good Manufacturing Practice"], ["GxP"], ["validation"], ["quality assurance", "QA"], ["quality control", "QC"], ["CAPA"], ["HACCP"], ["clinical trials"], ["regulatory affairs"], ["NMBI", "Nursing and Midwifery Board of Ireland"], ["CORU"], ["Teaching Council"], ["Garda vetting"],
+  ["AutoCAD"], ["SolidWorks"], ["Revit"], ["BIM", "building information modelling"], ["CAD"], ["PLC"], ["Safe Pass"],
+  ["Irish", "Gaeilge"], ["French"], ["German"], ["Spanish"], ["Italian"], ["Portuguese"], ["Polish"], ["Mandarin", "Chinese"], ["Japanese"], ["Arabic"],
+  ["full driving licence", "full clean driving licence", "driving licence"]
+ ]
+}

@@ -1,0 +1,7 @@
+{"jobs": [
+ {"absolute_url": "https://job-boards.greenhouse.io/acme/jobs/1", "id": 1, "requisition_id": "R-101", "title": "Junior Data Analyst",
+  "location": {"name": "Dublin, Ireland"}, "first_published": "2026-10-15T09:00:00+01:00", "updated_at": "2026-10-16T09:00:00+01:00",
+  "company_name": "Acme Ltd", "content": "&lt;p&gt;SQL and Power BI.&lt;/p&gt;"},
+ {"absolute_url": "https://job-boards.greenhouse.io/acme/jobs/2", "id": 2, "requisition_id": "R-102", "title": "Senior Platform Engineer",
+  "location": {"name": "Remote - EMEA"}, "first_published": "2026-06-01T09:00:00+01:00", "company_name": "Acme Ltd", "content": ""}
+], "meta": {"total": 2}}

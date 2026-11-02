@@ -1,0 +1,14 @@
+{
+ "_note": "Companies known to limit how often one person can apply. A second application inside the window can be refused or burn the board for months. From please-hire-me's field notes (MIT, Alex Wang), recorded from real application forms in 2026; limits change, so check the banner at the top of the form. Add limits you meet to the job list's companies table (limit, window_days, resets).",
+ "source": "https://github.com/alecswang/please-hire-me/blob/main/data/ats-field-notes.md",
+ "recorded": "2026-08",
+ "limits": [
+  {"company": "Cognition", "max": 1, "window_days": 90, "scope": "per role, enforced across the whole board"},
+  {"company": "Mercor", "max": 2, "window_days": 60, "scope": "any role; also 1 per role per year"},
+  {"company": "OpenAI", "max": 5, "window_days": 180, "scope": "any role"},
+  {"company": "ElevenLabs", "max": 1, "window_days": 90, "scope": "per email domain"},
+  {"company": "IMC Trading", "max": 1, "window_days": 365, "scope": "per role"},
+  {"company": "Thinking Machines", "max": 1, "window_days": 180, "scope": "evergreen roles; project roles exempt"},
+  {"company": "Akuna Capital", "max": 1, "window_days": 365, "scope": "one Tech or Quant role forfeits the rest that season"}
+ ]
+}
