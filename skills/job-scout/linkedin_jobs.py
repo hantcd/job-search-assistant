@@ -20,10 +20,13 @@ then verified on the company's own page, as with any job site.
 
 Fresh jobs only: by default a search asks for the last 24 hours, newest first,
 and drops reposts. LinkedIn shows a refreshed or re-listed job as just posted,
-so a repost is caught three ways: the "Reposted" label; its job id, which a
+so a repost is caught four ways: the "Reposted" label (shown to signed-in users;
+the logged-out pages checked on 2026-11-03 didn't show it); its job id, which a
 repost keeps from the first listing (the job list remembers the highest id seen
-each day, and an id lower than one seen 2+ days earlier is old); and the same
-company and title already in the job list from 2+ days earlier. --keep-reposts
+each day, and an id lower than one seen 2+ days earlier is old); an id far below
+the rest of the same search (works on the first run; a live check found one 70
+million below the others, shown as posted 9 hours ago); and the same company
+and title already in the job list from 2+ days earlier. --keep-reposts
 keeps them, marked. Dropped jobs are counted, with reasons, on stderr.
 
 Output: JSON rows {company, title, location, url, ref, posted, posted_text,
@@ -197,11 +200,29 @@ def note_ids(anchors, rows, today):
     return sorted(keep, key=lambda a: a["date"])
 
 
+OUTLIER_GAP = 50_000_000  # ids rise steadily; a live check on 2026-11-03 found one 70M below the rest
+
+
+def id_outliers(rows, gap=OUTLIER_GAP):
+    """Refs whose id is far below the rest of the same search: first listed long before them.
+    Needs 5+ rows; catches reposts on the very first run, before any ids are saved."""
+    ids = sorted(int(re.sub(r"\D", "", r.get("ref", "")) or 0) for r in rows)
+    ids = [i for i in ids if i]
+    if len(ids) < 5:
+        return set()
+    median = ids[len(ids) // 2]
+    return {r["ref"] for r in rows if 0 < int(re.sub(r"\D", "", r.get("ref", "")) or 0) < median - gap}
+
+
 def fresh(rows, anchors, jobs, today, keep_reposts=False):
     """Mark every row; return (kept, dropped)."""
     kept, dropped = [], []
+    old = id_outliers(rows)
     for r in rows:
         r["repost_reasons"] = repost_reasons(r, anchors, jobs, today)
+        if r["ref"] in old:
+            r["repost_reasons"].append("its job id is far older than the others in this search, so it was "
+                                       "first listed well before it shows as posted")
         r["reposted"] = bool(r["repost_reasons"])
         (kept if keep_reposts or not r["reposted"] else dropped).append(r)
     return kept, dropped

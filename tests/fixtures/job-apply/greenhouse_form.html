@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Job Application (test form)</title></head><body>
+<!-- Synthetic form shaped like Greenhouse's newer job board form (checked against a live one on 2026-11-03):
+     custom drop-downs (role=combobox) with a hidden helper input, file fields labelled only "Attach",
+     and an invisible reCAPTCHA textarea. -->
+<form action="submitted.html" method="get" onsubmit="document.title='SUBMITTED'">
+  <label for="first_name">First Name*</label><input id="first_name" required>
+  <label for="last_name">Last Name*</label><input id="last_name" required>
+  <label for="email">Email*</label><input id="email" required>
+  <div><label>Resume/CV*</label><label for="resume">Attach</label><input type="file" id="resume"></div>
+  <div><label>Cover Letter</label><label for="cover_letter">Attach</label><input type="file" id="cover_letter"></div>
+  <div class="select-shell">
+    <label id="src-label" for="question_1">How did you hear about this job?*</label>
+    <div class="select__control"><span class="select__value" id="src-value"></span>
+      <input id="question_1" role="combobox" aria-required="true" aria-labelledby="src-label" autocomplete="off"></div>
+    <div id="src-menu" role="listbox" hidden>
+      <div role="option">Job Board</div><div role="option">Company Website</div><div role="option">Employee Referral</div>
+    </div>
+    <input required tabindex="-1" style="opacity:0;height:1px" aria-hidden="true">
+  </div>
+  <textarea id="g-recaptcha-response-100000" name="g-recaptcha-response" style="display:none"></textarea>
+  <button type="submit">Submit application</button>
+</form>
+<script>
+  const box = document.getElementById('question_1'), menu = document.getElementById('src-menu');
+  box.addEventListener('input', () => {
+    menu.hidden = false;
+    for (const o of menu.children) o.hidden = !o.textContent.toLowerCase().includes(box.value.toLowerCase());
+  });
+  for (const o of menu.children) o.addEventListener('click', () => {
+    document.getElementById('src-value').textContent = o.textContent; box.value = ''; menu.hidden = true;
+  });
+</script>
+</body></html>

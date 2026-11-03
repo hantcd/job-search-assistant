@@ -59,6 +59,11 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      AI assistants, so where one is connected use it instead of that board's
      email alerts. Each ad still goes through the posting check and is
      verified on the company's own page (the connector's link is the board's).
+     Tested from Ireland on 2026-11-03: search covers Ireland (country IE)
+     but has no date filter and mixes in loosely related titles, so filter by
+     its 'Posted on' date and score as usual; its job ids (JOBSEARCH_...)
+     only work in the same session, so save the 'View Job URL' and the
+     employer's own link, never the id.
      Indeed's resume tool only with the person's yes for that run: it returns
      their own Indeed profile, and anything in it that isn't in EVIDENCE.md is
      shown to them to confirm before it's used.
@@ -78,10 +83,12 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      person chose it knowing that. If LinkedIn refuses or blocks, skip it for
      that run. Every listing is verified on the company's own page. Fresh jobs
      only: the last 24 hours, newest first, reposts dropped. A repost looks
-     new on LinkedIn, so the script catches it by its 'Reposted' label, by its
-     job id (a repost keeps the first listing's id; `--joblist` saves the
-     highest id seen each day), and by the same role found 2+ days earlier;
-     each drop is logged with its reason.
+     new on LinkedIn, so the script catches it by its job id (a repost keeps
+     the first listing's id: an id far below the rest of the same search, or
+     below one `--joblist` saved 2+ days earlier), by the same role found 2+
+     days earlier, and by a 'Reposted' label where one shows (logged-out
+     pages didn't show it in a live check); each drop is logged with its
+     reason.
    - **Welcome to the Jungle and Handshake**: their job alert emails (set up
      by the person) and pages the person pastes. Their terms forbid scraping
      and Handshake needs a login, so reading their job pages directly is off

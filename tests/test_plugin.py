@@ -65,10 +65,20 @@ class Hooks(unittest.TestCase):
             for g in groups:
                 re.compile(g["matcher"])
                 for h in g["hooks"]:
-                    scripts += [a for a in h["args"] if a.endswith(".py")]
+                    scripts += sorted(set(re.findall(r'"(\$\{CLAUDE_PLUGIN_ROOT\}/hooks/\w+\.py)"', h["command"])))
         self.assertEqual(len(scripts), 3)
         for s in scripts:
             self.assertTrue(os.path.exists(s.replace("${CLAUDE_PLUGIN_ROOT}", ROOT)), s)
+
+    def test_hooks_find_python_on_windows_and_fail_closed(self):
+        cfg = json.load(open(os.path.join(ROOT, "hooks", "hooks.json"), encoding="utf-8"))
+        send = cfg["hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+        self.assertIn("python3 ", send)
+        self.assertIn("|| python ", send)
+        self.assertIn("|| py -3 ", send)
+        self.assertIn("exit 2", send)  # no Python at all: sending stays blocked
+        for g in cfg["hooks"]["PostToolUse"]:
+            self.assertNotIn("exit 2", g["hooks"][0]["command"])
 
     def test_matchers_select_the_right_tools(self):
         cfg = json.load(open(os.path.join(ROOT, "hooks", "hooks.json"), encoding="utf-8"))

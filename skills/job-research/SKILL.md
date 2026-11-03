@@ -40,7 +40,9 @@ interview. Reuse notes under 3 months old; refresh them every 3 months.
    the company's own interview pages first, then Glassdoor, Reddit and
    LinkedIn posts. Where the person connected Indeed's connector, its company
    data (reviews, ratings, pay reports) counts as reports, never OFFICIAL,
-   dated the day it was read. For tech roles, also whether the company is on
+   dated the day it was read. Quote its sample sizes: ratings for one job
+   title in one country, or a pay average from 8 reports, are 'too few to
+   tell', and its own note says the data comes from third parties. For tech roles, also whether the company is on
    the hiring-without-whiteboards list of practical interviews.
 4. **Label every finding**: OFFICIAL, SEVERAL REPORTS, ONE REPORT or GUESS,
    with link and date. If a recruiter's description differs from reports,

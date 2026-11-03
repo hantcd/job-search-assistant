@@ -45,8 +45,9 @@ RULES = [
     ("YOU", r"referee|reference (?:name|email|phone|contact)"),
     ("YOU", r"marketing|newsletter|talent (?:community|pool)|(?:email|contact|notify) me about|future (?:job |roles|opportunities|openings|vacancies)"),
     ("YOU", r"export control|sanction|embargo|previously (?:worked|been employed)|worked for .* before"),
+    ("YOU", r"acknowledg|data (?:protection|transfer|processing)|gdpr"),
     ("DRAFT", r"why (?:do you|are you|this)|tell us|describe|cover letter|motivation|what interests|additional information|anything else|example of|a time when|competenc"),
-    ("FILL", r"name|email|phone|mobile|address|city|location|linkedin|github|portfolio|website|degree|university|college|school|graduat|qualification|employer|job title|start date|notice period|availability|relocat|language|years of experience|cv|resume|résumé"),
+    ("FILL", r"how did you hear|hear about (?:this|us)|(?:current|most recent|previous) (?:company|employer)|name|email|phone|mobile|address|city|location|linkedin|github|portfolio|website|degree|university|college|school|graduat|qualification|employer|job title|start date|notice period|availability|relocat|language|years of experience|cv|resume|résumé"),
 ]
 
 

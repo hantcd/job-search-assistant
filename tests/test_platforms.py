@@ -56,6 +56,16 @@ class FreshLinkedIn(unittest.TestCase):
         self.assertEqual(len(kept), 2)
         self.assertTrue(kept[0]["reposted"])
 
+    def test_first_run_outlier_from_a_live_search(self):
+        # The job ids of a live LinkedIn search (Ireland, last 24 hours), 2026-11-03.
+        live = ["4476045588", "4484662124", "4486807804", "4483114210", "4484687176",
+                "4486055539", "4486861742", "4486846750", "4415347874", "4486009541"]
+        rows = [{"ref": "linkedin:" + i, "company": "C%d" % n, "title": "Data Analyst"} for n, i in enumerate(live)]
+        kept, dropped = self.l.fresh(rows, [], [], D(2026, 11, 3))
+        self.assertEqual([r["ref"] for r in dropped], ["linkedin:4415347874"])
+        self.assertEqual(len(kept), 9)
+        self.assertEqual(self.l.id_outliers(rows[:4]), set())  # too few to judge
+
     def test_note_ids(self):
         a = self.l.note_ids([{"date": "2026-08-01", "max_id": 1}], [{"ref": "linkedin:44"}, {"ref": "linkedin:45"}],
                             D(2026, 11, 3))
@@ -92,6 +102,8 @@ class ATSLinks(unittest.TestCase):
         k, t, j = self.f.job_ref(self.ASHBY)
         self.assertEqual(self.f.apply_url(k, t, j), self.ASHBY + "/application")
         self.assertEqual(self.f.job_ref("https://example.com/careers/1"), (None, "", ""))
+        eu = "https://jobs.eu.lever.co/someco/0a1b2c3d-1111-2222-3333-444455556666"
+        self.assertEqual(self.f.apply_url(*self.f.job_ref(eu), url=eu), eu + "/apply")
 
     def test_liveness_is_conservative(self):
         L = self.f.liveness
@@ -119,6 +131,12 @@ class ATSLinks(unittest.TestCase):
         self.assertEqual(a.classify("Are you authorised to work in Ireland?"), "YOU")
         self.assertEqual(a.classify("Please email me about future job openings"), "YOU")
         self.assertEqual(a.classify("Gender"), "YOU")
+        # From a live Greenhouse form, read on 2026-11-03
+        self.assertEqual(a.classify("Point of Data Transfer"), "YOU")
+        self.assertEqual(a.classify("DisabilityStatus"), "YOU")
+        self.assertEqual(a.classify("How did you hear about this job?"), "FILL")
+        self.assertEqual(a.classify("Current or most recent company?"), "FILL")
+        self.assertEqual(a.classify("US Export Control laws 2026: Are you a citizen of Iran?"), "YOU")
 
     def test_form_url(self):
         m = load("job-apply", "apply_form")
@@ -279,6 +297,30 @@ class FormFiller(unittest.TestCase):
                            capture_output=True, text=True, timeout=120)
             got = {r["label"].rstrip(" *"): r["answer"] for r in json.load(open(os.path.join(d, "filled.json")))}
             self.assertEqual(got["Full name"], "Aoife Byrne")
+
+    def test_greenhouse_style_dropdowns_and_attach_fields(self):
+        from playwright.sync_api import sync_playwright
+        mod = load("job-apply", "apply_form")
+        answers = [{"label": "First Name", "answer": "Aoife"}, {"label": "Last Name", "answer": "Byrne"},
+                   {"label": "Email", "answer": "a@example.com"},
+                   {"label": "How did you hear about this job?", "answer": "Company Website"}]
+        with sync_playwright() as pw:
+            b = pw.chromium.launch(headless=True)
+            page = b.new_page()
+            url = "file://" + fixture("job-apply", "greenhouse_form.html")
+            page.goto(url)
+            report, readback = mod.fill(page, answers, fixture("job-apply", "cv.pdf"))
+            files = page.evaluate("[document.getElementById('resume').files.length, document.getElementById('cover_letter').files.length]")
+            self.assertEqual(files, [1, 0])  # the CV goes in the resume field only
+            self.assertEqual(page.inner_text("#src-value"), "Company Website")
+            got = {r["label"]: r["answer"] for r in readback}
+            self.assertIn("Company Website", got["How did you hear about this job?*"])
+            self.assertNotIn("", [r["label"] for r in readback])  # the hidden helper input is skipped
+            self.assertFalse(any("recaptcha" in r["label"].lower() for r in readback))
+            self.assertEqual(mod.problems(readback, answers), [])
+            self.assertEqual(page.url, url)
+            self.assertNotEqual(page.title(), "SUBMITTED")
+            b.close()
 
     def test_scan_lists_questions(self):
         out = subprocess.run([sys.executable, self.SCRIPT, "scan", "file://" + fixture("job-apply", "form.html")],

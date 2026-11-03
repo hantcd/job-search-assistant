@@ -5,6 +5,17 @@ Turn Claude into a careful, personal job-search assistant: set it up in one
 
 **[Read the step-by-step guide](GUIDE.md)** · **[Download the guide as a PDF](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf)** · **[Download the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip)**
 
+> **Quick start**
+> 1. You need a paid Claude plan (Pro or Max), a computer, and a folder of
+>    your CVs and documents.
+> 2. In Claude, create a project called *Job Search Assistant*.
+> 3. Download [the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
+>    attach it in a chat in that project, and say *Install these 15 skills*.
+> 4. Open [the guide](GUIDE.md) and follow Steps 2 to 6: two short chats about
+>    you, then Claude builds and tests everything.
+> 5. From then on, read the alerts and approve what you like. You press Send
+>    and Submit yourself.
+
 ## What it does
 
 Once it's set up, Claude works on your job search every weekday:

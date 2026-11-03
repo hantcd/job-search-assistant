@@ -103,10 +103,10 @@ def job_ref(url):
     return None, "", ""
 
 
-def apply_url(kind, token, job):
-    """The job's own application form."""
+def apply_url(kind, token, job, url=""):
+    """The job's own application form (EU-hosted Lever jobs keep their EU address)."""
     if kind == "lever":
-        host = "jobs.lever.co"
+        host = "jobs.eu.lever.co" if "jobs.eu.lever.co" in (url or "") else "jobs.lever.co"
         return "https://%s/%s/%s/apply" % (host, token, job)
     if kind == "ashby":
         return "https://jobs.ashbyhq.com/%s/%s/application" % (token, job)
@@ -218,7 +218,8 @@ def normalise(kind, data, company=""):
                 continue
             rows.append({"company": company, "title": j.get("title", ""), "location": j.get("location", ""),
                          "url": j.get("jobUrl", ""), "ref": j.get("id", ""), "posted": iso_day(j.get("publishedAt")),
-                         "remote": bool(j.get("isRemote")) or j.get("workplaceType") == "Remote",
+                         # workplaceType wins: a live board on 2026-11-03 had isRemote true on Hybrid roles
+                         "remote": (j.get("workplaceType") == "Remote") if j.get("workplaceType") else bool(j.get("isRemote")),
                          "text": j.get("descriptionPlain", ""), "source": "ashby feed",
                          "pay_text": ((j.get("compensation") or {}).get("compensationTierSummary") or "")})
     else:
@@ -290,7 +291,7 @@ def main(argv=None):
         kind, board, job = job_ref(a.url)
         print(json.dumps({"ats": name or "unknown", "token": token,
                           "feed": FEEDS[name].format(token=token) if name in FEEDS and token else "",
-                          "job": job, "apply": apply_url(kind, board, job) if kind else ""}))
+                          "job": job, "apply": apply_url(kind, board, job, a.url) if kind else ""}))
         return 0
     if a.cmd in ("live", "questions"):
         kind, board, job = job_ref(a.url)

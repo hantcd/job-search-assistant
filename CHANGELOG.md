@@ -3,6 +3,29 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.6.1 (2026-11-03)
+Checked live from Ireland, through the person's own browser:
+- Indeed's connector covers Ireland. It has no date filter and mixes in loosely
+  related titles, and its job ids work only in one session, so job-scout
+  filters by posted date and saves the job's link instead of its id;
+  job-research quotes Indeed's small sample sizes.
+- LinkedIn's logged-out search returned 10 jobs from the last 24 hours, one
+  with a job id 70 million below the rest, shown as "9 hours ago": a repost
+  with no "Reposted" label. linkedin_jobs.py now drops ids far below the rest
+  of the same search, so reposts are caught on the first run.
+- Greenhouse, Lever and Ashby APIs matched the scripts. Fixes: Ashby's
+  isRemote is true on hybrid roles, so its workplaceType now wins; EU-hosted
+  Lever jobs keep their EU application address.
+- A real Greenhouse form uses custom drop-downs, file fields labelled only
+  "Attach" and an invisible reCAPTCHA. apply_form.py now picks drop-down
+  options by clicking the matching one, tells the CV and letter fields apart
+  by their ids, and skips hidden helper inputs. answers.py now leaves
+  data-protection acknowledgements to the person, and fills "How did you hear
+  about this job?" and "current company" from the person's files.
+- Hooks find Python as python3, python or py (Windows); if none is found,
+  sending stays blocked.
+- A quick start at the top of the README.
+
 ## 1.6.0 (2026-11-03)
 - Greenhouse, Lever and Ashby: `feeds.py live` asks the hiring system whether
   a job is still open (only a 404, 410 or a job gone from the board counts as

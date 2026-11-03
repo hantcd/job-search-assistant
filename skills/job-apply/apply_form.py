@@ -20,6 +20,11 @@ YOU question (eligibility, sponsorship, salary, diversity, health, declarations:
 see answers.py) is filled only if the row says "from_person": true, meaning the
 person gave that exact answer. Questions with no answer are left empty.
 
+Custom drop-downs (Greenhouse's newer forms, Ashby) are filled by typing to
+filter and clicking the matching option; a file field labelled only 'Attach'
+is told apart by its id (resume or cover letter). Checked on a live Greenhouse
+form on 2026-11-03.
+
 What it never does: click Submit or any other button, press Enter, type into a
 password field, solve or get round a CAPTCHA, or leave the company's own site.
 If the page asks for a login, it stops and asks the person to log in in the
@@ -83,6 +88,10 @@ COLLECT = r"""
     if (['hidden', 'submit', 'button', 'reset', 'image'].includes(type)) return;
     el.setAttribute('data-jsa', String(i));
     let label = labelFor(el);
+    const ident = (el.id || el.name || '').replace(/[_\[\]-]+/g, ' ').trim();
+    if (/^(attach|upload|choose file|browse|)$/i.test(label.trim()) && ident) label = ident;
+    if (!label.trim() && !el.id && !el.name) return;  // a hidden helper input behind a custom drop-down
+    if (/recaptcha|captcha/i.test(el.name || el.id || '')) return;
     if (type === 'radio') {
       const fs = el.closest('fieldset');
       const group = fs && fs.querySelector('legend') ? textOf(fs.querySelector('legend')) : el.name;
@@ -97,7 +106,8 @@ COLLECT = r"""
     const opts = type === 'select' ? Array.from(el.options).map(o => o.text.trim()).filter(Boolean) : undefined;
     const max = el.maxLength && el.maxLength > 0 ? el.maxLength : undefined;
     out.push({key: 'f' + i, label: label, type, required: el.required || el.getAttribute('aria-required') === 'true',
-              options: opts, max_length: max, sel: '[data-jsa="' + i + '"]', name: el.name || ''});
+              options: opts, max_length: max, sel: '[data-jsa="' + i + '"]', name: el.name || '',
+              role: el.getAttribute('role') || ''});
   });
   return out;
 }
@@ -218,6 +228,19 @@ def fill(page, answers, cv=None, letter=None):
                     page.check(f["sel"])
                 else:
                     page.uncheck(f["sel"])
+            elif f.get("role") == "combobox":
+                # A custom drop-down (Greenhouse's new forms, Ashby): type to filter, then pick the
+                # matching option by clicking it. Never Enter, which can submit a form.
+                page.click(f["sel"])
+                page.fill(f["sel"], value)
+                page.wait_for_timeout(600)
+                option = page.locator('[role="option"]', has_text=value).first
+                if option.count():
+                    option.click()
+                else:
+                    page.fill(f["sel"], "")
+                    report.append(("BY HAND", label, "no option matching %r: pick it by hand" % value))
+                    continue
             else:
                 page.fill(f["sel"], value)
             report.append(("FILLED", label, value[:60]))
@@ -233,7 +256,7 @@ def problems(readback, answers):
         if r["required"] and not str(r["answer"]).strip():
             out.append("required and empty: %s" % r["label"])
         a = match(r["label"], answers)
-        if a and r["answer"] and a.get("answer") and norm(r["answer"]) != norm(str(a["answer"])) \
+        if a and r["answer"] and a.get("answer") and norm(str(a["answer"])) not in norm(r["answer"]) \
                 and not r.get("max_length"):
             out.append("page shows %r for %s, the pack says %r" % (r["answer"][:40], r["label"], str(a["answer"])[:40]))
         if r.get("max_length") and a and len(str(a.get("answer", ""))) > r["max_length"]:
@@ -325,6 +348,11 @@ def read_back(page):
             val = "yes" if page.is_checked(f["sel"]) else ""
         elif f["type"] == "select":
             val = page.eval_on_selector(f["sel"], "el => el.selectedOptions.length ? el.selectedOptions[0].text : ''")
+        elif f.get("role") == "combobox":
+            # the chosen option shows in the drop-down's box, not in the input
+            val = page.eval_on_selector(f["sel"], """el => { const box = el.closest('[class*="control"]')
+                || el.closest('[class*="select"]') || el.parentElement;
+                return (el.value || (box ? box.innerText : '') || '').trim(); }""")
         else:
             val = page.input_value(f["sel"])
         rows.append({"label": f["label"], "answer": val, "max_length": f.get("max_length") or 0,
