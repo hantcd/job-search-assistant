@@ -101,7 +101,7 @@ paste into Claude and a checklist after each one. In short:
    then click **Customize → Plugins → + Add → Upload plugin** and pick the
    zip. The guide shows each screen with the button to press marked.
    *(About 10 minutes.)*
-2. **Chat 1: Claude reads your documents.** Attach your folder and paste the
+2. **Chat 1: Claude reads your documents.** Add your folder to the project and paste the
    guide's first prompt. Claude drafts your profile, your evidence and your
    writing style; you confirm or correct its guesses, mostly by clicking.
    *(About 20 minutes.)*

@@ -14,6 +14,9 @@ what changed first.
   plugin; the switch to check is Create and edit files; web search has no
   switch.
 - How to keep the project separate from your other chats' memory.
+- Step 2 adds your whole documents folder to the project (Context > Add >
+  Upload from device > Folder), since a chat takes at most 20 files at a time;
+  unzip the LinkedIn export into the folder first.
 
 ## 1.6.1 (2026-11-03)
 Checked live from Ireland, through the person's own browser:
