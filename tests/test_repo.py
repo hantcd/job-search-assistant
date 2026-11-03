@@ -69,7 +69,7 @@ class Repo(unittest.TestCase):
     def test_credits(self):
         lic = open(os.path.join(ROOT, "LICENSE"), encoding="utf-8").read()
         for who in ("Jake Schincariol", "Jake Gutierrez", "Siqi Chen", "Alex Wang", "Mads Lorentzen",
-                    "doany.ai", "Matt Pocock", "Jesse Vincent"):
+                    "doany.ai", "Matt Pocock", "Jesse Vincent", "Santiago"):
             self.assertIn(who, lic)
 
 

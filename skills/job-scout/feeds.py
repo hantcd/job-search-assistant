@@ -11,8 +11,25 @@ fetch tool, save the JSON, and pass it with --from-file.
     python3 feeds.py fetch lever someco --from-file someco.json --days 30
     python3 feeds.py detect "https://job-boards.greenhouse.io/intercom/jobs/123"
     python3 feeds.py boards                             # the verified company list
+    python3 feeds.py live "https://jobs.lever.co/someco/0a1b..."      # still open? (Greenhouse, Lever, Ashby)
+    python3 feeds.py questions "https://job-boards.greenhouse.io/intercom/jobs/123"   # the form's questions
+
+live      asks the hiring system itself whether one job is still open: LIVE,
+          CLOSED (a 404 or 410, or the job is gone from the company's Ashby
+          board) or UNKNOWN (anything else: a block, a redirect, an error).
+          Only CLOSED is definitive; UNKNOWN falls back to opening the page,
+          and to job-tracker's 3-tries-over-48-hours rule.
+questions lists a Greenhouse job's application questions from its public API,
+          as form.json for job-apply's answers.py (each with required and its
+          options; equality-monitoring questions are marked for the person).
+          Lever and Ashby don't publish their forms: use job-apply's
+          apply_form.py scan.
 
 Output: JSON rows {company, title, location, url, ref, posted, remote, text, source}.
+detect also gives the job's own application page (Lever: .../apply; Ashby:
+.../application; Greenhouse: the job page).
+Liveness and application-URL ideas from career-ops (MIT, Santiago Fernández
+de Valderrama).
 Standard library only. Reads public pages only, one request per board, and
 identifies itself. Never logs in and never reads a site whose terms say no
 (see access.md).
@@ -25,6 +42,7 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -60,6 +78,101 @@ def detect(url):
             token = m.group(1) if m.groups() else ""
             return name, token
     return None, ""
+
+
+JOB_PATTERNS = [
+    ("greenhouse", r"(?:job-boards|boards)\.(?:eu\.)?greenhouse\.io/([\w-]+)/jobs/(\d+)"),
+    ("greenhouse", r"greenhouse\.io/embed/job_app\?for=([\w-]+)&(?:amp;)?token=(\d+)"),
+    ("lever", r"jobs\.(?:eu\.)?lever\.co/([\w-]+)/([0-9a-f-]{36})"),
+    ("ashby", r"jobs\.ashbyhq\.com/([\w.%-]+)/([0-9a-f-]{36})"),
+]
+SINGLE = {
+    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{token}/jobs/{job}",
+    "lever": "https://api.lever.co/v0/postings/{token}/{job}",
+    "ashby": "https://api.ashbyhq.com/posting-api/job-board/{token}",  # no single-job endpoint: check the board
+}
+QUESTIONS = "https://boards-api.greenhouse.io/v1/boards/{token}/jobs/{job}?questions=true"
+
+
+def job_ref(url):
+    """(ats, board token, job id) for a Greenhouse, Lever or Ashby job link, else (None, '', '')."""
+    for name, pat in JOB_PATTERNS:
+        m = re.search(pat, url or "", re.I)
+        if m:
+            return name, m.group(1), m.group(2)
+    return None, "", ""
+
+
+def apply_url(kind, token, job):
+    """The job's own application form."""
+    if kind == "lever":
+        host = "jobs.lever.co"
+        return "https://%s/%s/%s/apply" % (host, token, job)
+    if kind == "ashby":
+        return "https://jobs.ashbyhq.com/%s/%s/application" % (token, job)
+    if kind == "greenhouse":
+        return "https://job-boards.greenhouse.io/%s/jobs/%s" % (token, job)
+    return ""
+
+
+def liveness(kind, status, data, job):
+    """(LIVE | CLOSED | UNKNOWN, reason). Conservative: a wrong CLOSED loses a real job."""
+    if status in (404, 410):
+        return "CLOSED", "the hiring system says this job no longer exists (HTTP %d)" % status
+    if status != 200 or data is None:
+        return "UNKNOWN", "no clear answer (HTTP %s): open the job page instead" % status
+    if kind == "ashby":
+        jobs = (data or {}).get("jobs")
+        if not isinstance(jobs, list):
+            return "UNKNOWN", "the Ashby board didn't load as expected"
+        match = [j for j in jobs if str(j.get("id")) == str(job)]
+        if not match:
+            return "CLOSED", "no longer on the company's Ashby board (%d jobs listed)" % len(jobs)
+        if match[0].get("isListed") is False:
+            return "CLOSED", "unlisted on the company's Ashby board"
+        return "LIVE", "listed on the company's Ashby board"
+    if kind == "lever" and isinstance(data, dict) and data.get("ok") is False:
+        return "CLOSED", "Lever says the posting isn't available"
+    return "LIVE", "the hiring system still lists it"
+
+
+FIELD_TYPES = {"input_text": "text", "textarea": "textarea", "input_file": "file", "input_hidden": None,
+               "multi_value_single_select": "select", "multi_value_multi_select": "checkbox"}
+
+
+def greenhouse_questions(data):
+    """form.json rows from a Greenhouse ?questions=true response."""
+    rows = []
+
+    def add(q, group=""):
+        fields = [f for f in q.get("fields") or [] if FIELD_TYPES.get(f.get("type")) is not None]
+        if not fields:
+            return
+        f = fields[0]
+        row = {"label": (q.get("label") or "").strip(), "type": FIELD_TYPES[f["type"]],
+               "required": bool(q.get("required")), "field": f.get("name", "")}
+        opts = [v.get("label") for v in f.get("values") or [] if v.get("label")]
+        if opts:
+            row["options"] = opts
+        if any(x.get("type") == "textarea" for x in fields[1:]) and row["type"] == "file":
+            row["or_paste"] = True  # the CV or letter can also be pasted as text
+        if group:
+            row["group"] = group
+        rows.append(row)
+
+    for q in (data or {}).get("questions") or []:
+        add(q)
+    for q in (data or {}).get("location_questions") or []:
+        add(q, "location")
+    for block in (data or {}).get("compliance") or []:
+        for q in block.get("questions") or []:
+            add(q, "equality monitoring (%s): the person's choice; 'decline to answer' is always fine" % block.get("type", ""))
+    demo = (data or {}).get("demographic_questions") or {}
+    for q in demo.get("questions") or []:
+        q = dict(q, fields=[{"name": "demographic_%s" % q.get("id", ""), "type": "multi_value_single_select",
+                             "values": [{"label": a.get("label")} for a in q.get("answer_options") or []]}])
+        add(q, "equality monitoring: the person's choice")
+    return rows
 
 
 def strip_html(s):
@@ -159,6 +272,14 @@ def main(argv=None):
     d = sub.add_parser("detect")
     d.add_argument("url")
     sub.add_parser("boards")
+    lv = sub.add_parser("live")
+    lv.add_argument("url")
+    lv.add_argument("--from-file", help="the API response saved another way (web fetch)")
+    lv.add_argument("--status", type=int, default=200, help="its HTTP status, with --from-file")
+    qs = sub.add_parser("questions")
+    qs.add_argument("url")
+    qs.add_argument("--from-file")
+    qs.add_argument("--out")
     a = p.parse_args(argv)
 
     if a.cmd == "url":
@@ -166,8 +287,50 @@ def main(argv=None):
         return 0
     if a.cmd == "detect":
         name, token = detect(a.url)
+        kind, board, job = job_ref(a.url)
         print(json.dumps({"ats": name or "unknown", "token": token,
-                          "feed": FEEDS[name].format(token=token) if name in FEEDS and token else ""}))
+                          "feed": FEEDS[name].format(token=token) if name in FEEDS and token else "",
+                          "job": job, "apply": apply_url(kind, board, job) if kind else ""}))
+        return 0
+    if a.cmd in ("live", "questions"):
+        kind, board, job = job_ref(a.url)
+        if not kind or (a.cmd == "questions" and kind != "greenhouse"):
+            print("not a %s job link; use apply_form.py scan on the form instead"
+                  % ("Greenhouse" if a.cmd == "questions" else "Greenhouse, Lever or Ashby"), file=sys.stderr)
+            return 2
+        url = (QUESTIONS if a.cmd == "questions" else SINGLE[kind]).format(token=board, job=job)
+        status, data = 200, None
+        try:
+            if a.from_file:
+                status = getattr(a, "status", 200)
+                with open(a.from_file, encoding="utf-8") as fh:
+                    text = fh.read()
+                data = json.loads(text) if text.strip() else None
+            else:
+                req = urllib.request.Request(url, headers={"User-Agent": UA})
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    data = json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            status = e.code
+        except Exception as e:  # blocked, offline, bad JSON
+            if a.cmd == "live":
+                print(json.dumps({"status": "UNKNOWN", "reason": "couldn't reach %s (%s): fetch it with web fetch "
+                                  "and pass --from-file" % (url, e)}))
+                return 2
+            print("couldn't read %s (%s); fetch it with web fetch and pass --from-file" % (url, e), file=sys.stderr)
+            return 2
+        if a.cmd == "live":
+            verdict, reason = liveness(kind, status, data, job)
+            print(json.dumps({"status": verdict, "reason": reason, "ats": kind, "job": job, "checked": url}))
+            return 0 if verdict == "LIVE" else 1
+        if status != 200:
+            print("Greenhouse answered HTTP %d: the job may be closed (try live)" % status, file=sys.stderr)
+            return 1
+        text = json.dumps(greenhouse_questions(data), indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as fh:
+                fh.write(text)
+        print(text)
         return 0
     if a.cmd == "boards":
         with open(os.path.join(HERE, "boards.json"), encoding="utf-8") as fh:

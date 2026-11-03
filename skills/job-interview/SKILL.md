@@ -1,6 +1,6 @@
 ---
 name: job-interview
-description: Prepares for each interview stage: what it tests, likely questions, STAR answers from a story grid, mock interviews, thank-yous, and red flags afterwards. Use when a job reaches interview.
+description: Prepares for each interview stage: what it tests, likely questions, STAR answers, mock interviews with follow-ups and scores, thank-yous and red flags. Use for interviews and mock interviews.
 ---
 
 # job-interview
@@ -13,6 +13,9 @@ person says so) and on request.
 ```bash
 python3 "$SKILL_DIR/star.py" check answer.txt     # Situation, Task, Action, Result and a number
 python3 "$SKILL_DIR/star.py" grid grid.json       # which themes each story covers, and the gaps
+python3 "$SKILL_DIR/invite.py" invite.ics --zone Europe/Dublin   # time, length, link and the named panel
+python3 "$SKILL_DIR/mock.py" check mock.json --source EVIDENCE.md   # a mock interview report, checked
+python3 "$SKILL_DIR/mock.py" progress mock-*.json                # each skill across mocks
 ```
 
 ## Reads and writes
@@ -30,6 +33,17 @@ front of them. Then any feedback or notes from earlier rounds of this process,
 so each round builds on the last. Company research can be reused, but any
 company fact that goes into the brief is re-checked at its source first
 (job-research's fact check).
+
+## The invite
+
+When an invite arrives with a calendar file, `invite.py` reads the exact time
+(in the person's time zone), length, meeting link and any named panel, for
+the job's interviews row and a calendar entry the person approves. Each named
+panellist's job title suggests what they'll probe: a recruiter fit, logistics
+and pay; a hiring manager delivery and judgement; a peer depth; HR values and
+process; an executive the bigger picture. A guess from a title is labelled as
+one, and research on panellists is public and professional only
+(job-connector's rules).
 
 ## The brief
 
@@ -51,8 +65,45 @@ company fact that goes into the brief is re-checked at its source first
 8. **Reminders**: have ID ready in case of on-camera identity checks; never use
    AI tools during an interview (several employers forbid it; prepare with
    Claude, answer alone).
-9. **A scored mock interview** on request: one question at a time, the STAR
-   check on each answer, then what to practise next.
+9. **A mock interview** before each round (below).
+
+## Mock interviews
+
+Set up in one round of questions: which round (recruiter screen, hiring
+manager, technical or case, competency panel, final); full (10-15 questions,
+about 45 minutes) or focused (3-5 on one theme or weak spot); practice mode
+(feedback after each answer) or real mode (feedback only at the end); and
+pressure (off unless the person asks).
+
+- **Play the interviewer** the invite and company notes describe, in
+  character, one question at a time. Answers can be typed or spoken (voice
+  mode in the Claude app). Questions come from the brief, the requirements
+  map, the panel's likely focus, and the edges of the person's prepared
+  answers, where the gaps are.
+- **Follow up on every result**, as real interviewers do, and note the step
+  where the answer gave way: where does that number come from; how much was
+  down to you rather than things that would have happened anyway; what would
+  have happened otherwise; would it work somewhere else; what exactly did you
+  do. At least two steps on any achievement.
+- **Real mode**: no praise or coaching mid-way, and sometimes move on without
+  comment, as interviewers do. **Pressure**, only if asked: doubt a claim,
+  push back ("isn't that just following the process?"), let a silence sit.
+- **Flag a story used 3 times**: interviewers notice a thin bank.
+- **Score at the end**, each 1-5 with one line why: structure (a clear
+  shape), evidence (facts and numbers, and knowing where they came from), fit
+  (aimed at what this role needs), under follow-ups (how far the chain held),
+  delivery (sounds like talking, not reciting; no overselling or
+  over-apologising).
+- **Report**: each question (key points, where the chain gave way, a score),
+  the three most useful fixes, each naming the question and the sentence to
+  change, and a stronger opening line where it helps, built only from
+  EVIDENCE.md. Save it as the job's next mock with the date; `mock.py check`
+  fails a stronger line that uses a number the person doesn't have.
+  `mock.py progress` shows each skill across mocks and what to practise next.
+  Answers that need rewriting go back into the story grid.
+
+Ideas from career-ops's practice interviewer (MIT) and greenroom's
+mock-interview (Yunyue Li).
 
 ## Afterwards
 

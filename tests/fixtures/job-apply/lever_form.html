@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Apply (test form)</title></head><body>
+<!-- Synthetic form shaped like a Lever application: one Full name field, CV upload first. -->
+<form action="submitted.html" method="get" onsubmit="document.title='SUBMITTED'">
+  <label for="cv">Resume/CV *</label><input id="cv" type="file" name="resume" required>
+  <label for="nm">Full name *</label><input id="nm" name="name" required>
+  <label for="em">Email *</label><input id="em" type="email" name="email" required>
+  <label for="org">Current company</label><input id="org" name="org">
+  <label for="li">LinkedIn URL</label><input id="li" name="urls[LinkedIn]">
+  <button type="submit">Submit application</button>
+</form></body></html>

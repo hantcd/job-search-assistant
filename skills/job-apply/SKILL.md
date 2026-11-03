@@ -16,6 +16,7 @@ python3 "$SKILL_DIR/answers.py" form.json             # which questions Claude m
 python3 "$SKILL_DIR/answers.py" lengths filled.json   # answers the form would cut off
 python3 ../job-tracker/pipeline.py can-apply <job-id>   # caps, limits and mid-interview holds (job-tracker)
 python3 "$SKILL_DIR/apply_form.py" scan URL --out form.json   # the form's questions, for answers.py
+python3 ../job-scout/feeds.py questions GREENHOUSE_JOB_URL --out form.json   # Greenhouse: the exact questions, no browser needed
 python3 "$SKILL_DIR/apply_form.py" fill URL --answers answers.json --cv cv.pdf   # Playwright: fills, reads back, stops at Submit
 ```
 
@@ -105,8 +106,13 @@ Only when the person asks, in a browser they can see: they log in; Claude
 never types passwords; Claude fills the form from the pack, pastes text run
 through job-cover's `clean_text.py`, and stops at every Submit. Two ways:
 
-- **Playwright** (Claude Code on the person's computer): `apply_form.py scan`
-  lists the form's questions for `answers.py`; `apply_form.py fill` opens the
+- **Playwright** (Claude Code on the person's computer): for a Greenhouse
+  job, job-scout's `feeds.py questions` lists the exact questions from
+  Greenhouse's public API, with which are required and their options; for
+  Lever, Ashby and other sites, `apply_form.py scan` lists them from the page.
+  Either way they go through `answers.py`. Greenhouse, Lever and Ashby job
+  links open straight at the application form, and the CV is attached before
+  anything is typed, because these systems can fill fields from it; `apply_form.py fill` opens the
   form in a visible browser window, fills the FILL and approved DRAFT
   answers, attaches the CV and letter, reads every value back, saves a
   screenshot and `filled.json` for `answers.py lengths`, and waits. It never

@@ -1,0 +1,22 @@
+{"_note": "Synthetic, shaped like a Greenhouse job board API response with ?questions=true (structure checked against a live response on 2026-11-03).",
+ "id": 1234567, "title": "Junior Data Analyst", "company_name": "Acme Ltd",
+ "absolute_url": "https://job-boards.greenhouse.io/acme/jobs/1234567",
+ "questions": [
+  {"required": true, "label": "First Name", "fields": [{"name": "first_name", "type": "input_text", "values": []}]},
+  {"required": true, "label": "Last Name", "fields": [{"name": "last_name", "type": "input_text", "values": []}]},
+  {"required": true, "label": "Email", "fields": [{"name": "email", "type": "input_text", "values": []}]},
+  {"required": true, "label": "Resume/CV", "fields": [{"name": "resume", "type": "input_file", "values": []}, {"name": "resume_text", "type": "textarea", "values": []}]},
+  {"required": false, "label": "Cover Letter", "fields": [{"name": "cover_letter", "type": "input_file", "values": []}, {"name": "cover_letter_text", "type": "textarea", "values": []}]},
+  {"required": true, "label": "Are you authorised to work in Ireland?", "fields": [{"name": "question_1001", "type": "multi_value_single_select", "values": [{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]}]},
+  {"required": true, "label": "Please email me about future job openings", "fields": [{"name": "question_1002", "type": "multi_value_single_select", "values": [{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]}]},
+  {"required": false, "label": "LinkedIn Profile", "fields": [{"name": "question_1003", "type": "input_text", "values": []}]},
+  {"required": false, "label": "What excites you most about this role?", "fields": [{"name": "question_1004", "type": "textarea", "values": []}]}
+ ],
+ "location_questions": [
+  {"required": false, "label": "Latitude", "fields": [{"name": "latitude", "type": "input_hidden", "values": []}]},
+  {"required": false, "label": "Location", "fields": [{"name": "location", "type": "input_text", "values": []}]}
+ ],
+ "compliance": [{"type": "eeoc", "description": "<p>Voluntary self-identification</p>", "questions": [
+  {"required": false, "label": "Gender", "fields": [{"name": "gender", "type": "multi_value_single_select", "values": [{"label": "Female", "value": 1}, {"label": "Male", "value": 2}, {"label": "Decline To Self Identify", "value": 3}]}]}]}],
+ "demographic_questions": null
+}

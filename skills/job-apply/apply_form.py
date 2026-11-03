@@ -27,6 +27,11 @@ open window (the browser profile keeps them logged in for next time). Custom
 widgets it can't fill are listed for the person to do by hand.
 
 Needs Playwright (`pip install playwright` then `playwright install chromium`).
+Greenhouse, Lever and Ashby job links go straight to the job's application
+form (Lever: .../apply; Ashby: .../application). Files are attached first,
+because these systems can fill fields from the CV and overwrite typed answers.
+A single 'Full name' field takes the first and last name answers joined.
+
 Runs on the person's own computer (Claude Code), where they can see the window;
 in the Claude app, use Claude in Chrome or the built-in browser instead.
 """
@@ -41,6 +46,22 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import answers as answer_rules  # noqa: E402
+
+ATS_JOB = [
+    ("lever", r"https?://jobs\.(?:eu\.)?lever\.co/[\w-]+/[0-9a-f-]{36}", "/apply"),
+    ("ashby", r"https?://jobs\.ashbyhq\.com/[\w.%-]+/[0-9a-f-]{36}", "/application"),
+    ("greenhouse", r"https?://(?:job-boards|boards)\.(?:eu\.)?greenhouse\.io/[\w-]+/jobs/\d+", ""),
+]
+
+
+def form_url(url):
+    """A Greenhouse, Lever or Ashby job link -> its application form (other links unchanged)."""
+    for _, pat, suffix in ATS_JOB:
+        m = re.match(pat, url or "", re.I)
+        if m:
+            return m.group(0) + suffix
+    return url
+
 
 COLLECT = r"""
 () => {
@@ -92,11 +113,20 @@ def norm(s):
     return re.sub(r"[^a-z0-9]+", " ", (s or "").lower().replace("*", "")).strip()
 
 
+FULL_NAME = {"name", "full name", "your name", "full legal name", "legal name", "candidate name"}
+
+
 def match(label, answers):
-    """The answer row for this field's label, or None."""
+    """The answer row for this field's label, or None. A single 'Full name' field
+    (Lever, Ashby) takes the first and last name answers joined."""
     n = norm(label)
     if not n:
         return None
+    if n in FULL_NAME and not any(norm(a.get("label")) in FULL_NAME for a in answers):
+        first = next((a for a in answers if norm(a.get("label")) in ("first name", "given name")), None)
+        last = next((a for a in answers if norm(a.get("label")) in ("last name", "surname", "family name")), None)
+        if first and last:
+            return {"label": label, "answer": "%s %s" % (first.get("answer", ""), last.get("answer", ""))}
     for a in answers:
         if norm(a.get("label")) == n:
             return a
@@ -137,21 +167,30 @@ def scan(page):
 
 
 def fill(page, answers, cv=None, letter=None):
-    """Fill what can be filled. Returns (report rows, readback rows)."""
-    fields = page.evaluate(COLLECT)
-    report, readback = [], []
-    for f in fields:
+    """Fill what can be filled. Returns (report rows, readback rows).
+
+    Files go first: Ashby, Lever and Greenhouse can read an uploaded CV and
+    fill fields from it, which would overwrite answers typed earlier. Then a
+    pause, then every other field from the pack."""
+    report = []
+    for f in page.evaluate(COLLECT):
+        if f["type"] != "file":
+            continue
+        label = f["label"]
+        path = letter if FILE_LETTER.search(label) else cv
+        if path:
+            page.set_input_files(f["sel"], path)
+            report.append(("FILLED", label, os.path.basename(path)))
+        else:
+            report.append(("EMPTY", label, "no file given"))
+    if any(r[0] == "FILLED" for r in report):
+        page.wait_for_timeout(2000)
+    for f in page.evaluate(COLLECT):
         label, typ = f["label"], f["type"]
+        if typ == "file":
+            continue
         if typ == "password":
             report.append(("SKIP", label, "password: the person types it"))
-            continue
-        if typ == "file":
-            path = letter if FILE_LETTER.search(label) else cv
-            if path:
-                page.set_input_files(f["sel"], path)
-                report.append(("FILLED", label, os.path.basename(path)))
-            else:
-                report.append(("EMPTY", label, "no file given"))
             continue
         a = match(label, answers)
         if a is None or a.get("answer") in (None, ""):
@@ -232,7 +271,7 @@ def main(argv=None):
         else:
             ctx = pw.chromium.launch(headless=headless).new_context()
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
-        page.goto(a.url, wait_until="domcontentloaded")
+        page.goto(form_url(a.url), wait_until="domcontentloaded")
         page.wait_for_timeout(1500)  # forms that build themselves after load
         state = page_state(page)
         if a.cmd == "scan":

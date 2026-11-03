@@ -1,0 +1,12 @@
+{"date": "2026-11-03", "job": "acme-junior-data-analyst", "round": "hiring manager", "mode": "real", "pressure": false,
+ "scores": {"structure": {"score": 4, "why": "clear openings, signposted"},
+            "evidence": {"score": 3, "why": "the 12 managers figure held; time saved was vague"},
+            "fit": {"score": 4, "why": "aimed at SQL and stakeholder work, as the ad asks"},
+            "follow_ups": {"score": 2, "why": "gave way at 'how much was down to you' twice"},
+            "delivery": {"score": 3, "why": "the dashboard story sounded recited"}},
+ "questions": [
+  {"question": "Tell me about a dashboard you built.", "story": "claims dashboard", "held_to": 2, "score": 3,
+   "stronger": "Twelve managers used it every week; I built the SQL views myself."},
+  {"question": "A time you disagreed with a colleague?", "story": "thesis group", "held_to": 1, "score": 2},
+  {"question": "Why Acme?", "story": "", "held_to": 3, "score": 4}],
+ "fixes": ["Q1: say which part was yours before the result", "Q2: name what you changed after the disagreement", "Q1: drop the rehearsed opening line"]}

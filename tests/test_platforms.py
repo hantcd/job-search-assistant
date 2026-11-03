@@ -78,6 +78,111 @@ class FreshLinkedIn(unittest.TestCase):
             self.assertEqual(len(json.loads(out.stdout)), 2)
 
 
+class ATSLinks(unittest.TestCase):
+    f = load("job-scout", "feeds")
+    LEVER = "https://jobs.lever.co/someco/0a1b2c3d-1111-2222-3333-444455556666"
+    ASHBY = "https://jobs.ashbyhq.com/liffeylabs/0a1b2c3d-1111-2222-3333-444455556666"
+    GH = "https://job-boards.greenhouse.io/acme/jobs/1234567"
+
+    def test_job_ref_and_apply_url(self):
+        self.assertEqual(self.f.job_ref(self.GH), ("greenhouse", "acme", "1234567"))
+        self.assertEqual(self.f.job_ref("https://boards.greenhouse.io/embed/job_app?for=acme&token=99")[2], "99")
+        k, t, j = self.f.job_ref(self.LEVER)
+        self.assertEqual(self.f.apply_url(k, t, j), self.LEVER + "/apply")
+        k, t, j = self.f.job_ref(self.ASHBY)
+        self.assertEqual(self.f.apply_url(k, t, j), self.ASHBY + "/application")
+        self.assertEqual(self.f.job_ref("https://example.com/careers/1"), (None, "", ""))
+
+    def test_liveness_is_conservative(self):
+        L = self.f.liveness
+        self.assertEqual(L("greenhouse", 404, None, "1")[0], "CLOSED")
+        self.assertEqual(L("lever", 410, None, "x")[0], "CLOSED")
+        self.assertEqual(L("greenhouse", 200, {"id": 1}, "1")[0], "LIVE")
+        for status in (403, 429, 500, 301):
+            self.assertEqual(L("greenhouse", status, None, "1")[0], "UNKNOWN")
+        board = {"jobs": [{"id": "a", "isListed": True}, {"id": "b", "isListed": False}]}
+        self.assertEqual(L("ashby", 200, board, "a")[0], "LIVE")
+        self.assertEqual(L("ashby", 200, board, "b")[0], "CLOSED")
+        self.assertEqual(L("ashby", 200, board, "c")[0], "CLOSED")
+        self.assertEqual(L("ashby", 200, {"error": "x"}, "a")[0], "UNKNOWN")
+
+    def test_greenhouse_questions(self):
+        rows = self.f.greenhouse_questions(json.load(open(fixture("job-scout", "greenhouse_questions.json"))))
+        by = {r["label"]: r for r in rows}
+        self.assertNotIn("Latitude", by)  # hidden fields aren't questions
+        self.assertEqual(by["Resume/CV"]["type"], "file")
+        self.assertTrue(by["Resume/CV"]["or_paste"])
+        self.assertEqual(by["Are you authorised to work in Ireland?"]["options"], ["Yes", "No"])
+        self.assertTrue(by["Are you authorised to work in Ireland?"]["required"])
+        self.assertIn("equality monitoring", by["Gender"]["group"])
+        a = load("job-apply", "answers")
+        self.assertEqual(a.classify("Are you authorised to work in Ireland?"), "YOU")
+        self.assertEqual(a.classify("Please email me about future job openings"), "YOU")
+        self.assertEqual(a.classify("Gender"), "YOU")
+
+    def test_form_url(self):
+        m = load("job-apply", "apply_form")
+        self.assertEqual(m.form_url(self.LEVER), self.LEVER + "/apply")
+        self.assertEqual(m.form_url(self.ASHBY + "?utm=x"), self.ASHBY + "/application")
+        self.assertEqual(m.form_url(self.GH), self.GH)
+        self.assertEqual(m.form_url("https://acme.example/apply"), "https://acme.example/apply")
+
+
+class InterviewTools(unittest.TestCase):
+    m = load("job-interview", "mock")
+    i = load("job-interview", "invite")
+
+    def mock(self):
+        return json.load(open(fixture("job-interview", "mock.json")))
+
+    def test_mock_report_passes(self):
+        res = self.m.check(self.mock(), open(fixture("job-interview", "evidence.md")).read())
+        self.assertEqual(res[-1][0], "PASS")
+        self.assertIn("16/25; weakest: follow ups", res[-1][2])
+
+    def test_mock_catches_invented_numbers_and_gaps(self):
+        m = self.mock()
+        m["questions"][0]["stronger"] = "I cut reporting time by 40% for 12 managers."
+        m["scores"]["fit"] = {"score": 7, "why": "x"}
+        m["fixes"] = m["fixes"][:2]
+        m["questions"][1]["held_to"] = None
+        res = self.m.check(m, open(fixture("job-interview", "evidence.md")).read())
+        text = " ".join(r[2] for r in res if r[0] == "FAIL")
+        self.assertIn("uses 40, which isn't in EVIDENCE.md", text)
+        self.assertIn("1 to 5", text)
+        self.assertIn("three fixes", text)
+        self.assertIn("held_to", text)
+
+    def test_mock_flags_a_thin_story_bank(self):
+        m = self.mock()
+        for q in m["questions"]:
+            q["story"] = "Claims dashboard"
+        self.assertTrue(any(r[0] == "WARN" and "used for 3" in r[2] for r in self.m.check(m)))
+
+    def test_progress(self):
+        a, b = self.mock(), self.mock()
+        b["date"] = "2026-11-06"
+        b["scores"]["follow_ups"]["score"] = 4
+        b["scores"]["delivery"]["score"] = 2
+        lines, weakest = self.m.progress([b, a])
+        self.assertIn("11-03", lines[0].split()[1])
+        self.assertEqual(weakest, "delivery")
+
+    def test_invite(self):
+        r = self.i.read(open(fixture("job-interview", "invite.ics")).read(), "Europe/Dublin")
+        self.assertEqual(r["minutes"], 45)
+        self.assertIn("Thu 12 Nov 2026, 14:00", r["start_local"])
+        self.assertTrue(r["meeting_link"].startswith("https://teams.microsoft.com/"))
+        roles = {p["name"]: p["role_guess"] for p in r["panel"]}
+        self.assertEqual(roles, {"Siobhan Kelly": "hiring manager", "Declan Moore": "peer",
+                                 "Niamh Walsh": "recruiter"})
+        self.assertNotIn("@", json.dumps(r))  # names only, never email addresses
+
+    def test_invite_without_event(self):
+        with self.assertRaises(ValueError):
+            self.i.read("BEGIN:VCALENDAR\nEND:VCALENDAR")
+
+
 class EmployerJobData(unittest.TestCase):
     j = load("job-scout", "jobposting")
 
@@ -164,6 +269,16 @@ class FormFiller(unittest.TestCase):
             page.goto("file://" + fixture("job-apply", "login.html"))
             self.assertEqual(mod.page_state(page), "login")
             b.close()
+
+    def test_full_name_and_files_first(self):
+        with tempfile.TemporaryDirectory() as d:
+            subprocess.run([sys.executable, self.SCRIPT, "fill", "file://" + fixture("job-apply", "lever_form.html"),
+                            "--answers", fixture("job-apply", "answers.json"), "--cv", fixture("job-apply", "cv.pdf"),
+                            "--headless", "--no-wait", "--profile", "",
+                            "--readback", os.path.join(d, "filled.json"), "--shot", os.path.join(d, "form.png")],
+                           capture_output=True, text=True, timeout=120)
+            got = {r["label"].rstrip(" *"): r["answer"] for r in json.load(open(os.path.join(d, "filled.json")))}
+            self.assertEqual(got["Full name"], "Aoife Byrne")
 
     def test_scan_lists_questions(self):
         out = subprocess.run([sys.executable, self.SCRIPT, "scan", "file://" + fixture("job-apply", "form.html")],

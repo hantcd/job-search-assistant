@@ -61,6 +61,11 @@ superpowers — Copyright (c) 2025 Jesse Vincent
   (verification-before-completion adapted as the evidence rule in CONSENT.md;
   dispatching-parallel-agents adapted in skills/job-chief/SKILL.md)
 
+career-ops — Copyright (c) 2026 Santiago Fernández de Valderrama
+  https://github.com/career-ops-hq/career-ops
+  (ideas adapted in skills/job-scout/feeds.py live and apply links,
+  skills/job-interview/invite.py and the mock interview in job-interview)
+
 humanizer — Copyright (c) 2025 Siqi Chen
   https://github.com/blader/humanizer
   (adapted in skills/job-cover/writing-check.md)

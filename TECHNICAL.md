@@ -114,6 +114,8 @@ python3 skills/job-scout/gates.py ad.txt --years-max 2 --languages "English:C2,I
 python3 skills/job-scout/fetch_page.py URL --text            # one robots-checked retry after a 403
 python3 skills/job-scout/linkedin_jobs.py search -q "data analyst" -l "Ireland" --joblist jobsearch/pipeline.json   # opt-in: last 24h, newest first, reposts dropped
 python3 skills/job-scout/jobposting.py page.html --url URL   # the employer's own job data (schema.org JobPosting)
+python3 skills/job-scout/feeds.py live URL                     # Greenhouse, Lever, Ashby: LIVE, CLOSED or UNKNOWN
+python3 skills/job-scout/feeds.py questions GREENHOUSE_URL     # a Greenhouse job's exact application questions
 python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCORING.md
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-cv/keywords.py ad.txt cv.tex
@@ -130,6 +132,8 @@ python3 skills/job-connector/outreach.py slots --start 2026-10-16
 python3 skills/job-connector/emails.py guess --name "Siobhan Kelly" --domain acme.ie
 python3 skills/job-followup/followup.py due
 python3 skills/job-interview/star.py check answer.txt
+python3 skills/job-interview/invite.py invite.ics --zone Europe/Dublin
+python3 skills/job-interview/mock.py check mock.json --source EVIDENCE.md
 python3 skills/job-offer/offer.py total offer.json
 python3 skills/job-weekly/funnel.py report
 python3 skills/job-network/events.py due
@@ -248,9 +252,14 @@ newest.
   based on sb2nov/resume: the CV template.
 - [humanizer](https://github.com/blader/humanizer) (MIT, Siqi Chen), drawing
   on Wikipedia's "Signs of AI writing": the writing check.
-- [career-ops](https://github.com/santifer/career-ops) and
-  [ai-job-search](https://github.com/MadsLorentzen/ai-job-search): ideas for
-  legitimacy ratings, score confidence, agency handling and review passes.
+- [career-ops](https://github.com/career-ops-hq/career-ops) (MIT, Santiago
+  Fernández de Valderrama): the Greenhouse, Lever and Ashby liveness check
+  and application links, reading interview invites and panels, and the
+  practice interviewer; earlier, ideas for legitimacy ratings, score
+  confidence, agency handling and review passes.
+- [greenroom](https://github.com/YunyueLi/greenroom) (Yunyue Li): ideas for
+  the mock interview (the follow-up chain, real and pressure modes, the five
+  scores). Ideas only; none of its text is used.
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 

@@ -3,6 +3,24 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.6.0 (2026-11-03)
+- Greenhouse, Lever and Ashby: `feeds.py live` asks the hiring system whether
+  a job is still open (only a 404, 410 or a job gone from the board counts as
+  closed); `feeds.py questions` lists a Greenhouse job's exact application
+  questions from its public API for `answers.py`; `detect` gives each job's
+  application form. `apply_form.py` opens Lever and Ashby jobs at their
+  application form, attaches the CV before typing (these systems fill fields
+  from it), and fills a single 'Full name' field.
+- answers.py: marketing opt-ins ('email me about future openings'), export
+  control and 'have you worked here before' questions are the person's.
+- Mock interviews: set-up in one round (round, full or focused, practice or
+  real, pressure only if asked), the interviewer from the invite and company
+  notes, a five-step follow-up chain on every result, five scores, a report
+  with three fixes, and `mock.py` to check reports (no invented numbers in
+  coaching) and show progress. New `invite.py` reads an invite's .ics: time
+  in the person's zone, length, meeting link and the named panel.
+- Ideas from career-ops (MIT) and greenroom's mock-interview.
+
 ## 1.5.0 (2026-11-03)
 - New skill, job-chief: runs the whole search as one ongoing goal in Claude
   Code or Cowork, with subagents for the work (side by side only when

@@ -43,13 +43,15 @@ RULES = [
     ("YOU", r"health|medical|criminal|conviction|offence|garda vett|background check consent"),
     ("YOU", r"i (?:agree|consent|confirm|declare|certify)|\bconsent\b|opt[- ](?:in|out)|terms and conditions|privacy (?:notice|policy)|declaration|signature"),
     ("YOU", r"referee|reference (?:name|email|phone|contact)"),
+    ("YOU", r"marketing|newsletter|talent (?:community|pool)|(?:email|contact|notify) me about|future (?:job |roles|opportunities|openings|vacancies)"),
+    ("YOU", r"export control|sanction|embargo|previously (?:worked|been employed)|worked for .* before"),
     ("DRAFT", r"why (?:do you|are you|this)|tell us|describe|cover letter|motivation|what interests|additional information|anything else|example of|a time when|competenc"),
     ("FILL", r"name|email|phone|mobile|address|city|location|linkedin|github|portfolio|website|degree|university|college|school|graduat|qualification|employer|job title|start date|notice period|availability|relocat|language|years of experience|cv|resume|résumé"),
 ]
 
 
 NOTES = [
-    (r"marketing|advertis|third[- ]part|newsletter|talent (?:community|pool)|future (?:roles|opportunities|vacancies)",
+    (r"marketing|advertis|third[- ]part|newsletter|talent (?:community|pool)|(?:email|contact|notify) me about|future (?:job |roles|opportunities|openings|vacancies)",
      "consent beyond this application: not a condition; the privacy-preserving answer is fine"),
     (r"record(?:ed|ing)? (?:the |your )?interview|interview.{0,20}record", "interview recording: the person's choice"),
 ]

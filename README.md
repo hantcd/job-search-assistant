@@ -12,7 +12,8 @@ Once it's set up, Claude works on your job search every weekday:
 - **Finds jobs that suit you**, from company job pages, job boards, your email
   job alerts and community hiring threads, and checks each one is real and
   still open. It works with LinkedIn, Indeed, Welcome to the Jungle,
-  Handshake, Jack & Jill and hundreds of company careers sites, and favours
+  Handshake, Jack & Jill and hundreds of company careers sites on Greenhouse,
+  Lever and Ashby, and favours
   jobs posted in the last 24 hours that aren't reposts.
 - **Scores each job** the same way every time, against what you said matters
   to you, and alerts you only about the best (at most 5 at a time).
@@ -24,7 +25,9 @@ Once it's set up, Claude works on your job search every weekday:
 - **Drafts messages** to hiring managers and possible referrers, follows up
   politely, and stops at the first no.
 - **Helps you get found** on LinkedIn, and prepares you for interviews and
-  offers.
+  offers, with realistic mock interviews: it plays the interviewer, asks
+  follow-up questions the way real panels do, and scores you so you can see
+  what to practise.
 
 Most people are hired through referrals and direct contact rather than cold
 applications, so it works both routes.
@@ -169,8 +172,8 @@ what changed in each version.
 
 Free under the [MIT licence](LICENSE). It builds on several open-source
 projects, credited in [LICENSE](LICENSE) and [TECHNICAL.md](TECHNICAL.md#credits):
-hunter-skill, please-hire-me, ai-job-search, reddit-automation, Matt Pocock's
-skills, humanizer and Jake's Resume.
+hunter-skill, please-hire-me, ai-job-search, career-ops, reddit-automation,
+Matt Pocock's skills, superpowers, humanizer and Jake's Resume.
 
 This is an independent project, not made or endorsed by Anthropic. Claude is
 a product of Anthropic.
