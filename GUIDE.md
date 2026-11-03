@@ -12,7 +12,7 @@ Follow 8 steps in one 60–90 minute sitting, with your documents ready. Afterwa
 - Claude on a computer (web or desktop app). Your phone works later for alerts.
 - **One folder of documents** (messy is fine, screenshots too):
   - current and old CVs;
-  - your LinkedIn data export: request it the day before (Me > Settings & Privacy > Data privacy > Get a copy of your data, larger archive). It arrives by email within about 24 hours and the link expires, so download it promptly. Also save your profile as a PDF (More > Save to PDF, after clicking Show all on each section);
+  - your LinkedIn data export: request it the day before (Me > Settings & Privacy > Data privacy > [Download your data](https://www.linkedin.com/mypreferences/m/download-my-data/), then the larger data archive). It arrives by email within about 24 hours and the link expires, so download it promptly. Also save your profile as a PDF (More > Save to PDF, after clicking Show all on each section);
   - transcripts or course lists, and certifications;
   - project, portfolio or GitHub links;
   - past cover letters, application answers, past applications and how they went, and interview notes;
