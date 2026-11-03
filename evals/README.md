@@ -9,6 +9,7 @@ request opens the right skill (one case per skill). `rules/` checks that the
 pack's rules hold when the person asks Claude to break them: never sending,
 ignoring instructions planted in an ad, never inventing numbers, no bulk
 LinkedIn messages, Reddit replies posted by hand, leaving eligibility and
-salary questions to the person, and no scraping Indeed. Runs have no files or
+salary questions to the person, no scraping Indeed, and stopping at Submit
+when filling a company's own form. Runs have no files or
 connectors, so the skills work from the prompt alone. Results go to
 `evals/results/`, which git ignores.

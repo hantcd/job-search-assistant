@@ -11,12 +11,16 @@ Once it's set up, Claude works on your job search every weekday:
 
 - **Finds jobs that suit you**, from company job pages, job boards, your email
   job alerts and community hiring threads, and checks each one is real and
-  still open.
+  still open. It works with LinkedIn, Indeed, Welcome to the Jungle,
+  Handshake, Jack & Jill and hundreds of company careers sites, and favours
+  jobs posted in the last 24 hours that aren't reposts.
 - **Scores each job** the same way every time, against what you said matters
   to you, and alerts you only about the best (at most 5 at a time).
 - **Prepares an application pack** for the top jobs: a CV tailored to the job,
   a cover letter in your own voice, draft answers to the application
-  questions, and people who could refer you.
+  questions, and people who could refer you. When you ask, it fills in the
+  application on the company's own website while you watch, then stops so
+  you can check it and press Submit.
 - **Drafts messages** to hiring managers and possible referrers, follows up
   politely, and stops at the first no.
 - **Helps you get found** on LinkedIn, and prepares you for interviews and
@@ -118,8 +122,15 @@ about you stay in your own Claude project. Nothing about you goes into this
 repository.
 
 **Will it apply for jobs for me?** No. It prepares everything and can fill in
-forms while you watch, but you check every application and press Submit
-yourself.
+the company's own application form while you watch, but you check every
+application and press Submit yourself.
+
+**Which job sites does it use?** Company careers sites first, plus LinkedIn,
+Indeed, Welcome to the Jungle, Handshake, Jack & Jill, specialist boards and
+community hiring threads. Some sites don't allow automated reading, so for
+those it reads the job alert emails you set up, and you can choose during
+setup to let it read their job pages too. It never logs in to any of them for
+you.
 
 **Will it message people on LinkedIn by itself?** No. It drafts each message;
 you approve it, and you click Send, one person at a time.

@@ -101,8 +101,9 @@ every field.
 ## The scripts
 
 Standard-library Python 3.8+. `layout_check.py` and reading PDFs need PyMuPDF
-(`pip install pymupdf`); compiling CVs needs pdfLaTeX. Nothing here sends
-anything.
+(`pip install pymupdf`); compiling CVs needs pdfLaTeX; `apply_form.py` needs
+Playwright (`pip install playwright`, then `playwright install chromium`).
+Nothing here sends or submits anything.
 
 ```bash
 python3 skills/job-tracker/pipeline.py validate
@@ -110,7 +111,8 @@ python3 skills/job-scout/feeds.py fetch greenhouse intercom --title analyst --lo
 python3 skills/job-scout/posting_guard.py --in ad.html --html
 python3 skills/job-scout/gates.py ad.txt --years-max 2 --languages "English:C2,Irish:B1"
 python3 skills/job-scout/fetch_page.py URL --text            # one robots-checked retry after a 403
-python3 skills/job-scout/linkedin_jobs.py search -q "data analyst" -l "Ireland" --days 1   # opt-in
+python3 skills/job-scout/linkedin_jobs.py search -q "data analyst" -l "Ireland" --joblist jobsearch/pipeline.json   # opt-in: last 24h, newest first, reposts dropped
+python3 skills/job-scout/jobposting.py page.html --url URL   # the employer's own job data (schema.org JobPosting)
 python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCORING.md
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-cv/keywords.py ad.txt cv.tex
@@ -122,6 +124,7 @@ python3 skills/job-cv/parse_check.py cv.pdf --name "Aoife Byrne" --headings "Exp
 python3 skills/job-cover/letter_check.py letter.md --company "Acme Ltd" --source EVIDENCE.md
 python3 skills/job-apply/answers.py form.json
 python3 skills/job-apply/answers.py lengths filled.json
+python3 skills/job-apply/apply_form.py fill URL --answers answers.json --cv cv.pdf   # Playwright: fills, reads back, stops at Submit
 python3 skills/job-connector/outreach.py slots --start 2026-10-16
 python3 skills/job-connector/emails.py guess --name "Siobhan Kelly" --domain acme.ie
 python3 skills/job-followup/followup.py due

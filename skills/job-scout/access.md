@@ -8,6 +8,9 @@
 | LinkedIn job listings | email job alerts; and, only if MASTER_PLAN.md turns it on, `linkedin_jobs.py` reads the public (logged-out) listings, a few pages a run | LinkedIn's User Agreement forbids automated access and its robots.txt asks crawlers to stay out: the person's informed choice; never their account, never profiles or people |
 | Indeed | Indeed's connector, if the person connected it in Claude; otherwise email alerts | the connector is Indeed's own route for AI assistants (in beta; check it covers the person's country); scraping its site is forbidden |
 | ZipRecruiter, Dice | their connectors, for US roles | the boards' own routes |
+| Welcome to the Jungle | job alert emails; pages the person pastes; and, only if MASTER_PLAN.md turns it on, single job pages through `fetch_page.py` and `jobposting.py`, a few a run, never search pages | its terms forbid scraping (only search engines may crawl) and robots.txt blocks its search URLs: the person's informed choice |
+| Handshake | job alert emails; pages the person pastes; and, only if MASTER_PLAN.md turns it on, public job pages as above | its terms forbid scraping and automated access, and most of it is behind a login, which Claude never gets round |
+| Jack & Jill | its match emails, read in Gmail; the person talks to Jack themselves | no automated access to its site or the person's account; replies are drafts |
 | IrishJobs and other job sites | email job alerts the person sets up; Claude reads the emails | their terms forbid scraping; Claude never uses the person's accounts |
 | LinkedIn job posts the person finds | the person pastes the post | as above |
 | Reddit, forums, monthly hiring threads | public pages through web fetch; if blocked, the person pastes the thread | read only; replies are drafted by job-reddit and posted by the person by hand |
@@ -18,7 +21,8 @@ Rules for every source:
 - Read public pages only. Never log in, never get round a login, a CAPTCHA or a
   robots.txt refusal. After a 403, one retry with browser headers through
   `fetch_page.py`, which checks robots.txt first and refuses if it says no.
-- Run every job ad through `posting_guard.py` before reading it.
+- Run every job ad through `posting_guard.py` before reading it, and prefer the
+  employer's structured job data (`jobposting.py`) to guessing from the text.
 - Check robots.txt and terms when a site is new; if they say no, use the manual route.
 - One request per board per run, a pause between calls, an honest User-Agent
   (the one robots-checked retry above uses ordinary browser headers).

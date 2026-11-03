@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LinkedIn's public job listings (logged out), as job rows. OPT-IN, low volume.
 
-    python3 linkedin_jobs.py search -q "data analyst" -l "Dublin, County Dublin, Ireland" --days 1 [--remote hybrid] [--pages 2]
+    python3 linkedin_jobs.py search -q "data analyst" -l "Dublin, County Dublin, Ireland" [--days 1] [--remote hybrid] [--pages 2] [--joblist jobsearch/pipeline.json]
     python3 linkedin_jobs.py detail 4425498329            # or a linkedin.com/jobs/view/... URL
     python3 linkedin_jobs.py search ... --from-file saved.html   # parse a page saved another way
 
@@ -18,13 +18,24 @@ small: at most 3 pages (30 listings) per search, a 3-second pause between
 requests, backing off on 429 and stopping after repeated refusals. Every row is
 then verified on the company's own page, as with any job site.
 
-Output: JSON rows {company, title, location, url, ref, posted, source} (detail
-adds text, seniority, employment_type, job_function, industries, active).
+Fresh jobs only: by default a search asks for the last 24 hours, newest first,
+and drops reposts. LinkedIn shows a refreshed or re-listed job as just posted,
+so a repost is caught three ways: the "Reposted" label; its job id, which a
+repost keeps from the first listing (the job list remembers the highest id seen
+each day, and an id lower than one seen 2+ days earlier is old); and the same
+company and title already in the job list from 2+ days earlier. --keep-reposts
+keeps them, marked. Dropped jobs are counted, with reasons, on stderr.
+
+Output: JSON rows {company, title, location, url, ref, posted, posted_text,
+reposted, repost_reasons, source} (detail adds text, seniority,
+employment_type, job_function, industries, active).
 Ported from ai-job-search's linkedin-search CLI (MIT, Mads Lorentzen).
 """
 
 import argparse
+import datetime as dt
 import html as htmlmod
+import os
 import json
 import random
 import re
@@ -94,11 +105,16 @@ def parse_cards(page):
         if sub:
             company = clean(sub.group(1)) or None
         loc = re.search(r'class="job-search-card__location"[^>]*>([\s\S]*?)</span>', chunk, re.I)
-        dt = re.search(r'class="job-search-card__listdate[^"]*"[^>]*datetime="([^"]+)"', chunk, re.I)
+        when = re.search(r'class="job-search-card__listdate[^"]*"[^>]*datetime="([^"]+)"[^>]*>([\s\S]*?)</time>',
+                         chunk, re.I)
         rows.append({"company": company or "", "title": title, "location": clean(loc.group(1)) if loc else "",
                      "url": url or "https://www.linkedin.com/jobs/view/%s" % jid, "ref": "linkedin:" + jid,
-                     "posted": dt.group(1) if dt else "", "source": "linkedin listings"})
+                     "posted": when.group(1) if when else "", "posted_text": clean(when.group(2)) if when else "",
+                     "reposted": bool(REPOSTED.search(chunk)), "source": "linkedin listings"})
     return rows
+
+
+REPOSTED = re.compile(r">\s*Reposted\b|\bReposted\s+\d+\s+\w+\s+ago", re.I)
 
 
 def parse_detail(page, jid):
@@ -118,13 +134,77 @@ def parse_detail(page, jid):
         criteria[clean(m.group(1)).lower()] = clean(m.group(2))
     start = re.search(r'class="(?:show-more-less-html__markup|description__text)', page, re.I)
     top = page[: start.start()] if start else page
+    ago = re.search(r'class="posted-time-ago__text[^"]*"[^>]*>([\s\S]*?)</span>', top, re.I)
     return {"ref": "linkedin:" + jid, "title": clean(title.group(1)) if title else "(untitled)",
             "company": clean(org.group(2)) if org else "", "location": clean(loc.group(1)) if loc else "",
             "url": "https://www.linkedin.com/jobs/view/%s" % jid, "text": text,
             "seniority": criteria.get("seniority level"), "employment_type": criteria.get("employment type"),
             "job_function": criteria.get("job function"), "industries": criteria.get("industries"),
             "active": not re.search(r"closed-job__flavor|no longer accepting applications", top, re.I),
+            "posted_text": clean(ago.group(1)) if ago else "", "reposted": bool(REPOSTED.search(top)),
             "source": "linkedin listings"}
+
+
+def loose(s):
+    return re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).strip()
+
+
+def repost_reasons(row, anchors, jobs, today, min_age=2):
+    """Why this row looks like a repost (empty list: it looks new).
+
+    anchors: [{"date": "YYYY-MM-DD", "max_id": int}], the highest LinkedIn job id seen each day.
+    jobs:    the job list's jobs, to find the same company and title found earlier.
+    """
+    reasons = []
+    if row.get("reposted"):
+        reasons.append("labelled 'Reposted' on LinkedIn")
+    jid = int(re.sub(r"\D", "", row.get("ref", "")) or 0)
+    cutoff = today - dt.timedelta(days=min_age)
+    older = [a for a in anchors or [] if _date(a.get("date")) and _date(a.get("date")) <= cutoff
+             and int(a.get("max_id") or 0) > jid]
+    if jid and older:
+        first = min(older, key=lambda a: a["date"])
+        reasons.append("its job id is older than ids LinkedIn showed on %s, so it was first listed before then"
+                       % first["date"])
+    key = (loose(row.get("company")), loose(row.get("title")))
+    for j in jobs or []:
+        found = _date(j.get("first_found"))
+        if (loose(j.get("company")), loose(j.get("title"))) == key and found and found <= cutoff:
+            reasons.append("the same role at %s was already found on %s" % (row.get("company"), j["first_found"]))
+            break
+    return reasons
+
+
+def _date(s):
+    try:
+        return dt.date.fromisoformat(str(s)[:10])
+    except ValueError:
+        return None
+
+
+def note_ids(anchors, rows, today):
+    """Record today's highest job id (kept for 60 days), so later runs can spot old ids."""
+    ids = [int(re.sub(r"\D", "", r.get("ref", "")) or 0) for r in rows]
+    if not ids:
+        return anchors
+    day = today.isoformat()
+    keep = [a for a in anchors or [] if _date(a.get("date")) and (today - _date(a["date"])).days <= 60]
+    same = [a for a in keep if a["date"] == day]
+    if same:
+        same[0]["max_id"] = max(int(same[0]["max_id"]), max(ids))
+    else:
+        keep.append({"date": day, "max_id": max(ids)})
+    return sorted(keep, key=lambda a: a["date"])
+
+
+def fresh(rows, anchors, jobs, today, keep_reposts=False):
+    """Mark every row; return (kept, dropped)."""
+    kept, dropped = [], []
+    for r in rows:
+        r["repost_reasons"] = repost_reasons(r, anchors, jobs, today)
+        r["reposted"] = bool(r["repost_reasons"])
+        (kept if keep_reposts or not r["reposted"] else dropped).append(r)
+    return kept, dropped
 
 
 def job_id(value):
@@ -144,6 +224,7 @@ def search_url(query, location, days=0, remote=None, page=1):
     wt = {"onsite": "1", "on-site": "1", "remote": "2", "hybrid": "3"}.get((remote or "").lower())
     if wt:
         p["f_WT"] = wt
+    p["sortBy"] = "DD"  # most recent first
     p["start"] = str((page - 1) * 10)
     return SEARCH_URL + "?" + urllib.parse.urlencode(p)
 
@@ -179,6 +260,10 @@ def main(argv=None):
     s.add_argument("--remote", choices=("remote", "hybrid", "onsite"))
     s.add_argument("--pages", type=int, default=1)
     s.add_argument("--from-file")
+    s.add_argument("--joblist", help="the job list snapshot: its jobs and saved LinkedIn ids find reposts; "
+                                     "today's highest id is saved back to it")
+    s.add_argument("--keep-reposts", action="store_true", help="keep reposts, marked, instead of dropping them")
+    s.add_argument("--today", help="YYYY-MM-DD (default: today)")
     d = sub.add_parser("detail")
     d.add_argument("job")
     d.add_argument("--from-file")
@@ -198,8 +283,23 @@ def main(argv=None):
                     rows += new
                     if len(got) < 10:
                         break
-            print(json.dumps(rows, indent=1, ensure_ascii=False))
-            return 0 if rows else 1
+            today = dt.date.fromisoformat(a.today) if a.today else dt.date.today()
+            data = {}
+            if a.joblist and os.path.exists(a.joblist):
+                with open(a.joblist, encoding="utf-8") as fh:
+                    data = json.load(fh)
+            anchors = data.get("linkedin_ids", [])
+            kept, dropped = fresh(rows, anchors, data.get("jobs", []), today, a.keep_reposts)
+            if a.joblist and data and not a.from_file:
+                data["linkedin_ids"] = note_ids(anchors, rows, today)
+                with open(a.joblist + ".tmp", "w", encoding="utf-8") as fh:
+                    json.dump(data, fh, indent=1, ensure_ascii=False)
+                os.replace(a.joblist + ".tmp", a.joblist)
+            for r in dropped:
+                print("dropped repost: %s, %s (%s)" % (r["company"], r["title"], "; ".join(r["repost_reasons"])),
+                      file=sys.stderr)
+            print(json.dumps(kept, indent=1, ensure_ascii=False))
+            return 0 if kept else 1
         jid = job_id(a.job)
         page = open(a.from_file, encoding="utf-8").read() if a.from_file else fetch("%s/%s" % (DETAIL_URL, jid))
         if not page:

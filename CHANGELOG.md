@@ -3,6 +3,23 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.4.0 (2026-11-03)
+- LinkedIn listings (still opt-in): the last 24 hours, newest first, reposts
+  dropped. A repost is caught by its 'Reposted' label, by its job id (a repost
+  keeps the first listing's id; the job list saves the highest id seen each
+  day) and by the same role found 2+ days earlier; each drop is logged.
+- Applying on the company's own site, not LinkedIn Easy Apply or a board's
+  quick apply. New `apply_form.py`: Playwright fills the form in a visible
+  window, attaches the CV, reads every value back, saves a screenshot and
+  stops at Submit. It never clicks a button or presses Enter, never types a
+  password, leaves eligibility and salary questions to the person, and stops
+  at a login or CAPTCHA.
+- New sources: Welcome to the Jungle and Handshake (job alert emails and
+  pastes; reading their job pages is a separate opt-in, as their terms forbid
+  scraping) and Jack & Jill (its match emails). New `jobposting.py` reads an
+  employer's own structured job data from any job page.
+- Consent section: the Welcome to the Jungle and Handshake opt-in.
+
 ## 1.3.1 (2026-11-02)
 - The setup guide is now in the repository: GUIDE.md to read on GitHub, and
   GUIDE.pdf to download or print. Its install step links straight to the skill

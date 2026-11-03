@@ -73,6 +73,11 @@ the date it was read), draft, posted (the date the person says they posted
 it; Claude never posts), replies. Kept by job-reddit; `reddit_check.py cap`
 counts the week's posted replies.
 
+## linkedin_ids
+date*, max_id*: the highest LinkedIn job id seen that day (kept 60 days), written
+by `linkedin_jobs.py --joblist`. A listing whose id is lower than one seen 2+
+days earlier was first posted before then: a repost.
+
 ## run_log
 time*, task*, sources_checked, new, updated, closed, errors, stopped_early (and why).
 

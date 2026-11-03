@@ -1,0 +1,11 @@
+[
+ {"label": "First name", "answer": "Aoife"},
+ {"label": "Last name", "answer": "Byrne"},
+ {"label": "Email", "answer": "aoife.byrne@example.com"},
+ {"label": "LinkedIn profile", "answer": "https://www.linkedin.com/in/example"},
+ {"label": "Why do you want to work at Acme?", "answer": "Your claims analytics team works on the problem my dashboard project solved."},
+ {"label": "How did you hear about us?", "answer": "Company website"},
+ {"label": "Do you require visa sponsorship to work in Ireland?", "answer": "No"},
+ {"label": "What is your current salary?", "answer": "30000"},
+ {"label": "I have read the privacy notice", "answer": "yes", "from_person": true}
+]

@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Apply: Junior Data Analyst (test form)</title></head>
+<body>
+<!-- A synthetic application form for tests, shaped like a Greenhouse or Lever form. -->
+<form id="app" action="submitted.html" method="get" onsubmit="document.title='SUBMITTED'">
+  <label for="first">First name *</label><input id="first" name="first_name" required>
+  <label for="last">Last name *</label><input id="last" name="last_name" required>
+  <label for="email">Email *</label><input id="email" type="email" name="email" required>
+  <label for="phone">Phone</label><input id="phone" type="tel" name="phone">
+  <label for="li">LinkedIn profile</label><input id="li" name="linkedin">
+  <label for="cv">Resume/CV *</label><input id="cv" type="file" name="resume" required>
+  <label for="cl">Cover letter</label><input id="cl" type="file" name="cover_letter">
+  <label for="why">Why do you want to work at Acme?</label><textarea id="why" name="why" maxlength="255"></textarea>
+  <label for="src">How did you hear about us?</label>
+  <select id="src" name="source"><option value="">Select...</option><option>LinkedIn</option><option>Company website</option><option>Referral</option></select>
+  <fieldset><legend>Do you require visa sponsorship to work in Ireland? *</legend>
+    <input type="radio" id="sp_y" name="sponsor" value="yes" required><label for="sp_y">Yes</label>
+    <input type="radio" id="sp_n" name="sponsor" value="no"><label for="sp_n">No</label>
+  </fieldset>
+  <label for="sal">What is your current salary?</label><input id="sal" name="current_salary">
+  <label><input type="checkbox" id="privacy" name="privacy"> I have read the privacy notice</label>
+  <button type="submit" id="submit">Submit application</button>
+</form>
+</body></html>
