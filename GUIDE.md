@@ -50,9 +50,9 @@ The times assume your documents are ready. Claude drafts; you mostly click to co
 | Word | What it means |
 | --- | --- |
 | Project | A folder in Claude whose chats share the same files and instructions. |
-| Chat | One conversation. Start a new one when a step says so; long chats use more of your allowance. |
+| Chat | One conversation. Start a new one when a step says so (the project page calls it a session); long chats use more of your allowance. |
 | Usage allowance | How much Claude you can use. It refills every 5 hours, with a weekly cap; automatic tasks count too. |
-| Skill | Saved instructions Claude follows for one job, such as "find and score jobs". This guide uses a pack of 13, named job-tracker, job-scout and so on. |
+| Skill | Saved instructions Claude follows for one job, such as "find and score jobs". This guide uses a pack of 15, named job-tracker, job-scout and so on. |
 | Automatic task | A job Claude runs on a schedule, such as weekday mornings, even with your computer off. Claude calls these scheduled tasks. |
 | Job list | A private page Claude keeps updated with every role it finds and what happened next. |
 | Role family | A group of similar jobs you'd apply for, chosen in Step 3. Each gets its own base CV. |
@@ -86,23 +86,47 @@ Create one project with the right tools switched on, and install the skill pack.
 
 **Do:**
 
-1. In Claude, open **Projects** in the left sidebar and create a new project named `Job Search Assistant`.
-2. Leave the project instructions empty. Claude writes them in Step 4.
-3. Make sure web search and code execution/file creation are turned on. If you're not sure, start a chat in the project and ask: *Which of your tools are turned on right now?*
-4. **Install the skill pack** (about 5 minutes): download [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip). Attach it in a chat in the project and say: *Install these 15 skills*, then click **Save** on each card. Or upload the 15 single-skill zips from the [skill pack's dist folder](https://github.com/hantcd/job-search-assistant/tree/main/dist) under Customize > Skills.
-5. Optional: connect Gmail in Settings > Connectors, so Claude notices employer replies, reads job alerts and saves email drafts for you to send. For filling in application forms, install Claude in Chrome or use the built-in browser in the Claude desktop app.
+The red boxes in the pictures show what to click, in the order of the numbers.
 
-   Optional: connect Indeed in Settings > Connectors, so Claude can search Indeed's jobs and read its company reviews through Indeed's own route instead of email alerts. It's in beta, so check it covers your country. For US roles, ZipRecruiter and Dice have connectors too.
+**1. Create the project.** Click **Projects** in the left sidebar, then **New project** at the top right. Name it `Job Search Assistant`.
 
-   Using Cowork or Claude Code? Install the skill pack as a plugin instead (its README says how). You also get three helpers that can only read (one reads job ads, one reviews your pack as a hiring manager, one checks facts) and rules that stop Claude sending anything. Ordinary chats skip these, and the skills do the same steps themselves.
+![Projects in the left sidebar, then New project](docs/images/01-projects-new.png)
+
+Your project page looks like this. You'll use three things on it: the **+** under the chat box (1) attaches files to a chat; **Instructions** (2) holds the project's rules; **Context** (3) holds the files every chat in the project can read. Leave Instructions empty for now: Claude writes them in Step 4. The page calls a new chat a *session*; it's the same thing.
+
+![The project page: the + button, Instructions and Context](docs/images/02-project-page.png)
+
+**2. Check file creation is on.** Click your name at the bottom left, then **Settings**, then **Capabilities**. Make sure **Create and edit files** is switched on: the skills need it. Web search is built in and has no switch.
+
+![Settings, Capabilities, Create and edit files](docs/images/03-capabilities.png)
+
+**3. Keep this project separate from your other chats (optional).** In Settings, open **Your Claude** and look under **Memory**. If **Generate memory from chats** is off, as here, there's nothing to do: the project starts with no memory of your other chats. If it's on, your project page also shows a **Memory** section: switch off **Use account memory** there, so this project doesn't draw on what Claude remembers from chats outside it. Inside a project, *Search and reference chats* only searches that project's own chats.
+
+![Settings, Your Claude, Memory](docs/images/11-memory.png)
+
+**4. Install the skill pack (about 5 minutes).** Download [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip). Then click **Customize** in the left sidebar, open the **Plugins** tab, click **+ Add**, choose **Upload plugin** and pick the zip you downloaded.
+
+![Customize, Plugins, + Add, Upload plugin](docs/images/04-plugins-upload.png)
+
+If **Upload plugin** isn't there or the upload fails, use the **Skills** tab instead: click **+ Add**, choose **Upload skill**, and upload the 15 single-skill zips from the [skill pack's dist folder](https://github.com/hantcd/job-search-assistant/tree/main/dist) one at a time. Or attach the all-in-one zip in a chat in the project and say: *Install these 15 skills*, then click **Save** on each card.
+
+![Customize, Skills, + Add, Upload skill](docs/images/05-skills-upload.png)
+
+**5. Connect Gmail and Indeed (optional).** In **Customize**, open the **Connectors** tab, search for **Gmail**, click it and connect, then sign in with Google yourself. It shows **Connected** when it's done. With Gmail, Claude notices employer replies, reads job alerts and saves email drafts for you to send. Do the same for **Indeed**, so Claude can search Indeed's jobs and read its company reviews directly instead of through email alerts. It's in beta, so check it covers your country. For US roles, ZipRecruiter and Dice have connectors too.
+
+![Customize, Connectors, search for Gmail](docs/images/06-connectors.png)
+
+For filling in application forms, install Claude in Chrome or use the built-in browser in the Claude desktop app.
+
+Using Cowork or Claude Code? Install the same zip as a plugin there (its README says how). You also get three helpers that can only read (one reads job ads, one reviews your pack as a hiring manager, one checks facts) and rules that stop Claude sending anything. Ordinary chats skip these, and the skills do the same steps themselves.
 
 **You'll get:** an empty project with the skill pack installed. Every chat in this guide happens inside it.
 
 **Check:**
 
 - [ ] The Job Search Assistant project exists.
-- [ ] Claude can search the web and create files inside it.
-- [ ] All 15 job-\* skills appear in your skills list and are switched on.
+- [ ] Create and edit files is switched on in Settings > Capabilities.
+- [ ] All 15 job-\* skills are installed and switched on under Customize (as one plugin under Plugins, or as 15 skills under Skills).
 
 ## Part 2 — Tell Claude about yourself
 
@@ -115,13 +139,21 @@ Two chats. In each, Claude drafts from your documents first and you confirm or c
 - Speak instead of typing where you can (phone or computer dictation). Rough answers and rough numbers ("about 200 users") are fine.
 - Say "skip" or "not sure" whenever you need to. Claude marks what's confirmed and what's a guess.
 
-**How to save a file Claude gives you:** if Claude says it has saved the file to the project, you're done. Otherwise download it, open your project's page, and add it to the project's files.
+**How to save a file Claude gives you:** if Claude says it has saved the file to the project, you're done. Otherwise download it, open your project's page, click **Add** next to **Context** (1), then **Upload from device** (2), then **Files** (3), and pick the file.
+
+![Context, Add, Upload from device, Files](docs/images/10-context-add.png)
 
 ### Step 2: Chat 1 — Claude reads your documents
 
 *20–25 minutes*
 
-**Do:** start a new chat in the project. Attach everything from your documents folder, including the LinkedIn export ZIP and your profile PDF, then paste the box below.
+**Do:** start a new chat in the project. Click the **+** under the chat box (1), then **Upload or add files** (2).
+
+![The + under the chat box, then Upload or add files](docs/images/07-plus-menu.png)
+
+Click **Upload from computer**. In the window that opens, go into your documents folder, press **Ctrl+A** (**Cmd+A** on a Mac) to select every file, and click **Open**. Include the LinkedIn export ZIP and your profile PDF. If some files are in subfolders, repeat this for each one. Then paste the box below into the chat box and send it.
+
+![Upload from computer](docs/images/08-upload-picker.png)
 
 **Paste:**
 
@@ -321,12 +353,20 @@ End every task with: 'This run happens while I'm away, so nobody can answer ques
 
 **Do:** work through Claude's to-do list from Step 4. It will usually be:
 
-1. **Add the rules:** paste all of PROJECT\_INSTRUCTIONS.md into the project's instructions box.
+1. **Add the rules:** paste all of PROJECT\_INSTRUCTIONS.md into the project's instructions: on the project page, click Add next to Instructions, paste, then click Save instructions (pictures below).
 2. **Approve the automatic tasks:** check each one's name, schedule and model, then click **Schedule**.
 3. **Pin your job list** so it's easy to find.
-4. **Tidy the project files:** add CHANGELOG.md and TESTS.md.
+4. **Tidy the project files:** add CHANGELOG.md and TESTS.md to the project's Context (Add next to Context, then Upload from device, then Files).
 5. **Set up email job alerts (about 5 minutes):** on each site Claude listed (for example LinkedIn, Indeed, IrishJobs, gradireland, Welcome to the Jungle, Handshake or your university's careers portal), sign in and create the saved searches Claude gave you, with daily emails to your Gmail.
 6. **Update LinkedIn (about 7 minutes):** paste in the headline, About, skills (most important first), experience and Featured items; turn on Open to Work with your chosen visibility; and verify your identity and workplace in settings. Recruiters search by title and skills, and verified profiles get noticeably more views.
+
+Adding the rules: paste into the box (1), then click **Save instructions** (2).
+
+![Set project instructions: the box, then Save instructions](docs/images/09-instructions.png)
+
+Your automatic tasks appear under **Scheduled** in the left sidebar (1) and on the project page (2).
+
+![Scheduled in the sidebar and on the project page](docs/images/12-scheduled.png)
 
 **You'll get:** a project with its rules, a job list, and automatic tasks waiting to run.
 
@@ -567,7 +607,7 @@ Most problems are fixed by telling Claude, in a project chat, what you saw.
 | Your LinkedIn export hasn't arrived | Start with your profile PDF. When it arrives, attach it and say: *Update my files and import my network.* |
 | A "Switched to" message names another model | A safety check flagged something. Pick Opus 5.5 again, ideally in a new chat. |
 | A button in this guide looks different | Claude's apps change often. Ask: *Where do I find* \[setting\] *now?* |
-| Claude doesn't use a skill you expected | Check it's switched on under Customize > Skills, or name it: *Use job-cv for this.* |
+| Claude doesn't use a skill you expected | Check it's switched on under Customize (Plugins or Skills), or name it: *Use job-cv for this.* |
 
 **Jobs and research**
 

@@ -10,7 +10,8 @@ Turn Claude into a careful, personal job-search assistant: set it up in one
 >    your CVs and documents.
 > 2. In Claude, create a project called *Job Search Assistant*.
 > 3. Download [the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
->    attach it in a chat in that project, and say *Install these 15 skills*.
+>    then in Claude click **Customize → Plugins → + Add → Upload plugin** and
+>    pick the zip. The guide has pictures of every screen.
 > 4. Open [the guide](GUIDE.md) and follow Steps 2 to 6: two short chats about
 >    you, then Claude builds and tests everything.
 > 5. From then on, read the alerts and approve what you like. You press Send
@@ -97,8 +98,9 @@ paste into Claude and a checklist after each one. In short:
 
 1. **Create a project in Claude** called *Job Search Assistant*. Download
    [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
-   attach it in a chat in the project and say *Install these 15 skills*, then
-   click **Save** on each card. *(About 10 minutes.)*
+   then click **Customize → Plugins → + Add → Upload plugin** and pick the
+   zip. The guide shows each screen with the button to press marked.
+   *(About 10 minutes.)*
 2. **Chat 1: Claude reads your documents.** Attach your folder and paste the
    guide's first prompt. Claude drafts your profile, your evidence and your
    writing style; you confirm or correct its guesses, mostly by clicking.

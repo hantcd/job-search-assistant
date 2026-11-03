@@ -61,8 +61,10 @@ disable the plugin). The hooks need `python3`.
 
 ## Install
 
-**In the Claude app (web or desktop):** turn on code execution and file
-creation. Then either:
+**In the Claude app (web or desktop):** turn on Settings > Capabilities >
+Create and edit files. Then either:
+- Customize > Plugins > + Add > Upload plugin, and choose
+  `dist/job-search-assistant-all.zip` (it's also a plugin); or
 - download this repository's skill zips (one per skill, in `dist/`) and upload
   each under Customize > Skills; or
 - attach `dist/job-search-assistant-all.zip` in a chat in your Job Search

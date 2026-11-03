@@ -3,6 +3,18 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## Guide update (2026-11-03)
+- Screenshots of every Claude screen the guide sends you to, with the button
+  to press marked in red: new project, the project page, Create and edit
+  files, memory, uploading the pack, connectors, attaching your documents,
+  saving files to the project, the instructions box and Scheduled. Personal
+  details are blurred.
+- Paths updated to the current Claude app: connectors are under Customize >
+  Connectors; the pack installs in one go with Customize > Plugins > Upload
+  plugin; the switch to check is Create and edit files; web search has no
+  switch.
+- How to keep the project separate from your other chats' memory.
+
 ## 1.6.1 (2026-11-03)
 Checked live from Ireland, through the person's own browser:
 - Indeed's connector covers Ireland. It has no date filter and mixes in loosely
