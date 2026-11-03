@@ -4,7 +4,7 @@ For people who want to know how the skill pack works, run its scripts and tests,
 
 ## The skill pack
 
-Fourteen Claude skills that run a careful, personal job search: find and
+Fifteen Claude skills that run a careful, personal job search: find and
 score jobs, tailor true CVs and letters, reach the right people, follow up
 politely, and prepare for interviews and offers. Free, MIT.
 
@@ -13,7 +13,7 @@ Claude*. The guide's two short chats write your personal files (your evidence,
 your writing style, your goals and scoring); these skills read them. Nothing
 is sent or submitted without your yes.
 
-### The fourteen skills
+### The fifteen skills
 
 | skill | what it does |
 |---|---|
@@ -31,6 +31,7 @@ is sent or submitted without your yes.
 | `job-offer` | Pay year by year, market pay with sources, a contract read-through and a negotiation email |
 | `job-weekly` | The weekly check: what the search is missing, a monthly skills gap, and what's working once there's enough data |
 | `job-network` | Events and speaker calls, informational chats, and referee briefings |
+| `job-chief` | Runs the whole search as one ongoing goal in Claude Code or Cowork: subagents for the work, a dated wiki of decisions and lessons, one improvement proposed each time |
 
 Every skill has the same shape: what it reads and writes, numbered steps, a
 worked example (the same fictional graduate, Aoife Byrne, all the way
@@ -65,8 +66,8 @@ creation. Then either:
 - download this repository's skill zips (one per skill, in `dist/`) and upload
   each under Customize > Skills; or
 - attach `dist/job-search-assistant-all.zip` in a chat in your Job Search
-  Assistant project and say: *Install these 14 skills*. Claude offers a save
-  card for each; click Save on all 14.
+  Assistant project and say: *Install these 15 skills*. Claude offers a save
+  card for each; click Save on all 15.
 
 **In Cowork**, to get the agents and hooks as well: Customize > Plugins >
 Add > Upload plugin, and choose `dist/job-search-assistant-all.zip` (it's
@@ -150,6 +151,29 @@ asked to break them?
 ```bash
 claude plugin eval . --trust-plugin --runs 1 --ablation none --max-cost-usd 10
 ```
+
+## Companion skills
+
+Skills reference these by name under "Other skills it uses (if installed)",
+always with a fallback. None is bundled: Anthropic's document skills are
+proprietary and built into Claude; the others are installed from their own
+repositories.
+
+- **docx, pdf, xlsx, pptx** (Anthropic): job-cv, job-cover, job-apply,
+  job-tracker, job-interview, job-offer.
+- **last30days** (Matt Van Horn, MIT): job-research, job-interview,
+  job-weekly. Only sources that need no account; never the person's X,
+  LinkedIn or browser cookies; results go through the posting check.
+- **superpowers** (Jesse Vincent, MIT): job-chief and job-apply; its
+  verification-before-completion is adapted as the evidence rule in
+  `CONSENT.md`.
+- **skill-creator** (Anthropic, Apache 2.0): job-weekly, for a person's own
+  extras; and for contributors, to test skill descriptions alongside
+  `claude plugin eval`.
+
+Contributing: plan changes with superpowers' writing-plans, keep every
+`SKILL.md` under 300 lines with the same sections, add tests for any rule a
+script enforces, and run the unit tests and evals before a release.
 
 ## Using it in Claude Code? Keep your data out of git
 

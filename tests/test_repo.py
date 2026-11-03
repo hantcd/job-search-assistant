@@ -18,8 +18,8 @@ def front(text):
 
 
 class Repo(unittest.TestCase):
-    def test_fourteen_skills(self):
-        self.assertEqual(len(SKILLS), 14)
+    def test_fifteen_skills(self):
+        self.assertEqual(len(SKILLS), 15)
 
     def test_frontmatter(self):
         for p in SKILLS:
@@ -69,7 +69,7 @@ class Repo(unittest.TestCase):
     def test_credits(self):
         lic = open(os.path.join(ROOT, "LICENSE"), encoding="utf-8").read()
         for who in ("Jake Schincariol", "Jake Gutierrez", "Siqi Chen", "Alex Wang", "Mads Lorentzen",
-                    "doany.ai", "Matt Pocock"):
+                    "doany.ai", "Matt Pocock", "Jesse Vincent"):
             self.assertIn(who, lic)
 
 

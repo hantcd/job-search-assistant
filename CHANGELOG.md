@@ -3,6 +3,19 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.5.0 (2026-11-03)
+- New skill, job-chief: runs the whole search as one ongoing goal in Claude
+  Code or Cowork, with subagents for the work (side by side only when
+  independent; job list writes one at a time), a dated wiki of decisions and
+  lessons, and `wiki_check.py` to lint it. Adapted from Matt Pocock's
+  chief-of-staff and obra/superpowers' dispatching-parallel-agents (MIT).
+- Evidence before claims, in every skill's rules: nothing is called ready or
+  passing without running its check in that session and showing the result.
+  Adapted from superpowers' verification-before-completion (MIT).
+- "Other skills it uses (if installed)" in eight skills: Claude's document
+  skills (Word, PDF, Excel, PowerPoint), last30days, superpowers and
+  skill-creator, each with its limits and a fallback.
+
 ## 1.4.0 (2026-11-03)
 - LinkedIn listings (still opt-in): the last 24 hours, newest first, reposts
   dropped. A repost is caught by its 'Reposted' label, by its job id (a repost

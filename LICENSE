@@ -51,9 +51,15 @@ reddit-automation — Copyright (c) 2026 doany.ai
   https://github.com/flowkit-labs/skills
   (adapted in skills/job-reddit/SKILL.md and reddit_check.py)
 
-skills (grilling) — Copyright (c) 2026 Matt Pocock
+skills (grilling, chief-of-staff) — Copyright (c) 2026 Matt Pocock
   https://github.com/mattpocock/skills
-  (the question rounds adapted in skills/job-cv/SKILL.md, 'Asking the person')
+  (the question rounds adapted in skills/job-cv/SKILL.md, 'Asking the person';
+  chief-of-staff adapted in skills/job-chief/SKILL.md and wiki_check.py)
+
+superpowers — Copyright (c) 2025 Jesse Vincent
+  https://github.com/obra/superpowers
+  (verification-before-completion adapted as the evidence rule in CONSENT.md;
+  dispatching-parallel-agents adapted in skills/job-chief/SKILL.md)
 
 humanizer — Copyright (c) 2025 Siqi Chen
   https://github.com/blader/humanizer

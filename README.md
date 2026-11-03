@@ -31,7 +31,7 @@ applications, so it works both routes.
 
 ## How it works
 
-- **Skills**: this repository is a pack of 14 *skills*, instruction sets that
+- **Skills**: this repository is a pack of 15 *skills*, instruction sets that
   teach Claude how to do each part of a job search well (finding jobs, CVs,
   cover letters, messages, interviews and more). You install them in Claude
   in one step.
@@ -42,7 +42,11 @@ applications, so it works both routes.
   sends you alerts, using your job list to remember what it has already seen.
 - **Built-in checks**: small programs inside the skills check the work, for
   example that every line of a CV comes from your own documents, and that no
-  follow-up goes out after someone has said no.
+  follow-up goes out after someone has said no. Claude never calls something
+  ready without running its check and showing you the result.
+- **A chief of staff (optional)**: in Claude Code or Cowork, one long session
+  can run the whole search, handing work to helpers and keeping a dated
+  record of what you decided and what's working.
 
 ### What it never does
 
@@ -79,7 +83,7 @@ paste into Claude and a checklist after each one. In short:
 
 1. **Create a project in Claude** called *Job Search Assistant*. Download
    [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
-   attach it in a chat in the project and say *Install these 14 skills*, then
+   attach it in a chat in the project and say *Install these 15 skills*, then
    click **Save** on each card. *(About 10 minutes.)*
 2. **Chat 1: Claude reads your documents.** Attach your folder and paste the
    guide's first prompt. Claude drafts your profile, your evidence and your
@@ -108,7 +112,7 @@ common problems, each with the exact words to say to Claude.
 | file | what it's for |
 |---|---|
 | [GUIDE.pdf](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf) | the step-by-step guide, to read offline or print |
-| [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip) | all 14 skills in one file: attach it in a Claude chat to install them (in Cowork, it also installs as a plugin) |
+| [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip) | all 15 skills in one file: attach it in a Claude chat to install them (in Cowork, it also installs as a plugin) |
 | [Single-skill zips](https://github.com/hantcd/job-search-assistant/tree/main/dist) | the same skills one at a time, to upload under **Customize > Skills** instead |
 
 ## Questions
@@ -138,6 +142,19 @@ you approve it, and you click Send, one person at a time.
 **Can I change things later?** Yes. Tell Claude in plain words (for example
 *"stop showing me jobs that need German"*) and it updates your plan. Your
 goals and privacy rules never change without your approval.
+
+## Works even better with
+
+Optional skills from other projects. The pack works without them; when one
+is installed, the skills use it where it helps.
+
+| skill | what it adds |
+|---|---|
+| Claude's **document skills** (Word, PDF, Excel, PowerPoint; built in) | editable Word CVs and letters, filling PDF and Word application forms, a spreadsheet backup of your job list, an offer comparison, slides for a presentation interview |
+| [last30days](https://github.com/mvanhorn/last30days-skill) | what people said about a company or your field in the last 30 days, and what a company's new job ads say about where it's heading (no account logins used) |
+| [superpowers](https://github.com/obra/superpowers) | working through big tasks with helpers in parallel, and checking work before calling it done |
+| [chief-of-staff](https://github.com/mattpocock/skills) | the original of the pack's job-chief, for other long-running goals |
+| [skill-creator](https://github.com/anthropics/skills) | turning a correction you keep making into a tested skill of your own |
 
 ## For technical users
 
