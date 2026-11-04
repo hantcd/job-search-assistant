@@ -63,6 +63,12 @@ disable the plugin). The hooks need `python3`.
 
 **In the Claude app (web or desktop):** turn on Settings > Capabilities >
 Create and edit files. Then either:
+- Customize > Plugins > + Add > Add marketplace > Add from a repository >
+  `hantcd/job-search-assistant`, 'Sync automatically' on, Sync; then add the
+  plugin from Discover. New versions then arrive by themselves, and
+  job-weekly's `update_check.py` applies the setup changes that come with
+  them (automatically when they need nothing from you, as optional items
+  when they do); or
 - Customize > Plugins > + Add > Upload plugin, and choose
   `dist/job-search-assistant-all.zip` (it's also a plugin); or
 - download this repository's skill zips (one per skill, in `dist/`) and upload
@@ -262,6 +268,18 @@ newest.
 - [greenroom](https://github.com/YunyueLi/greenroom) (Yunyue Li): ideas for
   the mock interview (the follow-up chain, real and pressure modes, the five
   scores). Ideas only; none of its text is used.
+- Ideas only, none of their text used: [claude-resume-kit](https://github.com/ARPeeketi/claude-resume-kit)
+  (verb discipline, provenance, a corrections log),
+  [InterviewThread](https://github.com/weiyu1029/Interview_Thread_AI) (the proof pack),
+  [interview-skills](https://github.com/jennifer88huang/interview-skills) (strong vs weak answers),
+  [swe-interview-coach](https://github.com/kirilxd/swe-interview-coach) and
+  [JobSync](https://github.com/Gsync/jobsync) (debriefs after real interviews),
+  [offer-toolkit-skill](https://github.com/yanliudesign/offer-toolkit-skill) and
+  [behavior-question-skill](https://github.com/yanliudesign/behavior-question-skill)
+  (negotiation stop-lines, story tags), [Dossier](https://github.com/AienTech/dossier)
+  (applications by email), [linkedin-skills](https://github.com/sergebulaev/linkedin-skills)
+  (installing from GitHub in the Claude app) and [Job Seek](https://github.com/colophon-group/jobseek)
+  (its free connector as a job source).
 - The REFER kit (10x.with.ai): ideas for the referral path, Google searches
   for people on a team, checking each name and not greeting a recruiter who
   just rejected you. Ideas only; none of its text is used.

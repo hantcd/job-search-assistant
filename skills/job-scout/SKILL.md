@@ -67,6 +67,17 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      Indeed's resume tool only with the person's yes for that run: it returns
      their own Indeed profile, and anything in it that isn't in EVIDENCE.md is
      shown to them to confirm before it's used.
+   - **Job Seek** (jseek.co), if the person added it as a custom connector
+     (Customize > Connectors > + > `https://jseek.co/mcp`; free, no account):
+     jobs gathered from thousands of employers' own career pages, searchable
+     by keywords, location, seniority, technology, work mode and salary, with
+     the date each job was first seen. It widens watched companies beyond
+     Greenhouse, Lever and Ashby, and is strong on European employers.
+     Tested from Dublin on 2026-11-04: 'data analyst' in Dublin returned 7
+     companies. Its links are Job Seek pages, so each job is still checked on
+     the employer's own site. Use only its search and job tools: never its
+     feedback or bug-report tools without the person's yes, and never send it
+     anything about the person.
    - **Email job alerts** in Gmail (LinkedIn, Indeed, IrishJobs and others,
      set up by the person) and community keyword alerts (for example F5Bot).
      Read the emails, never the person's accounts.

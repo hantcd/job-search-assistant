@@ -13,7 +13,15 @@ check scores 0-5 and says which part is weak. Clues it looks for:
 Plus length: about 1-2 minutes spoken (150-300 words). The check is a prompt for
 coaching, not a grade an interviewer uses. Adapted from hunter-skill (MIT).
 
-grid.json: {"themes": [...optional, defaults below...], "stories": [{"name", "themes": [...]}]}
+grid.json: {"themes": [...optional, defaults below...], "values": [...the company's stated values, optional...],
+            "stories": [{"name", "themes": [...], "values": [...], "variants": {"theme": "opening line"}}]}
+
+With "values", the grid also shows which stories prove each of the company's
+stated values (from its careers page, labelled with the source in the company
+notes), and which values have no story yet. A story covering 3+ themes needs a
+'variants' opening line per theme, so it doesn't sound the same each time.
+Ideas from the behavioural-question skill (yanliudesign) and swe-interview-coach
+(kirilxd); none of their text is used.
 """
 
 import argparse
@@ -63,6 +71,15 @@ def grid(data):
     return cover, gaps, thin
 
 
+def values_grid(data):
+    vals = data.get("values") or []
+    stories = data.get("stories", [])
+    vcover = {v: [s["name"] for s in stories if v in s.get("values", [])] for v in vals}
+    missing_variants = [s["name"] for s in stories if len(s.get("themes", [])) >= 3
+                        and len(s.get("variants") or {}) < len(s.get("themes", []))]
+    return vcover, [v for v, n in vcover.items() if not n], missing_variants
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="STAR check and story grid.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -77,13 +94,23 @@ def main(argv=None):
         for t in tips:
             print("  - " + t)
         return 0
-    cover, gaps, thin = grid(json.load(open(a.file, encoding="utf-8")))
+    data = json.load(open(a.file, encoding="utf-8"))
+    cover, gaps, thin = grid(data)
     for t, names in cover.items():
         print("%-24s %s" % (t, ", ".join(names) or "-- GAP --"))
     if gaps:
         print("\nGaps: " + ", ".join(gaps) + ". Ask for a true story for each before the interview.")
     if thin:
         print("Only one story: " + ", ".join(thin) + ". A second helps when they ask for another example.")
+    vcover, vgaps, mv = values_grid(data)
+    if vcover:
+        print("\nCompany values:")
+        for v, names in vcover.items():
+            print("%-24s %s" % (v, ", ".join(names) or "-- no story yet --"))
+    if vgaps:
+        print("No story yet for: " + ", ".join(vgaps) + ".")
+    if mv:
+        print("Used for 3+ themes without an opening line per theme: " + ", ".join(mv) + ".")
     return 0
 
 

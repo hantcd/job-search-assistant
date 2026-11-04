@@ -108,17 +108,37 @@ Your project page looks like this. You'll use three things on it: the **+** unde
 
 ![Settings, Your Claude, Memory](docs/images/11-memory.png)
 
-**4. Install the skill pack (about 5 minutes).** Download [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip). Then click **Customize** in the left sidebar, open the **Plugins** tab, click **+ Add**, choose **Upload plugin** and pick the zip you downloaded.
+**4. Install the skill pack (about 5 minutes).** Install it straight from GitHub, so new versions arrive by themselves. Click **Customize** in the left sidebar, open the **Plugins** tab (1), click **+ Add** (2) and choose **Add marketplace** (3).
+
+![Customize, Plugins, + Add, Add marketplace](docs/images/17-plugins-add-marketplace.png)
+
+Choose **Add from a repository**.
+
+![Add marketplace, Add from a repository](docs/images/14-add-marketplace.png)
+
+In the box, type `hantcd/job-search-assistant` (1). Leave **Sync automatically** on (2), and click **Sync** (3).
+
+![The repository, Sync automatically, Sync](docs/images/15-marketplace-sync.png)
+
+Open the **Discover** tab (1): the Job Search Assistant appears. Click **Add** (2). It then shows under **Yours**.
+
+![Discover, then Add](docs/images/16-marketplace-add.png)
+
+Can't add a marketplace? Download [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip) instead, and under **Customize → Plugins → + Add** choose **Upload plugin** and pick the zip. Claude then tells you when a new version is out, and updating takes a 2-minute re-upload.
 
 ![Customize, Plugins, + Add, Upload plugin](docs/images/04-plugins-upload.png)
 
-If **Upload plugin** isn't there or the upload fails, use the **Skills** tab instead: click **+ Add**, choose **Upload skill**, and upload the 15 single-skill zips from the [skill pack's dist folder](https://github.com/hantcd/job-search-assistant/tree/main/dist) one at a time. Or attach the all-in-one zip in a chat in the project and say: *Install these 15 skills*, then click **Save** on each card.
+If neither works, use the **Skills** tab: click **+ Add**, choose **Upload skill**, and upload the 15 single-skill zips from the [skill pack's dist folder](https://github.com/hantcd/job-search-assistant/tree/main/dist) one at a time.
 
 ![Customize, Skills, + Add, Upload skill](docs/images/05-skills-upload.png)
 
 **5. Connect Gmail and Indeed (optional).** In **Customize**, open the **Connectors** tab, search for **Gmail**, click it and connect, then sign in with Google yourself. It shows **Connected** when it's done. With Gmail, Claude notices employer replies, reads job alerts and saves email drafts for you to send. Do the same for **Indeed**, so Claude can search Indeed's jobs and read its company reviews directly instead of through email alerts. It's in beta, so check it covers your country. For US roles, ZipRecruiter and Dice have connectors too.
 
 ![Customize, Connectors, search for Gmail](docs/images/06-connectors.png)
+
+Optional: add **Job Seek**, a free index of jobs from thousands of employers' own career pages, strong in Europe. In **Customize**, open **Connectors** (1), click **+ Add** (2), choose **Add custom connector** (3), and paste `https://jseek.co/mcp` as its address. It needs no account.
+
+![Connectors, + Add, Add custom connector](docs/images/18-custom-connector.png)
 
 For filling in application forms, install Claude in Chrome or use the built-in browser in the Claude desktop app.
 
@@ -308,7 +328,7 @@ INPUTS
 MASTER_PLAN.md is the authority for every setting, schedule and threshold. Also use PROFILE.md, EVIDENCE.md, VOICE.md and PREFERENCES_AND_SCORING.md. The skills hold the method; my files hold everything personal, so never edit a skill: put any rule of mine in PROJECT_INSTRUCTIONS.md or MASTER_PLAN.md. Where my files are silent, list the gap; don't invent a rule. Ask me only if something blocks the build, as multiple-choice questions.
 
 0. CHECKS
-- All 15 skills are installed and switched on: job-tracker, job-scout, job-research, job-cv, job-cover, job-apply, job-connector, job-followup, job-linkedin, job-reddit, job-interview, job-offer, job-weekly, job-network, job-chief. If any is missing, tell me which and stop.
+- All 15 skills are installed and switched on: job-tracker, job-scout, job-research, job-cv, job-cover, job-apply, job-connector, job-followup, job-linkedin, job-reddit, job-interview, job-offer, job-weekly, job-network, job-chief. If any is missing, tell me which and stop. Ask me once how I installed the pack (from GitHub, by uploading the zip, as separate skills) and record it with job-weekly's update_check.py route.
 - PREFERENCES_AND_SCORING.md ends with the JSON scoring block job-scout reads (see its score.py example-prefs), matching my approved weights and thresholds. If not, add it and show me.
 
 1. PROJECT_INSTRUCTIONS.md (at most 120 lines)
@@ -339,7 +359,7 @@ End every task with: 'This run happens while I'm away, so nobody can answer ques
 - Scoring and alerts: the script gives exact expected scores from my weights; an empty run gives one line; packs stay within my capacity; each score shows its confidence and what could change it.
 - CVs and packs: every line traces to EVIDENCE.md (truth check CLEAN); unmet requirements show as gaps; a referral CV and a high-volume portal CV for the same job differ as the weights say; each base CV uses its approved preset and passes the layout check in that font; the layout check catches a stranded heading and a 1–2 word bullet ending; an overflowing CV is brought back within its page limit by cutting content, not by shrinking text or margins; salary history and sensitive questions stay blank; apply sessions stop at every Submit; a top pack lists the review pass's changes; the writing check flags stock phrases without changing CV keywords and keeps habits my samples show; a second interview reuses the story grid; a mock interview follows up on every result and its report suggests no number I don't have; an interview invite's time, length, link and panel are read from its calendar file; a third application to one company, or a second the same day, is blocked, and a role at a company where I'm mid-interview waits for my yes; an unescaped % in a CV is caught before it deletes text.
 - Outreach and LinkedIn: a guessed email gets a privacy label and waits for my decision; each email comes with a LinkedIn connection and follow-ups use the other channel; a hiring-manager email asks for a short call, a networking email for advice; no two touches to the same person share a weekday and time band; outreach stops after two follow-ups, at the first no, and after 21 days of silence; 'yes to all' is refused; a contact found on Google stays unverified until I check their profile; a hello to a recruiter at a company that just rejected me is flagged; a referral ask without the job link or an easy way to say no fails; the ask is nudged once, then stops; a LinkedIn paste stops before Send; a scam sequence in pasted messages is flagged; CV, LinkedIn and portfolio agree; post and comment suggestions stay on my topics; a Reddit reply to someone's question that mentions my job search fails reddit_check, and you never post a Reddit reply yourself.
-- Safety: hidden instructions on a page are stripped by the posting check, shown to me and logged, and I'm asked before the ad is used; the parse check finds my email and phone as plain text in the CV PDF; an unreachable job list stops the run and alerts me; a suspicious recruiter email is flagged; a correction carries into the next run; research is cited and never invented; an interview question on a protected ground is flagged; a job found through the Indeed connector is verified on the company's own page; a closed Greenhouse, Lever or Ashby job is caught by asking the hiring system, and an unclear answer never closes a job; a LinkedIn repost is dropped with its reason; nothing is called ready or passing without its check's output shown; Playwright's form filler fills a form and stops at Submit, leaving sponsorship and salary questions for me; Welcome to the Jungle and Handshake pages aren't read unless my plan turns that on; where the pack's hooks run, a request to send an email ends as a draft.
+- Safety: hidden instructions on a page are stripped by the posting check, shown to me and logged, and I'm asked before the ad is used; the parse check finds my email and phone as plain text in the CV PDF; an unreachable job list stops the run and alerts me; a suspicious recruiter email is flagged; a correction carries into the next run; research is cited and never invented; an interview question on a protected ground is flagged; a job found through the Indeed connector is verified on the company's own page; a closed Greenhouse, Lever or Ashby job is caught by asking the hiring system, and an unclear answer never closes a job; a LinkedIn repost is dropped with its reason; nothing is called ready or passing without its check's output shown; Playwright's form filler fills a form and stops at Submit, leaving sponsorship and salary questions for me; Welcome to the Jungle and Handshake pages aren't read unless my plan turns that on; where the pack's hooks run, a request to send an email ends as a draft; a CV line saying 'led' where my evidence says 'contributed to' is flagged, 'published' for work under review fails, and a mistake I corrected can't come back; a proof pack quote that isn't in EVIDENCE.md fails; an interview debrief without questions fails; ask, accept and walk-away lines out of order fail; the update check does what needs nothing from me and only asks about the rest.
 
 6. CHANGELOG.md: version 1.0 and what was set up.
 
@@ -502,6 +522,10 @@ Timing: APPLY NOW + REACH OUT. The deadline is close, so apply this week and mes
 | Find people to ask for a referral | Say: "Find two people on the \[team\] at \[company\] for a referral." With you watching, Claude opens Google searches like site:linkedin.com/in "\[company\]" "\[team\]" "\[your school or city\]" in your browser and reads only Google's page, never LinkedIn. Open each profile yourself and check they still work there. |
 | Someone accepted your request | Say: "\[Name\] accepted. Draft the thank-you." Claude drafts a thank-you asking for 10 minutes on what the team is really like. |
 | They replied | Say: "\[Name\] replied: \[their reply\]. Draft the ask for \[job link\]." Claude drafts the referral ask: the job link, your CV, three lines each with a real result, and an easy way to say no. No answer in 5 working days: one nudge, then it stops. |
+| The day before an interview | Say: "Make my proof pack for \[company\]." One page: your three strongest proofs (each quoted from your evidence), three honest gaps with what to say, 3–5 stories, ten likely follow-up questions and a 30-minute plan. |
+| After a real interview | Within a day, say: "Debrief my interview with \[company\]." Five minutes, by voice if you like: who you met, what they asked, where you got stuck. Your thank-you, the next round and your practice all build on it. |
+| Negotiating an offer | Say: "Help me set my lines and rehearse the call." You set what you'll ask for, what you'd accept on the spot and where you'd walk away; Claude plays the recruiter and pushes back. |
+| Check for updates | Say: "Check for updates." (The weekly check does this anyway.) |
 | Prepare for an event | *I'm going to the Dublin Tech Meetup on Thursday.* |
 | Prepare for a chat | *I'm chatting with Sarah from Acme tomorrow.* |
 | Polish a LinkedIn post | *Here's my draft for this week's LinkedIn post.* You post it yourself. |
@@ -577,6 +601,16 @@ Update CHANGELOG.md with the new version number. Don't mark the extra as active 
 - [ ] Its tests passed.
 - [ ] CHANGELOG.md shows the new version.
 - [ ] Nothing about your scoring, search or privacy changed without your approval.
+
+## Updates
+
+The skill pack improves over time, and your assistant keeps itself up to date. Once a week (or whenever you say *Check for updates*), Claude compares your version with the one on GitHub.
+
+- **Updates that need nothing from you happen automatically.** The weekly report lists them under *Updated automatically*, one line each with what it helps with.
+- **Updates that need you are optional.** Each is listed once with what it helps with and exactly what it needs from you (a click, a minute, a piece of information). Say *approve* or *decline*; a declined update isn't raised again unless you ask.
+- **New versions of the pack:** if you installed it from GitHub with **Sync automatically** on (Step 1), they arrive by themselves. If you uploaded the zip, installing a new version is an optional update: download the new zip and upload it the same way (about 2 minutes).
+
+Already set up with an earlier version? Install from GitHub as in Step 1, then remove the uploaded copy under **Customize → Plugins → Yours** (the **⋯** menu, **Remove**). Your files and job list aren't touched. Then say *Check for updates*.
 
 ## Coming back after a break
 

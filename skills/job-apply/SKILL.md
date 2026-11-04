@@ -70,8 +70,12 @@ notes with its reset date.
    paths to the pack's `hiring-manager-reviewer` agent
    (`$SKILL_DIR/agents/hiring-manager-reviewer.md`; a general agent with those
    instructions if it isn't installed). It hasn't seen the drafting, so it
-   isn't grading its own work, and it can only read. In automatic tasks or
-   without one, do it yourself with the same instructions. Either way, the
+   isn't grading its own work, and it can only read. In an ordinary chat,
+   where no separate agent can run, offer the person a fresh-chat review:
+   one short prompt to paste into a new chat in the project ("Review the
+   pack for [job] in [file names] as its hiring manager would, using
+   job-apply's review instructions"), so the reviewer hasn't seen the
+   drafting. In automatic tasks, do it yourself with the same instructions. Either way, the
    critique asks whether the fit is obvious in 7 seconds, what reads as
    generic and what's the strongest missing proof; then revise and list the
    changes. Every suggestion must come from the person's evidence; gaps stay
@@ -87,6 +91,16 @@ notes with its reset date.
 
 For community posts asking candidates to message the poster: a short,
 specific reply for the person to send quickly.
+
+**Applications by email.** When the posting says to send a CV to an address
+(common at small firms, agencies and in the public sector), the application
+is an email, not a form: a short email to that address, with the role and
+any reference number in the subject, the CV and cover letter attached as
+PDFs, and a few lines on why this role (`outreach.py check --channel email
+--stage application --ref <ref>`). Save it as a Gmail draft if connected; if
+the connector can't attach files, say so, and the person attaches the two
+PDFs before sending. The person sends it; record it as applied only once it's
+in their Sent folder. Idea from Dossier (AienTech); none of its text is used.
 
 ## Before applying: the checklist
 

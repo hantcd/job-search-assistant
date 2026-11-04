@@ -13,7 +13,7 @@ person's evidence, the layout is checked by script, and nothing is invented.
 
 ```bash
 python3 "$SKILL_DIR/keywords.py" ad.txt cv.tex [--bank keyword_bank.json]       # the ad's terms, in its own words
-python3 "$SKILL_DIR/truth_check.py" cv.tex --source EVIDENCE.md --source master_cv.md --allow "Acme Ltd"
+python3 "$SKILL_DIR/truth_check.py" cv.tex --source EVIDENCE.md --source master_cv.md --allow "Acme Ltd" --corrections CORRECTIONS.md
 python3 "$SKILL_DIR/tex_check.py" escapes cv.tex                                   # unescaped % & # _ $
 python3 "$SKILL_DIR/tex_check.py" conversion original_cv.pdf base.tex              # nothing lost converting
 pdflatex -interaction=nonstopmode cv.tex
@@ -123,7 +123,14 @@ dates) rather than the CV.
    for what's true (REWORD), and ask about MISSING terms; a no stays a gap.
 4. **Truth check**: `truth_check.py` must say CLEAN. An invented number or
    skill is removed, or confirmed by the person and added to EVIDENCE.md.
-   Check each new capitalised word it lists by hand.
+   Check each new capitalised word it lists by hand. It also catches
+   overclaiming: 'published' for work the evidence says is under review,
+   submitted or internal fails, and a verb stronger than the evidence ('led'
+   where EVIDENCE.md says 'contributed to' or 'helped') is flagged; use the
+   evidence's verb unless the person confirms more, then update EVIDENCE.md.
+   Every correction the person makes to a fact goes into CORRECTIONS.md as
+   one `wrong -> right` line, and a correction that comes back fails.
+   Ideas from claude-resume-kit (ARPeeketi); none of its text is used.
 5. **Escapes, then layout.** Before compiling, `tex_check.py escapes`: an
    unescaped `%` silently deletes the rest of its line, so a number can vanish
    from the PDF without any error. Then the **layout check**, by script on the compiled PDF and the LaTeX log, for the

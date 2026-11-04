@@ -12,9 +12,11 @@ yourself.
 > 1. You need a paid Claude plan (Pro or Max), a computer, and a folder of
 >    your CVs and documents.
 > 2. In Claude, create a project called *Job Search Assistant*.
-> 3. Download [the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
->    then in Claude click **Customize → Plugins → + Add → Upload plugin** and
->    pick the zip. The guide has pictures of every screen.
+> 3. In Claude, click **Customize → Plugins → + Add → Add marketplace → Add
+>    from a repository**, type `hantcd/job-search-assistant`, leave **Sync
+>    automatically** on and click **Sync**; then **Add** it from the
+>    **Discover** tab. New versions then arrive by themselves. The guide has
+>    pictures of every screen.
 > 4. Open [the guide](GUIDE.md) and follow Steps 2 to 6: two short chats about
 >    you, then Claude builds and tests everything.
 > 5. From then on, read the alerts and approve what you like. You press Send
@@ -48,6 +50,16 @@ Once it's set up, Claude works on your job search every weekday:
   turned you down.
 - **Drafts messages** to hiring managers and possible referrers, follows up
   politely, and stops at the first no.
+- **Gets you ready for each interview and offer**: a one-page proof pack
+  before each round (your three strongest proofs, three honest gaps, likely
+  follow-up questions), a quick debrief afterwards that shapes the next
+  round, and for offers, the lines you won't cross and a rehearsal of the
+  call. CVs can't quietly overclaim: 'led' where you 'contributed' is
+  flagged.
+- **Keeps itself up to date.** Once a week it checks this repository for a
+  newer version. Anything that needs nothing from you happens automatically;
+  anything that needs you is optional, with what it helps with and what it
+  needs, for you to approve or decline.
 - **Helps you get found** on LinkedIn, and prepares you for interviews and
   offers, with realistic mock interviews: it plays the interviewer, asks
   follow-up questions the way real panels do, and scores you so you can see
@@ -108,11 +120,13 @@ are from Ireland; the setup asks where you are and adjusts.
 The **[guide](GUIDE.md)** walks you through every step with the exact text to
 paste into Claude and a checklist after each one. In short:
 
-1. **Create a project in Claude** called *Job Search Assistant*. Download
-   [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip),
-   then click **Customize → Plugins → + Add → Upload plugin** and pick the
-   zip. The guide shows each screen with the button to press marked.
-   *(About 10 minutes.)*
+1. **Create a project in Claude** called *Job Search Assistant*, and add the
+   skill pack straight from GitHub (**Customize → Plugins → + Add → Add
+   marketplace**, `hantcd/job-search-assistant`, **Sync automatically** on),
+   so new versions arrive by themselves. Or upload
+   [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip)
+   under **Upload plugin**. The guide shows each screen
+   with the button to press marked. *(About 10 minutes.)*
 2. **Chat 1: Claude reads your documents.** Add your folder to the project and paste the
    guide's first prompt. Claude drafts your profile, your evidence and your
    writing style; you confirm or correct its guesses, mostly by clicking.

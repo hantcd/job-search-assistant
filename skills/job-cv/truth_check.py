@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Prove a tailored CV, cover letter or answer adds nothing that isn't in your evidence.
 
-    python3 truth_check.py draft.tex --source EVIDENCE.md --source master_cv.md [--allow "Acme" --allow "Data Analyst"]
+    python3 truth_check.py draft.tex --source EVIDENCE.md --source master_cv.md [--allow "Acme" --allow "Data Analyst"] [--corrections CORRECTIONS.md]
 
 FAIL  a number, or a known skill or qualification, that no source contains (exit 1)
+FAIL  'published' for work the evidence calls under review, submitted, a preprint or internal
+FAIL  a mistake the person already corrected (a 'wrong -> right' line in CORRECTIONS.md) is back
+WARN  an ownership verb stronger than the evidence: the CV says 'led' where the
+      matching evidence line says 'contributed to' or 'helped'
 WARN  other new capitalised words to check by hand (names, places, products)
 
 Sources are the files the facts come from: EVIDENCE.md, PROFILE.md, the master
@@ -42,7 +46,79 @@ def cap_words(text):
     return out
 
 
-def check(draft, sources, allow=()):
+# How much ownership a verb claims: 1 helped, 2 did it, 3 led or owned it.
+VERB_TIERS = {
+    1: r"helped|helping|assisted|supported|contributed|participated|took part|was involved|worked on|collaborated",
+    2: r"built|developed|created|designed|wrote|implemented|analy[sz]ed|ran|delivered|produced|automated|made|"
+       r"prepared|tested|researched|organi[sz]ed|coordinated|improved|reduced|increased",
+    3: r"led|lead|owned|managed|headed|directed|spearheaded|drove|oversaw|launched|founded|architected|championed|"
+       r"supervised|ran the|was responsible for",
+}
+VERB_RE = {t: re.compile(r"\b(?:%s)\b" % pat, re.I) for t, pat in VERB_TIERS.items()}
+STOP = COMMON | set("""using used across into over under within team project projects work worked new data""".split())
+UNPUBLISHED = re.compile(r"under review|submitted|preprint|in preparation|internal|unpublished|draft", re.I)
+
+
+def tier(line):
+    """The strongest ownership a line claims (0 when it names none)."""
+    return max([t for t, rx in VERB_RE.items() if rx.search(line)], default=0)
+
+
+def content_words(line):
+    return {w for w in re.findall(r"[a-z][a-z0-9+#-]{3,}", line.lower()) if w not in STOP
+            and not any(rx.fullmatch(w) for rx in VERB_RE.values())}
+
+
+def lines_of(text):
+    out = []
+    for l in text.splitlines():
+        l = re.sub(r"\\(?:item|resumeItem|textbf|emph)\b|[{}\\]", " ", l)
+        l = re.sub(r"^\s*(?:[-*\u2022]|\d+[.)])\s*", "", l).strip()
+        if len(l) > 15:
+            out.append(l)
+    return out
+
+
+def best_match(line, src_lines, need=3):
+    words = content_words(line)
+    best, score = None, 0
+    for s in src_lines:
+        n = len(words & content_words(s))
+        if n > score:
+            best, score = s, n
+    return best if score >= need else None
+
+
+def overclaims(draft, sources):
+    """CV lines that claim more ownership, or a firmer publication status, than the evidence."""
+    src_lines = [l for s in sources for l in lines_of(s)]
+    fails, warns = [], []
+    for line in lines_of(draft):
+        ev = best_match(line, src_lines)
+        if not ev:
+            continue
+        if re.search(r"\bpublished\b", line, re.I) and UNPUBLISHED.search(ev) and not re.search(r"\bpublished\b", ev, re.I):
+            fails.append("'published' is too strong: the evidence says %r" % UNPUBLISHED.search(ev).group(0))
+        d, e = tier(line), tier(ev)
+        if d > e and e:
+            dv = next(rx.search(line).group(0) for t, rx in sorted(VERB_RE.items(), reverse=True) if t == d)
+            ev_v = next(rx.search(ev).group(0) for t, rx in sorted(VERB_RE.items(), reverse=True) if t == e)
+            warns.append("ownership upgraded: the CV says '%s' where the evidence says '%s' (%s...): use the "
+                         "evidence's verb unless the person confirms more" % (dv, ev_v, ev[:60]))
+    return fails, warns
+
+
+def corrections_back(draft, corrections_text):
+    out = []
+    low = draft.lower()
+    for l in corrections_text.splitlines():
+        m = re.match(r"\s*[-*]?\s*(.+?)\s*(?:->|=>|→)\s*(.+)$", l)
+        if m and m.group(1).strip().lower() in low:
+            out.append("a corrected mistake is back: '%s' (the person changed it to '%s')" % (m.group(1).strip(), m.group(2).strip()))
+    return out
+
+
+def check(draft, sources, allow=(), corrections=""):
     terms = load_terms()
     src = "\n".join(sources) + "\n" + "\n".join(allow)
     src_low = src.lower()
@@ -58,8 +134,12 @@ def check(draft, sources, allow=()):
             (warns if word in AMBIGUOUS or canon in AMBIGUOUS else fails).append(msg)
     known = {w for g in terms for w in g}
     for w in sorted(cap_words(draft)):
-        if w.lower() not in src_low and w not in known and w.lower() not in COMMON:
+        if w.lower() not in src_low and w not in known and w.lower() not in COMMON and not tier(w) \
+                and w.lower() != "published":
             warns.append("new word '%s': check it's true (a name, place or product?)" % w)
+    f2, w2 = overclaims(draft, sources)
+    fails += f2 + corrections_back(draft, corrections or "")
+    warns += w2
     return fails, warns
 
 
@@ -68,8 +148,10 @@ def main(argv=None):
     p.add_argument("draft")
     p.add_argument("--source", action="append", required=True)
     p.add_argument("--allow", action="append", default=[])
+    p.add_argument("--corrections", help="CORRECTIONS.md: one 'wrong -> right' per line")
     a = p.parse_args(argv)
-    fails, warns = check(read_text(a.draft), [read_text(s) for s in a.source], a.allow)
+    corr = read_text(a.corrections) if a.corrections and os.path.exists(a.corrections) else ""
+    fails, warns = check(read_text(a.draft), [read_text(s) for s in a.source], a.allow, corr)
     for f in fails:
         print("FAIL  " + f)
     for w in warns:

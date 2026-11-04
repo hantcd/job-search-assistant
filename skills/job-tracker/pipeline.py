@@ -52,7 +52,8 @@ REJECTION_WINDOW = 180  # days a rejection at a company is worth a warning befor
 TABLES = ("jobs", "applications", "contacts", "outreach", "run_log", "email_log")
 # Free-form tables the skills also keep (checked only for being lists):
 OTHER_TABLES = ("companies", "events", "offers", "feedback", "story_grid",
-                "keyword_bank", "watched", "network", "signals", "reddit", "linkedin_ids")
+                "keyword_bank", "watched", "network", "signals", "reddit", "linkedin_ids",
+                "question_bank", "updates")
 
 STALE_DAYS = 28  # 'stale' after 4 weeks with no news
 LIFETIME_CAP = 2  # applications to one company, ever, unless the person raises it

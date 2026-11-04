@@ -4,6 +4,14 @@
     python3 offer.py total offer.json [--years 4]
     python3 offer.py compare offer1.json offer2.json [--years 4]
     python3 offer.py counter offer.json --bench bench.json
+    python3 offer.py lines --offer offer.json --walk 48000 --accept 54000 --ask 58000 [--bench bench.json]
+
+lines: the three numbers the person sets before any negotiation call, so the
+call can't move them: ASK (what they open with), ACCEPT (they say yes on the
+spot at or above it) and WALK (below it they decline, politely). Checks that
+walk <= accept <= ask, that the ask is backed by a sourced market figure, and
+where the current offer sits. The person sets every number. Idea from the
+offer toolkit's stop-lines (yanliudesign); none of its text is used.
 
 offer.json (only what the offer says; leave out what it doesn't):
   {"company", "role", "currency": "EUR", "base": 52000,
@@ -84,6 +92,30 @@ def counter(o, bench):
             "note": "A number near the top of a sourced range, with a reason; include non-salary asks; stay positive."}
 
 
+def lines(offer, walk, accept, ask, bench=None):
+    out = []
+    if not walk <= accept <= ask:
+        out.append(("FAIL", "order", "walk (%s) <= accept (%s) <= ask (%s)" % (f"{walk:,}", f"{accept:,}", f"{ask:,}")))
+    base = offer.get("base") if offer else None
+    if base:
+        where = ("below your walk line: decline unless they move" if base < walk else
+                 "between walk and accept: negotiate" if base < accept else
+                 "at or above your accept line: you can say yes now")
+        out.append(("INFO", "offer", "%s base is %s" % (f"{base:,}", where)))
+        if ask > base * 1.25:
+            out.append(("WARN", "ask", "more than 25% above the offer: back it with the market figures you'll quote"))
+    if bench is not None:
+        sourced = [b for b in bench if b.get("source") and b.get("url")]
+        if not sourced:
+            out.append(("FAIL", "market", "every market figure needs a source and a link"))
+        elif ask > max(b.get("high", 0) for b in sourced):
+            out.append(("WARN", "ask", "above every sourced market high: be ready to say why"))
+    if not any(r[0] == "FAIL" for r in out):
+        out.append(("PASS", "lines", "ask %s / accept %s / walk %s: write them down before the call"
+                    % (f"{ask:,}", f"{accept:,}", f"{walk:,}")))
+    return out
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="Offer arithmetic. Information, not financial advice.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -96,8 +128,20 @@ def main(argv=None):
     k = sub.add_parser("counter")
     k.add_argument("offer")
     k.add_argument("--bench", required=True)
+    ln = sub.add_parser("lines")
+    ln.add_argument("--offer")
+    ln.add_argument("--walk", type=int, required=True)
+    ln.add_argument("--accept", type=int, required=True)
+    ln.add_argument("--ask", type=int, required=True)
+    ln.add_argument("--bench")
     a = p.parse_args(argv)
     try:
+        if a.cmd == "lines":
+            res = lines(json.load(open(a.offer, encoding="utf-8")) if a.offer else None, a.walk, a.accept, a.ask,
+                        json.load(open(a.bench, encoding="utf-8")) if a.bench else None)
+            for st, what, detail in res:
+                print("%-4s %-7s %s" % (st, what, detail))
+            return 1 if any(r[0] == "FAIL" for r in res) else 0
         if a.cmd == "total":
             show(json.load(open(a.offer, encoding="utf-8")), a.years)
         elif a.cmd == "compare":

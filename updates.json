@@ -1,0 +1,22 @@
+{
+ "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
+ "latest": "1.8.0",
+ "versions": [
+  {"version": "1.8.0", "date": "2026-11-04",
+   "summary": "Interview debriefs and proof packs, overclaiming checks on CVs, negotiation lines and rehearsal, applications by email, Job Seek as a job source, and automatic updates.",
+   "helps": ["a debrief after each real interview and a question bank that shapes the next round",
+             "a one-page proof pack before each interview, checked against your evidence",
+             "CVs can't quietly upgrade 'contributed to' into 'led', or call work published when it's under review",
+             "set your ask, accept and walk-away lines before negotiating, and rehearse the call",
+             "applications by email when a posting says 'send your CV to'",
+             "jobs from thousands more company career pages through Job Seek",
+             "updates that arrive and apply themselves, asking only when you're needed"],
+   "install_minutes": 2},
+  {"version": "1.7.0", "date": "2026-11-04",
+   "summary": "Referral path, Google people search, contact checks before any draft.",
+   "helps": ["find people on a team through Google without going on LinkedIn",
+             "a referral path: hello, thank-you, the ask, one nudge, stop",
+             "warnings before writing to someone unverified or to a recruiter who just rejected you"],
+   "install_minutes": 2}
+ ]
+}

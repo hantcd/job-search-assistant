@@ -3,6 +3,41 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.8.0 (2026-11-04)
+Ideas from the best-rated job-search, interview and career repositories on
+GitHub, and automatic updates:
+- Updates: job-weekly's `update_check.py` compares the installed version with
+  `updates.json` on GitHub (information only; nothing from GitHub is run).
+  Setup changes that need nothing from the person happen automatically and
+  are reported; anything that needs the person (information, a click, a
+  decision) is optional, shown once with what it helps with and what it
+  needs, then approved or declined. Installed from GitHub with 'Sync
+  automatically' on, new versions arrive by themselves (tested in the Claude
+  app on 2026-11-04). Say "check for updates" any time.
+- Install from GitHub: Customize > Plugins > Add marketplace > Add from a
+  repository > hantcd/job-search-assistant, with automatic sync. Now the
+  guide's main install route; uploading the zip still works.
+- Job Seek (jseek.co) as an optional job source: a free connector over
+  thousands of employers' own career pages (tested from Dublin).
+- Interviews: a debrief after each real interview (`debrief.py`) feeding a
+  question bank; a one-page proof pack before each round (`proofpack.py`:
+  three proofs quoted from EVIDENCE.md, three real gaps, 3-5 stories, ten
+  follow-ups, a 30-minute plan); strong-vs-weak answer comparisons; company
+  values in the story grid, with an opening line per theme; links to the
+  Tech Interview Handbook, System Design Primer and Coding Interview
+  University for technical roles.
+- CVs: the truth check flags ownership verbs stronger than the evidence
+  ('led' for 'contributed to'), fails 'published' for work under review, and
+  fails corrected mistakes that come back (CORRECTIONS.md).
+- Offers: ask, accept and walk-away lines set before any call
+  (`offer.py lines`), and a negotiation rehearsal with recruiter pushback.
+- Applications by email (`outreach.py check --stage application`), and a
+  fresh-chat review where no separate reviewer agent can run.
+- From: claude-resume-kit, InterviewThread, interview-skills,
+  swe-interview-coach, JobSync, offer-toolkit-skill, behavior-question-skill,
+  Dossier, linkedin-skills (install steps) and Job Seek. Ideas only; none of
+  their text is used.
+
 ## 1.7.0 (2026-11-04)
 Referral lessons from a short referral kit (10x.with.ai's REFER kit):
 - Finding people through Google: `outreach.py find` builds searches like

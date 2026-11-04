@@ -10,6 +10,8 @@
 | ZipRecruiter, Dice | their connectors, for US roles | the boards' own routes |
 | Welcome to the Jungle | job alert emails; pages the person pastes; and, only if MASTER_PLAN.md turns it on, single job pages through `fetch_page.py` and `jobposting.py`, a few a run, never search pages | its terms forbid scraping (only search engines may crawl) and robots.txt blocks its search URLs: the person's informed choice |
 | Handshake | job alert emails; pages the person pastes; and, only if MASTER_PLAN.md turns it on, public job pages as above | its terms forbid scraping and automated access, and most of it is behind a login, which Claude never gets round |
+| Job Seek (jseek.co) | its free connector (`https://jseek.co/mcp`) if the person added it, or its public API, 60 requests a minute | published by Job Seek for AI agents; search only, no account; never its feedback tools without the person's yes |
+| freehire (freehire.me) | not used yet: tech jobs only; its terms for automated use haven't been checked | listed for later |
 | Jack & Jill | its match emails, read in Gmail; the person talks to Jack themselves | no automated access to its site or the person's account; replies are drafts |
 | IrishJobs and other job sites | email job alerts the person sets up; Claude reads the emails | their terms forbid scraping; Claude never uses the person's accounts |
 | LinkedIn job posts the person finds | the person pastes the post | as above |

@@ -11,7 +11,10 @@
 check: emails under 75 words, a subject naming the role, no attachment in a first
 email, one clear question; LinkedIn messages 2-4 sentences; connection notes at
 most 200 characters; no 'I found you on...' openings; a mention of their post,
-talk or school is flagged for the person to confirm before sending. With
+talk or school is flagged for the person to confirm before sending.
+With --stage application (a posting that says 'send your CV to...'): the CV
+and letter are attached, the subject names the role (and the reference, with
+--ref), under 150 words, and no 'one question' rule. With
 --stage ask (the referral ask): the job link, an easy way to say no, and at
 most 3 'why I fit' lines. With --stage nudge: under 40 words, no new ask.
 
@@ -59,13 +62,21 @@ EASY_OUT = re.compile(r"rather not|no problem|either way|no worries|totally unde
 URL = re.compile(r"https?://\S+")
 
 
-def check(channel, text, subject="", role="", stage=""):
+def check(channel, text, subject="", role="", stage="", ref=""):
     res = []
 
     def add(name, status, detail):
         res.append((name, status, detail))
 
     words = len(re.findall(r"[A-Za-z0-9'’-]+", text))
+    if channel == "email" and stage == "application":
+        add("length", "PASS" if words < 150 else "WARN", "%d words (under 150 for an application email)" % words)
+        rw = [w for w in re.findall(r"[A-Za-z]+", role) if len(w) > 2]
+        ok = bool(subject) and all(w.lower() in subject.lower() for w in rw) and (not ref or ref.lower() in subject.lower())
+        add("subject", "PASS" if ok else "FAIL", "name the role%s in the subject: %r" % (" and reference " + ref if ref else "", subject))
+        add("attached", "PASS" if re.search(r"\battach(ed|ment)?|\benclosed\b", text, re.I) else "WARN",
+            "say the CV and cover letter are attached, and attach them before sending")
+        return res
     if channel == "email":
         add("length", "PASS" if words < 75 else "FAIL", "%d words (under 75)" % words)
         if not subject:
@@ -182,7 +193,8 @@ def main(argv=None):
     c.add_argument("--file", required=True)
     c.add_argument("--subject", default="")
     c.add_argument("--role", default="")
-    c.add_argument("--stage", choices=("note", "thanks", "chat", "ask", "nudge"), default="")
+    c.add_argument("--stage", choices=("note", "thanks", "chat", "ask", "nudge", "application"), default="")
+    c.add_argument("--ref", default="", help="the posting's reference number, for application emails")
     f = sub.add_parser("find")
     f.add_argument("--company", required=True)
     f.add_argument("--team", required=True, help="the team or job title")
@@ -197,7 +209,7 @@ def main(argv=None):
     ap.add_argument("--reply", required=True)
     a = p.parse_args(argv)
     if a.cmd == "check":
-        res = check(a.channel, open(a.file, encoding="utf-8").read(), a.subject, a.role, a.stage)
+        res = check(a.channel, open(a.file, encoding="utf-8").read(), a.subject, a.role, a.stage, a.ref)
         for name, st, detail in res:
             print("%-4s  %-14s %s" % (st, name, detail))
         return 1 if any(st == "FAIL" for _, st, _ in res) else 0

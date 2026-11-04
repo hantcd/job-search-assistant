@@ -16,14 +16,19 @@ python3 "$SKILL_DIR/star.py" grid grid.json       # which themes each story cove
 python3 "$SKILL_DIR/invite.py" invite.ics --zone Europe/Dublin   # time, length, link and the named panel
 python3 "$SKILL_DIR/mock.py" check mock.json --source EVIDENCE.md   # a mock interview report, checked
 python3 "$SKILL_DIR/mock.py" progress mock-*.json                # each skill across mocks
+python3 "$SKILL_DIR/proofpack.py" check pack.json --source EVIDENCE.md   # the one-page proof pack
+python3 "$SKILL_DIR/debrief.py" check debrief.json                # after a real interview
+python3 "$SKILL_DIR/debrief.py" bank debrief.json --bank question_bank.json
 ```
 
 ## Reads and writes
 
 - Reads the job, company notes (stages and reports, labelled), EVIDENCE.md,
   VOICE.md, the story grid.
-- Writes the interview brief, the story grid (theme, experience, STAR notes,
-  last used), mock-interview scores, and the interview on the job row.
+- Writes the interview brief and proof pack, the story grid (theme, company
+  values, experience, STAR notes, an opening line per theme, last used),
+  mock-interview scores, each real interview's debrief on the job row, and the
+  question bank (job-tracker's question_bank table).
 
 ## Start from what they read
 
@@ -55,10 +60,19 @@ one, and research on panellists is public and professional only
    well as results, drawn from the story grid: their top experiences against
    common themes (a challenge, a failure, a conflict, leadership, feedback,
    adaptability, why this company), built the first time a job reaches
-   interview and reused after, with gaps shown (`star.py grid`). Check each
-   answer with `star.py check` and coach the weak part.
-4. **For software role families**, point to the Tech Interview Handbook and
-   Grind 75 for coding practice.
+   interview and reused after, with gaps shown (`star.py grid`). Add the
+   company's stated values (from its careers page, sourced in the company
+   notes) to the grid, so each value has a story; a story used for 3+ themes
+   gets its own opening line for each. Check each answer with `star.py check`
+   and coach the weak part. Questions from the person's own question bank
+   (asked in their earlier real interviews) come first.
+4. **For technical role families**, point to the free, widely used guides:
+   the [Tech Interview Handbook](https://www.techinterviewhandbook.org/) and
+   Grind 75 for coding, the
+   [System Design Primer](https://github.com/donnemartin/system-design-primer)
+   for design rounds, and
+   [Coding Interview University](https://github.com/jwasham/coding-interview-university)
+   for a longer study plan. Other role families skip this.
 5. **A 1-3 sentence, positive reason for leaving** each role.
 6. **Questions to ask** about their priorities, and notes to bring.
 7. **A short study plan**, most useful first.
@@ -66,6 +80,24 @@ one, and research on panellists is public and professional only
    AI tools during an interview (several employers forbid it; prepare with
    Claude, answer alone).
 9. **A mock interview** before each round (below).
+
+## The proof pack
+
+One page the person reads the night before or the morning of, checked with
+`proofpack.py check` (no source, no claim):
+
+1. **Three strongest proofs** for this role, each with the words from
+   EVIDENCE.md it rests on.
+2. **Three real gaps**, each with an honest line to say about it. Gaps stay
+   visible; they're never papered over.
+3. **Three to five stories**, each with the question theme it answers.
+4. **Ten likely follow-up questions**, aimed at the weakest evidence.
+5. **A 30-minute plan**, most useful first.
+
+When the person is stuck on a question, show a strong answer and a weak one
+side by side, both built only from their evidence, with one line on what
+makes the difference. Idea from InterviewThread (Wei Yu) and
+interview-skills (jennifer88huang); none of their text is used.
 
 ## Mock interviews
 
@@ -107,9 +139,16 @@ mock-interview (Yunyue Li).
 
 ## Afterwards
 
-- A thank-you note within a day.
-- Record what happened in this round (stage, questions, feedback, how it went)
-  on the job's interviews list, so the next round starts from it.
+- **A debrief within a day** (5 minutes; a voice note is fine): who
+  interviewed, the questions asked and how each went (good, ok, stuck), where
+  it went wrong, what went well, anything promised, next steps and a gut score
+  1-5. Check it with `debrief.py check`, save it on the job's interviews list,
+  and add its questions to the question bank (`debrief.py bank`): questions
+  asked twice or more, and the ones that got stuck, are practised first.
+  The next round's brief, the next mock and job-weekly all start from it.
+  Idea from swe-interview-coach (kirilxd) and JobSync's interview timeline.
+- A thank-you note within a day, using the debrief: the interviewers' names,
+  one thing from the conversation, and anything promised.
 - Ask what was asked, and flag red flags: questions on protected grounds
   (gender, civil or family status, sexual orientation, religion, age,
   disability, race or Traveller community membership, all covered by

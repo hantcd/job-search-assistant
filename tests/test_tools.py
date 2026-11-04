@@ -982,3 +982,172 @@ class ReferralPath(unittest.TestCase):
         self.assertIn("nudge", m)
         t = self.thread(*base, ("2026-10-13", "out", "nudge"), stage="nudge")
         self.assertEqual(self.f.thread_state(t, {"name": "X"}, D(2026, 10, 20))[0], "STOPPED")
+
+
+class Release180(unittest.TestCase):
+    """Ideas from the best-rated job-search repos, and automatic updates."""
+    t = load("job-cv", "truth_check")
+    db = load("job-interview", "debrief")
+    pp = load("job-interview", "proofpack")
+    st = load("job-interview", "star")
+    of = load("job-offer", "offer")
+    o = load("job-connector", "outreach")
+    u = load("job-weekly", "update_check")
+
+    EV = ("- Contributed to the claims dashboard used by 12 managers in the analytics team\n"
+          "- Paper on churn prediction for insurance customers, under review at KDD 2026\n"
+          "- Cut monthly reporting from 6 hours to 40 minutes with a Python script\n")
+
+    def test_verb_upgrade_flagged(self):
+        fails, warns = self.t.check("\\item Led the claims dashboard used by 12 managers in the analytics team", [self.EV])
+        self.assertEqual(fails, [])
+        self.assertTrue(any("ownership upgraded" in w and "Led" in w for w in warns))
+
+    def test_same_verb_is_fine(self):
+        _, warns = self.t.check("Contributed to the claims dashboard used by 12 managers in the analytics team", [self.EV])
+        self.assertFalse(any("ownership" in w for w in warns))
+
+    def test_published_under_review_fails(self):
+        fails, _ = self.t.check("Published paper on churn prediction for insurance customers at KDD 2026", [self.EV])
+        self.assertTrue(any("published" in f for f in fails))
+
+    def test_correction_comes_back(self):
+        fails, _ = self.t.check("Data Scientist intern", [self.EV + "Data Scientist intern"],
+                                corrections="- Data Scientist -> Data Analyst\n")
+        self.assertTrue(any("corrected mistake" in f for f in fails))
+
+    def debrief(self, **kw):
+        d = {"date": "2026-11-10", "job": "acme-junior-data-analyst", "stage": "hiring manager",
+             "interviewers": [{"role": "Analytics Manager"}],
+             "questions": [{"q": "Tell me about a time a dashboard was wrong", "went": "stuck"},
+                           {"q": "Why Acme?", "went": "good"}, {"q": "How do you check numbers?", "went": "ok"}],
+             "stuck": "couldn't say how I checked", "promised": [], "gut": 3}
+        d.update(kw)
+        return d
+
+    def test_debrief_check(self):
+        self.assertEqual(self.db.check(self.debrief())[-1][0], "PASS")
+        self.assertTrue(any(r[0] == "FAIL" for r in self.db.check(self.debrief(questions=[]))))
+        self.assertTrue(any(r[0] == "FAIL" for r in self.db.check(self.debrief(gut=9))))
+
+    def test_bank_counts_repeats(self):
+        b, new, again = self.db.bank(self.debrief(), None)
+        self.assertEqual(len(new), 3)
+        b, new, again = self.db.bank(self.debrief(date="2026-11-17", questions=[
+            {"q": "Can you tell me about a time when a dashboard was wrong?", "went": "ok"}]), b)
+        self.assertEqual((new, len(again)), ([], 1))
+        self.assertEqual(b["questions"][0]["times"], 2)
+
+    def pack(self, **kw):
+        p = {"proofs": [{"claim": "dashboards", "quote": "claims dashboard used by 12 managers"},
+                        {"claim": "automation", "quote": "Cut monthly reporting from 6 hours to 40 minutes"},
+                        {"claim": "research", "quote": "Paper on churn prediction for insurance customers"}],
+             "gaps": [{"gap": g, "say": "honest line"} for g in ("Power BI", "Airflow", "people management")],
+             "stories": [{"name": n} for n in ("claims", "reporting", "churn")],
+             "follow_ups": ["q%d" % i for i in range(10)],
+             "plan": [{"minutes": 10}, {"minutes": 10}, {"minutes": 10}]}
+        p.update(kw)
+        return p
+
+    def test_proof_pack(self):
+        self.assertEqual(self.pp.check(self.pack(), self.EV)[-1][0], "PASS")
+        bad = self.pack(proofs=self.pack()["proofs"][:2] + [{"claim": "x", "quote": "led a team of 40 analysts"}])
+        self.assertTrue(any("no source" in r[2] for r in self.pp.check(bad, self.EV)))
+        self.assertTrue(any(r[1] == "plan" for r in self.pp.check(self.pack(plan=[{"minutes": 45}]), self.EV)))
+
+    def test_values_grid(self):
+        data = {"values": ["ownership", "customer first"],
+                "stories": [{"name": "claims", "themes": ["a challenge", "leadership", "a result with numbers"],
+                             "values": ["ownership"]}]}
+        vcover, vgaps, mv = self.st.values_grid(data)
+        self.assertEqual(vgaps, ["customer first"])
+        self.assertEqual(mv, ["claims"])
+
+    def test_negotiation_lines(self):
+        offer = {"base": 50000}
+        self.assertEqual(self.of.lines(offer, 52000, 48000, 58000)[0][0], "FAIL")
+        res = self.of.lines(offer, 48000, 54000, 58000, [{"source": "guide", "url": "https://x", "high": 60000}])
+        self.assertEqual(res[-1][0], "PASS")
+        self.assertIn("negotiate", res[0][2])
+        res = self.of.lines(offer, 48000, 54000, 58000, [{"source": "", "high": 60000}])
+        self.assertTrue(any(r[1] == "market" and r[0] == "FAIL" for r in res))
+
+    def test_application_email(self):
+        txt = "Dear hiring team,\nPlease find attached my CV and cover letter for the Data Analyst role (ref DA-12).\nAoife"
+        res = {n: s for n, s, _ in self.o.check("email", txt, "Data Analyst application, ref DA-12", "Data Analyst",
+                                                stage="application", ref="DA-12")}
+        self.assertEqual((res["subject"], res["attached"]), ("PASS", "PASS"))
+        self.assertNotIn("no attachment", res)
+        res = {n: s for n, s, _ in self.o.check("email", txt, "Application", "Data Analyst",
+                                                stage="application", ref="DA-12")}
+        self.assertEqual(res["subject"], "FAIL")
+
+    # ---- updates
+    def data(self):
+        return copy.deepcopy(PIPE)
+
+    def manifest(self, latest):
+        return {"latest": latest, "versions": [{"version": latest, "helps": ["something new"]}]}
+
+    def test_version_matches_release(self):
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+        plugin = json.load(open(os.path.join(root, ".claude-plugin", "plugin.json")))
+        updates = json.load(open(os.path.join(root, "updates.json")))
+        self.assertEqual(self.u.PACK_VERSION, plugin["version"])
+        self.assertEqual(updates["latest"], plugin["version"])
+        self.assertIn("## " + plugin["version"], open(os.path.join(root, "CHANGELOG.md")).read())
+
+    def test_zero_effort_items_never_ask(self):
+        r = self.u.check(self.data(), None)
+        for item in r["ask"]:
+            self.assertTrue(item["needs"], item)
+        for item in r["do_now"]:
+            self.assertNotIn("needs", item)
+        self.assertIn("1.8.0-question-bank", [i["id"] for i in r["do_now"]])
+
+    def test_new_version_optional_unless_auto_sync(self):
+        d = self.data()
+        r = self.u.check(d, self.manifest("9.0.0"))
+        self.assertIn("install-9.0.0", [i["id"] for i in r["ask"]])
+        self.u.main  # route via record
+        d.setdefault("updates", []).append({"id": "install-route", "value": "github-auto"})
+        r = self.u.check(d, self.manifest("9.0.0"))
+        self.assertNotIn("install-9.0.0", [i["id"] for i in r["ask"]])
+        self.assertEqual(r["new_version"]["needs"], "")
+        self.assertNotIn("1.8.0-auto-install", [i["id"] for i in r["ask"]])
+
+    def test_same_version_no_install_item(self):
+        r = self.u.check(self.data(), self.manifest(self.u.PACK_VERSION))
+        self.assertIsNone(r["new_version"])
+
+    def test_decline_not_asked_again(self):
+        d = self.data()
+        self.u.record(d, "1.8.0-job-seek", "declined", "2026-11-10")
+        r = self.u.check(d, None)
+        self.assertNotIn("1.8.0-job-seek", [i["id"] for i in r["ask"]])
+        self.assertIn("1.8.0-job-seek", r["declined"])
+
+    def test_approved_becomes_do_now_then_done(self):
+        d = self.data()
+        self.u.record(d, "1.8.0-job-seek", "approved", "2026-11-10")
+        self.assertIn("1.8.0-job-seek", [i["id"] for i in self.u.check(d, None)["do_now"]])
+        self.u.record(d, "1.8.0-job-seek", "done", "2026-11-11")
+        r = self.u.check(d, None)
+        self.assertNotIn("1.8.0-job-seek", [i["id"] for i in r["do_now"] + r["ask"]])
+
+    def test_apply_builds_question_bank_once(self):
+        d = self.data()
+        for j in d["jobs"]:
+            if j.get("interviews"):
+                j["interviews"][0]["questions"] = [{"q": "Why us?"}, "Walk me through your CV"]
+        out = self.u.apply_auto(d, "2026-11-10")
+        self.assertTrue(out and "2 question" in out[0])
+        self.assertEqual(self.u.apply_auto(d, "2026-11-10"), [])
+        errs, _ = load("job-tracker", "pipeline").validate(d)
+        self.assertEqual(errs, [])
+
+    def test_no_contacts_to_check_means_no_question(self):
+        d = self.data()
+        for c in d["contacts"]:
+            c["employer_checked"] = "2026-11-01"
+        self.assertNotIn("1.7.0-contacts-checked", [i["id"] for i in self.u.check(d, None)["ask"]])

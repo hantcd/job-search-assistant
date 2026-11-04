@@ -1,6 +1,6 @@
 ---
 name: job-offer
-description: Reviews an offer: market pay with sources, pay year by year, a score against the person's criteria, a contract read-through and a negotiation email. Information only. Use for 'I got an offer'.
+description: Reviews an offer: market pay with sources, pay year by year, a score, a contract read-through, walk-away lines, a negotiation rehearsal and email. Information only. Use for 'I got an offer'.
 ---
 
 # job-offer
@@ -45,7 +45,20 @@ python3 "$SKILL_DIR/offer.py" counter acme.json --bench bench.json
    core terms in writing within 5 days of starting and the rest within a
    month (Terms of Employment (Information) Act 1994, as amended). Information
    only, not legal advice.
-7. **A negotiation email** for the person to send.
+7. **Three lines, set before any call** (`offer.py lines`): the ASK they open
+   with, the ACCEPT line where they say yes on the spot, and the WALK line
+   below which they decline politely. The person sets every number; the
+   script checks the order, that the ask is backed by a sourced market
+   figure, and where the current offer sits. Write them down; the call
+   doesn't move them.
+8. **A rehearsal**, if the person wants one: Claude plays the recruiter, in
+   character, and pushes back the usual ways ("that's the top of the band",
+   "we don't negotiate on base", "we need an answer by Friday", "what are you
+   on now?", an exploding sign-on), one at a time. Afterwards: where the
+   person gave ground below their lines, and a better sentence for each,
+   built from the market sources. Information and practice, not financial
+   advice.
+9. **A negotiation email** for the person to send.
 
 ## Negotiation rules
 
@@ -53,7 +66,9 @@ Get every detail in writing; avoid naming a number first; ask for time to
 decide; tell other companies the person is interviewing with that they have
 an offer; give a reason for each ask; counter firmly and neutrally with a
 market-based number near the top of the range; include non-salary items;
-stay positive throughout. Never volunteer current or past pay. The person
+stay positive throughout; never go below the walk line in the moment: "Can I
+come back to you tomorrow?" is always allowed. Ideas from the offer toolkit's
+stop-lines and pushback practice (yanliudesign); none of its text is used. Never volunteer current or past pay. The person
 decides.
 
 ## Example
