@@ -21,6 +21,8 @@ of disinterest ends it; at most 2 follow-ups; nothing after 21 days of silence
 LinkedIn invitation gets no follow-up; a stop request (do_not_contact) is
 honoured forever. An email and a LinkedIn request on the same day are one
 opening. A reply from them resets the count.
+The referral ask (outreach stage 'ask', sent after they replied): one short nudge
+after 5 working days with no answer, then stop.
 Applications: a follow-up 7 days after applying with no reply, 3 days after a
 reply or a test with nothing since (to the agency recruiter for agency roles),
 a thank-you within a day of each interview, deadline reminders 3 days and 1 day
@@ -89,6 +91,12 @@ def thread_state(o, contact, today):
         return "WAITING", "%s: LinkedIn invitation pending (no follow-up on an invitation)" % name
     last_out = day(after[-1]["date"]) if after else day(outs[-1]["date"])
     wd = working_days_between(last_out, today)
+    if o.get("stage") in ("ask", "nudge"):
+        if follow_ups >= 1 or o.get("stage") == "nudge":
+            return "STOPPED", "%s: the referral ask was nudged once; stop and thank them if they answer" % name
+        if wd >= 5:
+            return "DUE NOW", "%s: one short nudge on the referral ask, then stop" % name
+        return "WAITING", "%s: referral ask sent; one nudge after 5 working days (%d so far)" % (name, wd)
     wait = 10 if contact.get("senior") else 7
     if follow_ups == 0:
         if wd >= wait:

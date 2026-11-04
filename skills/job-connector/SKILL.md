@@ -6,8 +6,11 @@ description: Finds referral contacts, hiring managers and recruiters, and drafts
 # job-connector
 
 Most people are hired through referrals and direct contact, not cold
-applications. This skill finds the right people, writes to them like a peer
+applications: across 38M applications on Ashby (2021-2024), 40% of referred
+candidates reached interview against 3% of those who applied alone (averages,
+not a promise). This skill finds the right people, writes to them like a peer
 with one small ask, and keeps each message inside the privacy and stop rules.
+Claude drafts. The person sends.
 
 `$SKILL_DIR` below means this skill's folder.
 
@@ -16,6 +19,9 @@ python3 "$SKILL_DIR/outreach.py" check --channel email --file draft.txt --subjec
 python3 "$SKILL_DIR/outreach.py" check --channel note --file note.txt
 python3 "$SKILL_DIR/outreach.py" slots --start 2026-10-16 [--senior]
 python3 "$SKILL_DIR/outreach.py" approve --file draft.txt --reply "<the person's reply, word for word>"
+python3 "$SKILL_DIR/outreach.py" check --channel linkedin --stage ask --file ask.txt
+python3 "$SKILL_DIR/outreach.py" find --company "Acme" --team "data analytics" --school "Trinity College Dublin" --city Dublin
+python3 ../job-tracker/pipeline.py contact-check siobhan-kelly-acme --job acme-junior-data-analyst --today 2026-10-20
 python3 "$SKILL_DIR/emails.py" guess --name "Siobhan Kelly" --domain acme.ie --known "Ciara Doyle ciara.doyle@acme.ie"
 python3 "$SKILL_DIR/emails.py" privacy --method company-pattern
 ```
@@ -45,9 +51,31 @@ python3 "$SKILL_DIR/emails.py" privacy --method company-pattern
 - **Former employers** that are hiring: a warm note to the person's old
   manager on what's new since they left.
 
-To find a hiring manager on LinkedIn, the person runs the people search in
+### Finding people through Google
+
+`outreach.py find` builds Google searches such as
+`site:linkedin.com/in "Acme" "data analytics" "Trinity College Dublin"`: the
+company, the team or job title, and something the person shares with them
+(school first, then city). Two people per company is plenty.
+
+- **In a chat with the person present:** open each Google link in the
+  browser (the built-in browser or Claude in Chrome) and read Google's results
+  page only. Never open, click or follow anything on linkedin.com. One or two
+  results pages per company; if Google shows a CAPTCHA or an 'unusual traffic'
+  page, stop and give the person the link to open themselves.
+- **In automatic tasks:** Claude's own web search doesn't reliably honour
+  `site:` (tested 2026-11-04: one or two profiles in 20 results, with no
+  details), so the alert lists the Google links for the person to open, or
+  for the next chat.
+- Keep only what the results show: name, headline, employer, school,
+  location, the profile link, and what they share with the person
+  (`in_common`). Each contact stays UNVERIFIED until the person opens the
+  profile and confirms they still work there (`employer_checked`); results go
+  out of date.
+
+To find a hiring manager, the person can also run LinkedIn's people search in
 their own browser; Claude may read that one results page with them present.
-No automated searches, no bulk profile visits.
+No automated searches on LinkedIn, no bulk profile visits.
 
 ## Channel
 
@@ -68,8 +96,29 @@ networking and referrals, a short call about the role for hiring managers.
 Emails under 75 words, with a subject naming the role and no attachment in
 the first email; LinkedIn messages 2-4 sentences, with the character count
 shown. Connection notes are limited to 200 characters and free accounts get
-only a few a month, so save them for top referral targets. Run
+only a few a month, so save them for top referral targets. Out of notes:
+connect without one, and send the message after they accept. A note that
+mentions their post, talk or school is flagged until the person confirms it's
+true. Run
 `outreach.py check` on every draft and the writing check (job-cover).
+
+## The referral path
+
+One step at a time, each a new draft and a new yes (outreach `stage`):
+
+1. **note**: a connection note under 200 characters, built on what they share.
+2. **thanks**: when the person says "[Name] accepted", a thank-you with one
+   small ask: 10 minutes on what the team is really like.
+3. **chat**: when they reply, answer them; book the chat if they offer one.
+4. **ask**: once there's been a real exchange, the referral ask: the job
+   link, the CV, at most 3 'why I fit' lines each with a real result from
+   EVIDENCE.md, and an easy way to say no ("If you'd rather not, no problem,
+   and thank you either way"). Check it with `outreach.py check --stage ask`.
+5. **nudge**: no answer after 5 working days, one short nudge, then stop
+   (job-followup enforces it).
+
+The person can drive it in plain words: "[Name] accepted. Draft the
+thank-you." / "[Name] replied: [their reply]. Draft the ask for [job link]."
 
 ## Timing
 
@@ -99,6 +148,12 @@ stop, mark them do-not-contact, and delete their details once no longer
 needed. This is information, not legal advice.
 
 ## Sending: always the person
+
+Before drafting to anyone, run `pipeline.py contact-check` (job-tracker).
+STOP ends it. CHECK means telling the person each reason before they decide:
+an UNVERIFIED employer, a link to an application that was rejected, or a
+recruiter at a company that rejected them in the last 180 days ("You don't
+want a hello going to the recruiter who just rejected you", unless they do).
 
 1. Show the exact text and ask: "Send this exact message? yes or no". One
    message per question, never "yes to all". `outreach.py approve` refuses

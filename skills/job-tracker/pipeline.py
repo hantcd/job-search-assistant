@@ -18,6 +18,7 @@ Commands (all take --file, default jobsearch/pipeline.json; date-dependent ones 
     python3 pipeline.py can-apply acme-junior-data-analyst --today 2026-10-16 [--cap 2]
     python3 pipeline.py unreachable acme-junior-data-analyst --error "HTTP 503" --now 2026-10-16T08:00
     python3 pipeline.py reachable acme-junior-data-analyst
+    python3 pipeline.py contact-check siobhan-kelly-acme [--job acme-junior-data-analyst] --today 2026-10-20
 
 Standard library only. Nothing here sends anything: it is a record.
 """
@@ -43,6 +44,11 @@ CHANNELS = ("email", "linkedin", "phone", "in-person", "other")
 OUTREACH_STATUSES = ("drafted", "sent", "replied", "booked", "declined", "closed")
 PRIVACY = ("LOW", "MEDIUM", "HIGH", "GIVEN", "")
 EMAIL_CONFIDENCE = ("published", "given", "high", "medium", "low", "unknown", "")
+# Steps of the referral path (job-connector): connection note, thank-you after they
+# accept, a short chat, the referral ask, one nudge.
+STAGES = ("note", "thanks", "chat", "ask", "nudge", "")
+RECRUITER_RE = re.compile(r"recruit|talent|sourc|\bhr\b|human resources|people (?:partner|team|ops)", re.I)
+REJECTION_WINDOW = 180  # days a rejection at a company is worth a warning before writing to its recruiters
 TABLES = ("jobs", "applications", "contacts", "outreach", "run_log", "email_log")
 # Free-form tables the skills also keep (checked only for being lists):
 OTHER_TABLES = ("companies", "events", "offers", "feedback", "story_grid",
@@ -217,6 +223,7 @@ def validate(data):
             errors.append("%s: an email you weren't given needs a privacy_risk and your privacy_decision" % w)
         if c.get("privacy_risk", "") not in PRIVACY:
             errors.append("%s.privacy_risk must be LOW, MEDIUM or HIGH" % w)
+        check_date(w + ".employer_checked", c.get("employer_checked"))
 
     for i, o in enumerate(data["outreach"]):
         w = "outreach[%d]" % i
@@ -238,6 +245,8 @@ def validate(data):
                 warnings.append("%s: messages out of order" % w)
             prev = d or prev
         check_date(w + ".next_followup", o.get("next_followup"))
+        if o.get("stage", "") not in STAGES:
+            errors.append("%s.stage must be one of %s" % (w, ", ".join(x for x in STAGES if x)))
 
     seen_ids = set()
     for i, e in enumerate(data.get("email_log", [])):
@@ -302,9 +311,69 @@ def move(data, job_id, status, today):
             j["status"] = status
             if status == "applied" and not j.get("applied"):
                 j["applied"] = today.isoformat()
+            if status == "rejected" and not j.get("rejected"):
+                j["rejected"] = today.isoformat()
             j["notes"] = (j.get("notes", "") + "\n%s: %s -> %s" % (today.isoformat(), old, status)).strip()
             return j
     raise PipelineError("no job with id %r" % job_id)
+
+
+def rejected_on(data, job):
+    """When a job was rejected: its 'rejected' field, the dated note that moved it, or its last activity."""
+    d = day_or_none(job.get("rejected"))
+    if d:
+        return d
+    for line in reversed(str(job.get("notes", "")).splitlines()):
+        if line.rstrip().endswith("-> rejected"):
+            d = day_or_none(line[:10])
+            if d:
+                return d
+    return last_activity(data, job)
+
+
+def contact_check(data, contact_id, today, job_id=None):
+    """Run before drafting or sending anything to one person.
+
+    Returns (verdict, reasons): STOP (never contact), CHECK (tell the person each
+    reason before they decide) or OK.
+    """
+    c = next((x for x in data["contacts"] if x.get("id") == contact_id), None)
+    if c is None:
+        raise PipelineError("no contact with id %r" % contact_id)
+    name = c.get("name") or contact_id
+    company = c.get("company", "")
+    stop, check = [], []
+    if c.get("do_not_contact"):
+        stop.append("%s asked not to be contacted: never again, on any channel" % name)
+    if not c.get("employer_checked"):
+        check.append("UNVERIFIED: search results go out of date. Open %s's profile and check they still work at %s"
+                     % (name, company or "this company"))
+    jobs = {j.get("id"): j for j in data["jobs"]}
+    linked = {o.get("job_id") for o in data["outreach"] if o.get("contact_id") == contact_id}
+    for a in data["applications"]:
+        ids = [x.get("id") if isinstance(x, dict) else x for x in a.get("contacts", []) or []]
+        if contact_id in ids:
+            linked.add(a.get("job_id"))
+    seen = set()
+    for jid in sorted(x for x in linked if x):
+        j = jobs.get(jid)
+        if j and j.get("status") == "rejected":
+            seen.add(jid)
+            check.append("%s is linked to your application for %s at %s, which was rejected on %s"
+                         % (name, j.get("title"), j.get("company"), rejected_on(data, j)))
+    if RECRUITER_RE.search(str(c.get("role", ""))) and company:
+        for j in data["jobs"]:
+            if j.get("id") in seen or j.get("status") != "rejected" or norm(j.get("company")) != norm(company):
+                continue
+            d = rejected_on(data, j)
+            if d and (today - d).days <= REJECTION_WINDOW:
+                check.append("%s recruits at %s, which rejected you for %s on %s: may be the same recruiter"
+                             % (name, j.get("company"), j.get("title"), d))
+    if job_id and job_id not in jobs:
+        raise PipelineError("no job with id %r" % job_id)
+    if stop:
+        return "STOP", stop + check
+    return ("CHECK" if check else "OK"), check
 
 
 def last_activity(data, job):
@@ -500,6 +569,10 @@ def main(argv=None):
     u.add_argument("--now", help="YYYY-MM-DDTHH:MM (default: now)")
     r = sub.add_parser("reachable")
     r.add_argument("job_id")
+    cc = sub.add_parser("contact-check")
+    cc.add_argument("contact_id")
+    cc.add_argument("--job")
+    cc.add_argument("--today")
     e = sub.add_parser("export")
     e.add_argument("--what", default="jobs", choices=TABLES + OTHER_TABLES)
     e.add_argument("--out", required=True)
@@ -564,6 +637,12 @@ def main(argv=None):
             save(a.file, data)
             print("reachable again")
             return 0
+        if a.cmd == "contact-check":
+            verdict, reasons = contact_check(data, a.contact_id, today_from(a.today), a.job)
+            print(verdict)
+            for r in reasons:
+                print("  - " + r)
+            return {"OK": 0, "CHECK": 3, "STOP": 1}[verdict]
         if a.cmd == "export":
             n = export(data, a.what, a.out)
             print("wrote %d row(s) to %s" % (n, a.out))

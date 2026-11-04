@@ -3,6 +3,9 @@
 Turn Claude into a careful, personal job-search assistant: set it up in one
 60–90 minute sitting, no coding needed. Free and open source.
 
+**Claude drafts. You send.** Nothing goes out until you press Send or Submit
+yourself.
+
 **[Read the step-by-step guide](GUIDE.md)** · **[Download the guide as a PDF](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf)** · **[Download the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip)**
 
 > **Quick start**
@@ -34,6 +37,15 @@ Once it's set up, Claude works on your job search every weekday:
   questions, and people who could refer you. When you ask, it fills in the
   application on the company's own website while you watch, then stops so
   you can check it and press Submit.
+- **Gets you referrals.** Across 38 million applications on Ashby, 40% of
+  referred candidates reached an interview, against 3% of people who applied
+  alone ([Ashby Talent Trends](https://www.ashbyhq.com/talent-trends-report/reports/referrals);
+  averages, not a promise). Claude finds people on the team through Google,
+  never by going onto LinkedIn, and drafts each step for you to send: a short
+  hello, a thank-you, the referral ask with the job link and an easy way to
+  say no, and one nudge before it stops. It warns you before you write to
+  someone it couldn't verify, or to a recruiter at a company that just
+  turned you down.
 - **Drafts messages** to hiring managers and possible referrers, follows up
   politely, and stops at the first no.
 - **Helps you get found** on LinkedIn, and prepares you for interviews and

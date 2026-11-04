@@ -262,6 +262,9 @@ newest.
 - [greenroom](https://github.com/YunyueLi/greenroom) (Yunyue Li): ideas for
   the mock interview (the follow-up chain, real and pressure modes, the five
   scores). Ideas only; none of its text is used.
+- The REFER kit (10x.with.ai): ideas for the referral path, Google searches
+  for people on a team, checking each name and not greeting a recruiter who
+  just rejected you. Ideas only; none of its text is used.
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 

@@ -3,6 +3,33 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.7.0 (2026-11-04)
+Referral lessons from a short referral kit (10x.with.ai's REFER kit):
+- Finding people through Google: `outreach.py find` builds searches like
+  `site:linkedin.com/in "Acme" "data analytics" "Trinity College Dublin"`,
+  read on Google's own page in the person's browser while they watch, never
+  on linkedin.com. Claude's own web search doesn't honour `site:` reliably
+  (tested: one or two profiles in 20 results), so automatic tasks list the
+  links instead.
+- Each contact is UNVERIFIED until the person opens the profile and confirms
+  they still work there (`employer_checked`).
+- `pipeline.py contact-check` runs before any draft: STOP for do-not-contact;
+  CHECK for an unverified employer, a link to a rejected application, or a
+  recruiter at a company that rejected the person in the last 180 days.
+  `move ... rejected` now records the date.
+- The referral path, one step and one yes at a time (outreach `stage`): note,
+  thank-you with a 10-minute ask, chat, the referral ask, one nudge.
+  `outreach.py check --stage ask` needs the job link, an easy way to say no
+  and at most 3 'why I fit' lines; job-followup allows one nudge after 5
+  working days, then stops.
+- Notes mentioning their post, talk or school are flagged for the person to
+  confirm; out of personalised notes, connect without one and message after
+  they accept.
+- The Ashby referral figures (40% of referred candidates reach interview,
+  3% of those who apply alone) now open job-connector, the README and the
+  guide, with "Claude drafts. You send."
+- New rules eval: rule-referral-checks.
+
 ## Guide update (2026-11-03)
 - Screenshots of every Claude screen the guide sends you to, with the button
   to press marked in red: new project, the project page, Create and edit

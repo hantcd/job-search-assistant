@@ -28,6 +28,7 @@ marked * are checked by `pipeline.py validate`.
 | alerted* | date the person was alerted |
 | last_reply, last_follow_up | dates, for follow-ups by stage |
 | interviews | [{date, stage, format, questions, feedback, thank_you_sent}] |
+| rejected | date the application was rejected (set by `move`) |
 | notes | dated lines, e.g. `2026-10-16: open -> applied` |
 | fetch_attempts, first_unreachable, last_fetch_error | failed page loads (closed as unreachable after 3 tries over 48+ hours) |
 | closed_reason | e.g. unreachable |
@@ -47,14 +48,23 @@ id* (`name-company`), name, role, company, linkedin, email*, email_confidence*
 'published'), privacy_risk* (LOW, MEDIUM, HIGH), privacy_decision* (the
 person's choice and date: required for any email they weren't given), senior
 (directors and above wait 10 working days before a follow-up), referred,
-do_not_contact (true after a stop request: never contacted again), notes.
+employer_checked* (the date the person opened the profile and saw they still
+work there; empty = UNVERIFIED), in_common (what they share with the person,
+from public results only), do_not_contact (true after a stop request: never
+contacted again), notes.
+
+Before any draft or send to a contact, `pipeline.py contact-check` returns
+STOP, CHECK or OK: CHECK lists an unverified employer, a link to a rejected
+application, or a recruiter at a company that rejected the person in the last
+180 days, each said to the person before they decide.
 
 ## outreach
 contact_id*, job_id*, channel* (email, linkedin, phone, in-person, other),
 status* (drafted, sent, replied, booked, declined, closed), messages* [{date,
 direction: out or in, slot (e.g. 'Tue morning'), text}], draft {text,
 subject}, approval {reply, date, hash} (the person's exact yes),
-invite_pending (a LinkedIn invitation: no follow-up), suggested_other (a
+stage* (note, thanks, chat, ask, nudge: the referral path), invite_pending (a
+LinkedIn invitation: no follow-up), suggested_other (a
 second person suggested after 3 working days), next_followup*, booked {when,
 minutes, where}.
 

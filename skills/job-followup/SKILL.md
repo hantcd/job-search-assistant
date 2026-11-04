@@ -49,6 +49,8 @@ you' or 'Nothing needs you'.
    the first message if they never replied.
 4. A pending LinkedIn invitation gets no follow-up.
 5. A request to stop is honoured forever: mark do_not_contact.
+6. The referral ask (outreach stage `ask`, sent after a real exchange) gets
+   one short nudge after 5 working days with no answer, then stops.
 
 A reply from them resets the count: it's a conversation now. `followup.py
 can-follow-up` refuses anything a rule forbids; never draft past a NO.

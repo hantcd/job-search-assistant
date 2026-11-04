@@ -883,3 +883,102 @@ class TrackerExtras(unittest.TestCase):
         joined = " ".join(errs)
         self.assertIn("already processed", joined)
         self.assertIn("must cite the email", joined)
+
+
+class ReferralPath(unittest.TestCase):
+    """Lessons from the REFER kit: check names, don't greet the recruiter who rejected you, ask well, nudge once."""
+    p = load("job-tracker", "pipeline")
+    o = load("job-connector", "outreach")
+    f = load("job-followup", "followup")
+
+    def data(self):
+        return copy.deepcopy(PIPE)
+
+    def test_unverified_employer_needs_a_check(self):
+        v, why = self.p.contact_check(self.data(), "siobhan-kelly-acme", D(2026, 10, 20))
+        self.assertEqual(v, "CHECK")
+        self.assertTrue(any("UNVERIFIED" in r and "Acme" in r for r in why))
+
+    def test_checked_employer_is_ok(self):
+        d = self.data()
+        d["contacts"][0]["employer_checked"] = "2026-10-18"
+        self.assertEqual(self.p.contact_check(d, "siobhan-kelly-acme", D(2026, 10, 20)), ("OK", []))
+
+    def test_do_not_contact_stops(self):
+        self.assertEqual(self.p.contact_check(self.data(), "tom-ryan-liffey", D(2026, 10, 20))[0], "STOP")
+
+    def test_contact_on_rejected_application(self):
+        d = self.data()
+        d["contacts"][0]["employer_checked"] = "2026-10-18"
+        self.p.move(d, "acme-junior-data-analyst", "rejected", D(2026, 10, 19))
+        v, why = self.p.contact_check(d, "siobhan-kelly-acme", D(2026, 10, 20))
+        self.assertEqual(v, "CHECK")
+        self.assertTrue(any("rejected on 2026-10-19" in r for r in why))
+
+    def test_recruiter_at_company_that_rejected_you(self):
+        d = self.data()
+        d["contacts"].append({"id": "aoife-hr-acme", "name": "Aoife Hart", "role": "Talent Acquisition Partner",
+                              "company": "Acme", "employer_checked": "2026-10-18"})
+        self.p.move(d, "acme-junior-data-analyst", "rejected", D(2026, 10, 1))
+        v, why = self.p.contact_check(d, "aoife-hr-acme", D(2026, 10, 20))
+        self.assertEqual(v, "CHECK")
+        self.assertTrue(any("recruits at" in r for r in why))
+        # long ago: no warning
+        self.assertEqual(self.p.contact_check(d, "aoife-hr-acme", D(2027, 6, 1))[0], "OK")
+
+    def test_cli_exit_codes(self):
+        with tempfile.TemporaryDirectory() as t:
+            path = os.path.join(t, "p.json")
+            json.dump(self.data(), open(path, "w"))
+            code, out, _ = quiet(self.p.main, ["--file", path, "contact-check", "siobhan-kelly-acme", "--today", "2026-10-20"])
+            self.assertEqual(code, 3)
+            self.assertIn("CHECK", out)
+            code, _, _ = quiet(self.p.main, ["--file", path, "contact-check", "tom-ryan-liffey", "--today", "2026-10-20"])
+            self.assertEqual(code, 1)
+
+    def test_stage_and_date_validated(self):
+        d = self.data()
+        d["outreach"][0]["stage"] = "beg"
+        d["contacts"][0]["employer_checked"] = "last week"
+        errs, _ = self.p.validate(d)
+        self.assertTrue(any("stage" in e for e in errs))
+        self.assertTrue(any("employer_checked" in e for e in errs))
+
+    def test_referral_ask_needs_link_and_easy_no(self):
+        bad = "Would you refer me for the analyst role?"
+        res = {n: s for n, s, _ in self.o.check("linkedin", bad, stage="ask")}
+        self.assertEqual(res["job link"], "FAIL")
+        self.assertEqual(res["easy no"], "FAIL")
+        good = ("Thanks again, Siobhan. Would you be open to referring me for this role?\n"
+                "Job: https://example.com/jobs/1\n- Built a dashboard 12 managers use\n"
+                "If you'd rather not, no problem at all.")
+        res = {n: s for n, s, _ in self.o.check("linkedin", good, stage="ask")}
+        self.assertEqual((res["job link"], res["easy no"], res["why I fit"]), ("PASS", "PASS", "PASS"))
+        self.assertNotIn("ask", res)  # a referral ask may mention the job
+
+    def test_flattery_flagged_for_checking(self):
+        res = {n: s for n, s, _ in self.o.check("note", "Hi Ana, fellow TCD grad here. Your post on dbt was great.")}
+        self.assertEqual(res["true?"], "WARN")
+
+    def test_google_queries_never_linkedin_pages(self):
+        q = self.o.find_queries("Acme", "data analytics", school="Trinity College Dublin", city="Dublin")
+        self.assertEqual([x["shared"] for x in q], ["school", "city"])
+        for x in q:
+            self.assertTrue(x["google"].startswith("https://www.google.com/search"))
+            self.assertIn('site:linkedin.com/in "Acme" "data analytics"', x["query"])
+
+    def thread(self, *msgs, **kw):
+        o = {"contact_id": "c", "channel": "linkedin", "status": "sent",
+             "messages": [{"date": d, "direction": dr, "text": t} for d, dr, t in msgs]}
+        o.update(kw)
+        return o
+
+    def test_ask_nudged_once_then_stop(self):
+        base = [("2026-10-01", "out", "note"), ("2026-10-05", "in", "happy to chat"), ("2026-10-06", "out", "ask")]
+        t = self.thread(*base, stage="ask")
+        self.assertEqual(self.f.thread_state(t, {"name": "X"}, D(2026, 10, 9))[0], "WAITING")
+        g, m = self.f.thread_state(t, {"name": "X"}, D(2026, 10, 13))
+        self.assertEqual(g, "DUE NOW")
+        self.assertIn("nudge", m)
+        t = self.thread(*base, ("2026-10-13", "out", "nudge"), stage="nudge")
+        self.assertEqual(self.f.thread_state(t, {"name": "X"}, D(2026, 10, 20))[0], "STOPPED")
