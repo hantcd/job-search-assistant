@@ -13,6 +13,23 @@ fetch tool, save the JSON, and pass it with --from-file.
     python3 feeds.py boards                             # the verified company list
     python3 feeds.py live "https://jobs.lever.co/someco/0a1b..."      # still open? (Greenhouse, Lever, Ashby)
     python3 feeds.py questions "https://job-boards.greenhouse.io/intercom/jobs/123"   # the form's questions
+    python3 feeds.py shortlist greenhouse stripe --title sales --location dublin [--from-file list.json]
+    python3 feeds.py job "https://job-boards.greenhouse.io/stripe/jobs/123" --from-file job.json
+
+shortlist  for the web-fetch route, where a whole feed is too big to come back
+          intact (large boards like Stripe's were cut off on 2026-11-04): reads
+          the light list (titles, places and dates, no ad text: `url --light`),
+          keeps the matching jobs, and gives each one's single-job address to
+          fetch next (a single Greenhouse ad is about 7 KB). Ashby has no
+          single-job address, so its board is fetched once, without pay data.
+          A very large board's light list can still be too big for web fetch
+          (Stripe's was 461 KB for 756 jobs): a list that comes back short of
+          its own total is reported as cut off, never treated as complete.
+          The lasting fix is letting the sandbox reach the hiring systems
+          (Settings > Capabilities > Allowed websites), so nothing is fetched
+          through web fetch at all.
+job       turns one fetched job (Greenhouse or Lever single-job JSON) into a job
+          row with the full ad text, for the posting check and scoring.
 
 live      asks the hiring system itself whether one job is still open: LIVE,
           CLOSED (a 404 or 410, or the job is gone from the company's Ashby
@@ -52,6 +69,12 @@ FEEDS = {
     "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true",
     "lever": "https://api.lever.co/v0/postings/{token}?mode=json",
     "ashby": "https://api.ashbyhq.com/posting-api/job-board/{token}?includeCompensation=true",
+}
+# Light lists: titles, places and dates only, small enough for web fetch to return whole.
+LIGHT = {
+    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{token}/jobs",
+    "lever": "https://api.lever.co/v0/postings/{token}?mode=json",
+    "ashby": "https://api.ashbyhq.com/posting-api/job-board/{token}",
 }
 
 # Which hiring system a job link belongs to (for company notes and for finding the feed).
@@ -247,6 +270,31 @@ def keep(row, titles, locations, days, today, remote_only):
     return True
 
 
+def shortlist(kind, data, company, titles, locations, days, today, remote_only):
+    """Matching jobs from a light list, each with the address of its full ad."""
+    out = []
+    for r in normalise(kind, data, company):
+        if not keep(r, titles, locations, days, today, remote_only):
+            continue
+        k, board, job = job_ref(r["url"])
+        row = {k2: r[k2] for k2 in ("company", "title", "location", "posted", "remote", "url", "ref")}
+        if kind == "ashby" or not job:
+            row["full_ad"] = "in the board itself (Ashby has no single-job address)"
+        else:
+            row["full_ad"] = SINGLE[k].format(token=board, job=job)
+        out.append(row)
+    return out
+
+
+def single_row(kind, data, company=""):
+    """One job's JSON (Greenhouse or Lever single-job endpoint) as a job row."""
+    if kind == "greenhouse":
+        return normalise("greenhouse", {"jobs": [data]}, company)[0]
+    if kind == "lever":
+        return normalise("lever", [data], company)[0]
+    raise ValueError("Ashby has no single-job address: use fetch on the board")
+
+
 def fetch(kind, token):
     req = urllib.request.Request(FEEDS[kind].format(token=token), headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=30) as r:
@@ -259,6 +307,21 @@ def main(argv=None):
     u = sub.add_parser("url")
     u.add_argument("kind", choices=sorted(FEEDS))
     u.add_argument("token")
+    u.add_argument("--light", action="store_true", help="the light list, for shortlist")
+    sl = sub.add_parser("shortlist")
+    sl.add_argument("kind", choices=sorted(FEEDS))
+    sl.add_argument("token")
+    sl.add_argument("--company", default="")
+    sl.add_argument("--from-file")
+    sl.add_argument("--title", action="append", default=[])
+    sl.add_argument("--location", action="append", default=[])
+    sl.add_argument("--remote", action="store_true")
+    sl.add_argument("--days", type=int, default=0)
+    sl.add_argument("--today")
+    jb = sub.add_parser("job")
+    jb.add_argument("url")
+    jb.add_argument("--from-file", required=True)
+    jb.add_argument("--company", default="")
     f = sub.add_parser("fetch")
     f.add_argument("kind", choices=sorted(FEEDS))
     f.add_argument("token")
@@ -284,8 +347,38 @@ def main(argv=None):
     a = p.parse_args(argv)
 
     if a.cmd == "url":
-        print(FEEDS[a.kind].format(token=a.token))
+        print((LIGHT if a.light else FEEDS)[a.kind].format(token=a.token))
         return 0
+    if a.cmd == "job":
+        kind, board, job = job_ref(a.url)
+        try:
+            row = single_row(kind, json.load(open(a.from_file, encoding="utf-8")), a.company or board)
+        except (ValueError, IndexError, KeyError) as e:
+            print("couldn't read that job: %s" % e, file=sys.stderr)
+            return 2
+        print(json.dumps(row, indent=1, ensure_ascii=False))
+        return 0
+    if a.cmd == "shortlist":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        try:
+            if a.from_file:
+                data = json.load(open(a.from_file, encoding="utf-8"))
+            else:
+                req = urllib.request.Request(LIGHT[a.kind].format(token=a.token), headers={"User-Agent": UA})
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    data = json.loads(r.read().decode("utf-8"))
+        except Exception as e:
+            print("could not read the light %s list for %r (%s). Fetch %s with web fetch and pass --from-file."
+                  % (a.kind, a.token, e, LIGHT[a.kind].format(token=a.token)), file=sys.stderr)
+            return 2
+        rows = shortlist(a.kind, data, a.company or a.token, a.title, a.location, a.days, today, a.remote)
+        total = ((data or {}).get("meta") or {}).get("total") if isinstance(data, dict) else None
+        got = len(data.get("jobs", [])) if isinstance(data, dict) else len(data or [])
+        if total and got < total:
+            print("CUT OFF: the list has %d of its %d jobs; report this board as partly checked" % (got, total),
+                  file=sys.stderr)
+        print(json.dumps(rows, indent=1, ensure_ascii=False))
+        return 3 if total and got < total else (0 if rows else 1)
     if a.cmd == "detect":
         name, token = detect(a.url)
         kind, board, job = job_ref(a.url)

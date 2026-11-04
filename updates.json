@@ -1,22 +1,45 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "1.8.0",
+ "latest": "1.8.1",
  "versions": [
-  {"version": "1.8.0", "date": "2026-11-04",
+  {
+   "version": "1.8.1",
+   "date": "2026-11-04",
+   "summary": "Fixes from the first scheduled run: full job ads instead of summaries, no silent skips, an apply list prepared in advance, and a threshold check.",
+   "helps": [
+    "job ads are read in full, one at a time, so big feeds aren't cut off",
+    "every watched company is checked, or the alert says why not",
+    "say 'apply to these' from anywhere: packs, form answers and referral drafts are ready for your next session",
+    "if no job reaches your alert thresholds after 10+ scored, the weekly check suggests a recalibration",
+    "an employer's request that AI not apply is quoted to you; filling the form is your call, and you press Submit"
+   ],
+   "install_minutes": 2
+  },
+  {
+   "version": "1.8.0",
+   "date": "2026-11-04",
    "summary": "Interview debriefs and proof packs, overclaiming checks on CVs, negotiation lines and rehearsal, applications by email, Job Seek as a job source, and automatic updates.",
-   "helps": ["a debrief after each real interview and a question bank that shapes the next round",
-             "a one-page proof pack before each interview, checked against your evidence",
-             "CVs can't quietly upgrade 'contributed to' into 'led', or call work published when it's under review",
-             "set your ask, accept and walk-away lines before negotiating, and rehearse the call",
-             "applications by email when a posting says 'send your CV to'",
-             "jobs from thousands more company career pages through Job Seek",
-             "updates that arrive and apply themselves, asking only when you're needed"],
-   "install_minutes": 2},
-  {"version": "1.7.0", "date": "2026-11-04",
+   "helps": [
+    "a debrief after each real interview and a question bank that shapes the next round",
+    "a one-page proof pack before each interview, checked against your evidence",
+    "CVs can't quietly upgrade 'contributed to' into 'led', or call work published when it's under review",
+    "set your ask, accept and walk-away lines before negotiating, and rehearse the call",
+    "applications by email when a posting says 'send your CV to'",
+    "jobs from thousands more company career pages through Job Seek",
+    "updates that arrive and apply themselves, asking only when you're needed"
+   ],
+   "install_minutes": 2
+  },
+  {
+   "version": "1.7.0",
+   "date": "2026-11-04",
    "summary": "Referral path, Google people search, contact checks before any draft.",
-   "helps": ["find people on a team through Google without going on LinkedIn",
-             "a referral path: hello, thank-you, the ask, one nudge, stop",
-             "warnings before writing to someone unverified or to a recruiter who just rejected you"],
-   "install_minutes": 2}
+   "helps": [
+    "find people on a team through Google without going on LinkedIn",
+    "a referral path: hello, thank-you, the ask, one nudge, stop",
+    "warnings before writing to someone unverified or to a recruiter who just rejected you"
+   ],
+   "install_minutes": 2
+  }
  ]
 }

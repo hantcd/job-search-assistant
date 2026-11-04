@@ -2,6 +2,12 @@
 """What's working: funnels from the job list snapshot, with counts, small-number warnings and a diagnosis.
 
     python3 funnel.py report --file jobsearch/pipeline.json [--json]
+    python3 funnel.py thresholds --file jobsearch/pipeline.json --cv 70 --att 40
+
+thresholds: how the scored jobs sit against the alert thresholds. With 10+
+scored jobs and none alert-worthy, it suggests a recalibration for the person
+to approve or decline (the scoring weights, a threshold, or the targets); it
+never changes anything itself.
 
 Applications: applied -> replied -> interview -> offer
 Outreach:     sent -> replied -> chat -> referral
@@ -126,13 +132,38 @@ def report(data):
     }
 
 
+def thresholds(data, cv, att):
+    scored = [j for j in data.get("jobs", []) if isinstance(j.get("career_value"), (int, float))
+              and isinstance(j.get("attainability"), (int, float))]
+    above = [j for j in scored if j["career_value"] >= cv and j["attainability"] >= att]
+    top = sorted(scored, key=lambda j: -j["career_value"])[:5]
+    out = {"scored": len(scored), "alert_worthy": len(above),
+           "top": [(j.get("company"), j.get("title"), j["career_value"], j["attainability"]) for j in top]}
+    if len(scored) >= 10 and not above:
+        best = top[0]["career_value"]
+        cvs = sorted(j["career_value"] for j in scored)
+        p90 = cvs[int(0.9 * (len(cvs) - 1))]
+        out["suggest"] = ("No job has reached the alert thresholds in %d scored (best Career Value %s; 90th "
+                          "percentile %s; threshold %s). Optional: review what drags Career Value down (the "
+                          "weights, the targets, or the companies watched), or lower the threshold. Your call."
+                          % (len(scored), best, p90, cv))
+    return out
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="Funnels with counts and a diagnosis.")
     p.add_argument("--file", default=os.path.join("jobsearch", "pipeline.json"))
     sub = p.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("report")
     r.add_argument("--json", action="store_true")
+    t = sub.add_parser("thresholds")
+    t.add_argument("--cv", type=int, required=True)
+    t.add_argument("--att", type=int, required=True)
     a = p.parse_args(argv)
+    if a.cmd == "thresholds":
+        out = thresholds(json.load(open(a.file, encoding="utf-8")), a.cv, a.att)
+        print(json.dumps(out, indent=1, ensure_ascii=False))
+        return 0
     rep = report(json.load(open(a.file, encoding="utf-8")))
     if a.json:
         print(json.dumps(rep, indent=1))

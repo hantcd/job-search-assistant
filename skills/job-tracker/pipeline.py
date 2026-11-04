@@ -19,6 +19,9 @@ Commands (all take --file, default jobsearch/pipeline.json; date-dependent ones 
     python3 pipeline.py unreachable acme-junior-data-analyst --error "HTTP 503" --now 2026-10-16T08:00
     python3 pipeline.py reachable acme-junior-data-analyst
     python3 pipeline.py contact-check siobhan-kelly-acme [--job acme-junior-data-analyst] --today 2026-10-20
+    python3 pipeline.py coverage --task watched          # every watched company accounted for in the last run
+    python3 pipeline.py queue add acme-junior-data-analyst --today 2026-11-04   # the person said 'apply to this'
+    python3 pipeline.py queue list                       # what's ready for the next apply session
 
 Standard library only. Nothing here sends anything: it is a record.
 """
@@ -263,6 +266,10 @@ def validate(data):
     for i, r in enumerate(data["run_log"]):
         if not r.get("time") or not r.get("task"):
             errors.append("run_log[%d]: needs time and task" % i)
+        for name, status in (r.get("coverage") or {}).items():
+            st = str(status)
+            if not (st.startswith("checked") or re.match(r"not checked: .{4,}", st)):
+                errors.append("run_log[%d].coverage[%s]: 'checked: <how>' or 'not checked: <reason>'" % (i, name))
     return errors, warnings
 
 
@@ -375,6 +382,43 @@ def contact_check(data, contact_id, today, job_id=None):
     if stop:
         return "STOP", stop + check
     return ("CHECK" if check else "OK"), check
+
+
+def coverage(data, task="watched"):
+    """Watched companies the last run of a task didn't account for, and skips without a reason."""
+    runs = [r for r in data["run_log"] if task.lower() in str(r.get("task", "")).lower()]
+    if not runs:
+        raise PipelineError("no run of %r in the run log yet" % task)
+    cov = runs[-1].get("coverage") or {}
+    names = [w.get("company") or w.get("name") for w in data.get("watched", []) if isinstance(w, dict)]
+    low = {norm(k): v for k, v in cov.items()}
+    missing = [n for n in names if n and norm(n) not in low]
+    skipped = {k: v for k, v in cov.items() if str(v).startswith("not checked")}
+    return missing, skipped
+
+
+def queue_add(data, job_id, today):
+    for j in data["jobs"]:
+        if j.get("id") == job_id:
+            j["apply_queue"] = {"added": today.isoformat()}
+            return j
+    raise PipelineError("no job with id %r" % job_id)
+
+
+def queue_list(data):
+    """Each queued job and what's ready: pack, answers, referral drafts."""
+    rows = []
+    apps = {a.get("job_id"): a for a in data["applications"]}
+    for j in data["jobs"]:
+        if not j.get("apply_queue") or j.get("status") in APPLIED_OR_LATER:
+            continue
+        a = apps.get(j["id"], {})
+        drafts = [o for o in data["outreach"] if o.get("job_id") == j["id"] and o.get("status") == "drafted"]
+        ready = {"pack": bool(a.get("pack_made")), "answers": bool(a.get("answers")), "referral drafts": len(drafts)}
+        todo = [k for k in ("pack", "answers") if not ready[k]]
+        rows.append({"job": j["id"], "company": j.get("company"), "title": j.get("title"), "url": j.get("url"),
+                     "ready": ready, "to do before the session": todo})
+    return rows
 
 
 def last_activity(data, job):
@@ -570,6 +614,12 @@ def main(argv=None):
     u.add_argument("--now", help="YYYY-MM-DDTHH:MM (default: now)")
     r = sub.add_parser("reachable")
     r.add_argument("job_id")
+    cv = sub.add_parser("coverage")
+    cv.add_argument("--task", default="watched")
+    q = sub.add_parser("queue")
+    q.add_argument("action", choices=("add", "list", "remove"))
+    q.add_argument("job_id", nargs="?")
+    q.add_argument("--today")
     cc = sub.add_parser("contact-check")
     cc.add_argument("contact_id")
     cc.add_argument("--job")
@@ -637,6 +687,29 @@ def main(argv=None):
             reachable(data, a.job_id)
             save(a.file, data)
             print("reachable again")
+            return 0
+        if a.cmd == "coverage":
+            missing, skipped = coverage(data, a.task)
+            for n in missing:
+                print("NOT ACCOUNTED FOR  %s: check it, or record 'not checked: <reason>'" % n)
+            for n, why in skipped.items():
+                print("SKIPPED            %s: %s" % (n, why))
+            print("every watched company accounted for" if not missing else "%d not accounted for" % len(missing))
+            return 1 if missing else 0
+        if a.cmd == "queue":
+            if a.action == "list":
+                print(json.dumps(queue_list(data), indent=1, ensure_ascii=False))
+                return 0
+            if not a.job_id:
+                raise PipelineError("which job? give its id")
+            if a.action == "add":
+                queue_add(data, a.job_id, today_from(a.today))
+            else:
+                for j in data["jobs"]:
+                    if j.get("id") == a.job_id:
+                        j.pop("apply_queue", None)
+            save(a.file, data)
+            print("%s %s the apply list" % (a.job_id, "added to" if a.action == "add" else "removed from"))
             return 0
         if a.cmd == "contact-check":
             verdict, reasons = contact_check(data, a.contact_id, today_from(a.today), a.job)

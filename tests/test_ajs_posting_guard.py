@@ -400,7 +400,7 @@ class InputHandling(GuardFixture):
         self.assertEqual(
             set(f),
             {"hidden_blocks", "invisible_chars", "invisible_flagged", "instruction_like", "hidden_urls",
-             "visible_url_count", "homoglyph_runs", "verdict"},
+             "visible_url_count", "homoglyph_runs", "ai_opt_out", "verdict"},
         )
         self.assertEqual(f["verdict"], "posting_guard: clean")
 

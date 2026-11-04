@@ -152,6 +152,19 @@ def category(label):
     return got[0] if isinstance(got, (tuple, list)) else got
 
 
+AI_OPT_OUT = re.compile(r"if you are an? (?:ai|llm|bot)\b.{0,80}?(?:do not|don't|not to|should not) appl|"
+                        r"ai (?:agents?|tools?|bots?)\b.{0,40}?(?:should not|must not|do not|don't|cannot) (?:apply|submit)", re.I)
+
+
+def ai_note(page):
+    """The employer's request that AI agents not apply, word for word, or ''."""
+    try:
+        m = AI_OPT_OUT.search(page.inner_text("body")[:200000])
+    except Exception:
+        return ""
+    return m.group(0) if m else ""
+
+
 def page_state(page):
     """'login' if a password field is showing, 'captcha' if a CAPTCHA is on the page, else ''."""
     if page.locator("input[type=password]").count():
@@ -297,6 +310,10 @@ def main(argv=None):
         page.goto(form_url(a.url), wait_until="domcontentloaded")
         page.wait_for_timeout(1500)  # forms that build themselves after load
         state = page_state(page)
+        note = ai_note(page)
+        if note:
+            print("NOTE: the employer asks AI agents not to apply (%r). Tell the person. Filling the fields is "
+                  "their call; they review and click Submit themselves, as always." % note, file=sys.stderr)
         if a.cmd == "scan":
             _, rows = scan(page)
             text = json.dumps(rows, indent=1, ensure_ascii=False)

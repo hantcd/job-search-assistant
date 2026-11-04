@@ -13,6 +13,7 @@ proposes; the person approves.
 
 ```bash
 python3 "$SKILL_DIR/funnel.py" --file jobsearch/pipeline.json report
+python3 "$SKILL_DIR/funnel.py" --file jobsearch/pipeline.json thresholds --cv 70 --att 40
 python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json check [--remote-file updates.json]
 python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json apply
 python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json decide <id> approve|decline
@@ -35,10 +36,15 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
 3. **The Monday summary line**: conversations and replies, not just
    applications (job-tracker `summary`).
 4. **Usage**: a rough note of the automatic tasks' share of the allowance.
-5. **The question bank**: questions asked in real interviews this week
+5. **Alert thresholds** (`funnel.py thresholds --cv <threshold> --att
+   <threshold>`, from PREFERENCES_AND_SCORING.md): with 10+ jobs scored and
+   none alert-worthy, an optional item: what drags Career Value down (the
+   weights, the targets, the companies watched) and what could change, for
+   the person to approve or decline. Nothing changes by itself.
+6. **The question bank**: questions asked in real interviews this week
    (job-interview's debriefs), any asked twice or more, and the ones that got
    stuck, so practice goes where it's needed.
-6. **Updates** (also whenever the person says "check for updates"), below.
+7. **Updates** (also whenever the person says "check for updates"), below.
 
 ## Updates
 

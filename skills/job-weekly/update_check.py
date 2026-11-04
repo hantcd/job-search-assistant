@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "1.8.0"
+PACK_VERSION = "1.8.1"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -112,7 +112,16 @@ MIGRATIONS = [
      "title": "Jobs from thousands more company career pages",
      "helps": "job-scout also searches Job Seek's free index of employers' own career pages (strong in Europe)",
      "needs": "1 minute: Customize > Connectors > + > add a custom connector with the address https://jseek.co/mcp",
-     "steps": "Once the person has added it, note 'Job Seek connected' in MASTER_PLAN.md's sources."},
+     "steps": "Once the person has added it, note 'Job Seek connected' in MASTER_PLAN.md's sources, and offer "
+              "the one-line change to the watched-companies task ('companies without a feed: also Job Seek'); "
+              "change the task only with their yes."},
+    {"id": "1.8.1-allowed-sites", "version": "1.8.1",
+     "title": "Let the scheduled search read hiring systems directly",
+     "helps": "full job ads instead of summaries, no cut-off feeds, and every job verified (on 2026-11-04 the "
+              "Stripe, Intercom and an Ashby feed were cut short, and one job couldn't be verified)",
+     "needs": "about 2 minutes: Settings > Capabilities > Allowed websites (Manage) > Add a website, once for "
+              "each of boards-api.greenhouse.io, api.lever.co, api.eu.lever.co and api.ashbyhq.com",
+     "steps": "Once added, run one feeds.py fetch to confirm the sandbox reaches them, and say so."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

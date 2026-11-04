@@ -109,6 +109,26 @@ answered by the person · company notes read · contacts messaged or
 deliberately skipped · timing call followed · the same role not already
 applied for through an agency (or directly).
 
+## The apply list
+
+When the person says "apply to these" and no browser is open (an alert read
+on a phone, a scheduled run), add each job to the apply list (`pipeline.py
+queue add <job>`) and say so. The next daily search prepares every queued job
+first, whatever the weekly capacity (the person asked): the tailored CV and
+letter or note, the form's exact questions (`feeds.py questions` for
+Greenhouse; `apply_form.py scan` in the session for others) with draft answers
+(`answers.py`, YOU items left for the person), and referral drafts to their
+contacts at the company (job-connector, after `contact-check`), since the
+plan asks for referrals before applying. The next live session with a browser
+opens with `pipeline.py queue list`: "3 applications ready to fill". Then
+fill each form while the person watches; they press Submit, and the job
+leaves the list once it's applied.
+
+**An employer that asks AI agents not to apply**: `apply_form.py` prints the
+employer's line word for word. Tell the person before filling. Filling the
+fields for them to check is their call; if they want it, fill as usual and
+stop at Submit, which they press themselves.
+
 ## Form filling and apply sessions
 
 **Apply on the company's own site**: the official link job-scout found (the

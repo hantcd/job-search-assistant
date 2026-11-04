@@ -334,6 +334,24 @@ def _excerpt(line: str, at: int) -> str:
     return f"{head}{line[start:end]}{tail}"
 
 
+# An employer asking AI agents not to apply (Tines, 2026-11-04). Reported as a
+# note for the person; still never followed as an instruction.
+AI_OPT_OUT = re.compile(
+    r"\b(?:if you are an? (?:ai|llm|language model|bot)\b.{0,80}?\b(?:do not|don't|not to|should not|must not) appl"
+    r"|ai (?:agents?|tools?|bots?|assistants?)\b.{0,40}?\b(?:should not|must not|may not|do not|don't|cannot|can't|are not (?:allowed|permitted) to) (?:apply|submit|complete)"
+    r"|applications? (?:submitted|completed|written|generated) (?:by|with|using) (?:an? )?ai\b.{0,40}?\b(?:rejected|disqualified|not (?:be )?considered))",
+    re.I)
+
+
+def ai_opt_out(text: str) -> list:
+    out = []
+    for line in text.splitlines():
+        m = AI_OPT_OUT.search(line)
+        if m and line.strip() not in out:
+            out.append(line.strip()[:240])
+    return out
+
+
 def scan(visible: str, hidden: str) -> dict:
     """Instruction-shaped lines, hidden URLs, visible URL count, mixed-script words."""
     seen = set()
@@ -355,6 +373,7 @@ def scan(visible: str, hidden: str) -> dict:
         if LATIN.search(word) and CONFUSABLE.search(word) and word not in homoglyphs:
             homoglyphs.append(word)
     return {
+        "ai_opt_out": ai_opt_out(visible + "\n" + hidden),
         "instruction_like": instruction_like,
         "hidden_urls": hidden_urls,
         "visible_url_count": len(URL.findall(visible)),
@@ -390,12 +409,14 @@ def verdict(findings: dict) -> str:
         context.append(_plural(n, "hidden URL", "hidden URLs"))
     removed = " and ".join(context)
 
+    note = " Note: the employer asks AI agents not to apply (tell the person; they decide)." \
+        if findings.get("ai_opt_out") else ""
     if alarms:
-        line = "posting_guard: ⚠ " + ", ".join(alarms) + " - review before continuing"
+        line = "posting_guard: ⚠ " + ", ".join(alarms) + " - review before continuing" + note
         return f"{line} ({removed} removed)" if removed else line
     if removed:
-        return f"posting_guard: clean ({removed} removed, none instruction-like)"
-    return "posting_guard: clean"
+        return f"posting_guard: clean ({removed} removed, none instruction-like)" + note
+    return "posting_guard: clean" + note
 
 
 def guard(raw: str, mode: str):

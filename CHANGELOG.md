@@ -3,6 +3,30 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.8.1 (2026-11-04)
+Fixes from the first scheduled run (watched companies, 2026-11-04):
+- Web fetch returned summaries, and the Stripe, Intercom and an Ashby feed
+  came back cut off. `feeds.py shortlist` now reads the light list (titles,
+  places, dates), keeps the matches and fetches each full ad on its own
+  (`feeds.py job`, about 7 KB), so the posting check runs on the real ad; a
+  list short of its own total is reported as partly checked. Optional update:
+  let the sandbox reach the hiring systems (Settings > Capabilities > Allowed
+  websites), so feeds are read directly.
+- Coverage: every watched company gets 'checked: <how>' or 'not checked:
+  <reason>' in the run log (`pipeline.py coverage`); no source is skipped
+  silently. Companies without a feed are searched through Job Seek, Indeed
+  and email alerts.
+- The apply list: "apply to these" from anywhere adds them (`pipeline.py
+  queue`); the next daily search prepares the pack, the form's questions with
+  draft answers and referral drafts; the next live session fills the forms
+  and the person presses Submit.
+- An employer's request that AI agents not apply is reported (`posting_guard`
+  `ai_opt_out`, `apply_form.py` note), never followed as an instruction and
+  never changes the score; filling the form is the person's call, and they
+  press Submit.
+- Weekly: `funnel.py thresholds` suggests a recalibration when 10+ jobs are
+  scored and none reach the alert thresholds.
+
 ## 1.8.0 (2026-11-04)
 Ideas from the best-rated job-search, interview and career repositories on
 GitHub, and automatic updates:

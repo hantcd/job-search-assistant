@@ -140,6 +140,10 @@ Optional: add **Job Seek**, a free index of jobs from thousands of employers' ow
 
 ![Connectors, + Add, Add custom connector](docs/images/18-custom-connector.png)
 
+Optional, about 2 minutes: let your automatic searches read company job systems directly, so they get full job ads instead of summaries and big job lists aren't cut short. Open **Settings → Capabilities**, click **Manage** next to **Allowed websites**, and add these one at a time in the **Add a website** box (1), clicking **Add** (2) after each: `boards-api.greenhouse.io`, `api.lever.co`, `api.eu.lever.co`, `api.ashbyhq.com`.
+
+![Allowed websites, Add a website, Add](docs/images/19-allowed-websites.png)
+
 For filling in application forms, install Claude in Chrome or use the built-in browser in the Claude desktop app.
 
 Using Cowork or Claude Code? Install the same zip as a plugin there (its README says how). You also get three helpers that can only read (one reads job ads, one reviews your pack as a hiring manager, one checks facts) and rules that stop Claude sending anything. Ordinary chats skip these, and the skills do the same steps themselves.
@@ -526,6 +530,7 @@ Timing: APPLY NOW + REACH OUT. The deadline is close, so apply this week and mes
 | After a real interview | Within a day, say: "Debrief my interview with \[company\]." Five minutes, by voice if you like: who you met, what they asked, where you got stuck. Your thank-you, the next round and your practice all build on it. |
 | Negotiating an offer | Say: "Help me set my lines and rehearse the call." You set what you'll ask for, what you'd accept on the spot and where you'd walk away; Claude plays the recruiter and pushes back. |
 | Check for updates | Say: "Check for updates." (The weekly check does this anyway.) |
+| Want to apply, but you're on your phone | Say: "Add the Twilio and Intercom jobs to my apply list." The next daily run prepares each one: the CV, the form's questions with draft answers, and referral notes to anyone you know there. Next time you're at your computer, say "Let's do my apply list": Claude fills each form while you watch, and you press Submit. |
 | Prepare for an event | *I'm going to the Dublin Tech Meetup on Thursday.* |
 | Prepare for a chat | *I'm chatting with Sarah from Acme tomorrow.* |
 | Polish a LinkedIn post | *Here's my draft for this week's LinkedIn post.* You post it yourself. |
