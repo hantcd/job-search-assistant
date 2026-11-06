@@ -3,6 +3,12 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.9.1 (2026-11-06)
+- Graduate job sites in job-scout: Milkround, Graduate Recruitment Bureau and
+  Higherin (formerly RateMyPlacement) for the UK, alongside gradireland,
+  through their email job alerts; each job verified on the employer's page.
+  An optional update gives the person the exact saved searches to set up.
+
 ## 1.9.0 (2026-11-06)
 The pack now covers the nine common uses of AI in a job search (find real
 jobs, positioning, CV and letter, applying, emailing hiring managers,

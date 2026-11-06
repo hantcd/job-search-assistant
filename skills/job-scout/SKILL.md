@@ -98,6 +98,12 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      the employer's own site. Use only its search and job tools: never its
      feedback or bug-report tools without the person's yes, and never send it
      anything about the person.
+   - **Graduate job sites**, for graduate and entry-level role families:
+     gradireland (Ireland), and for the UK Milkround, Graduate Recruitment
+     Bureau (grb.uk.com) and Higherin (formerly RateMyPlacement, also for
+     internships and placements, with student reviews of employers). Read
+     through their email job alerts; each job is then verified on the
+     employer's own page.
    - **Email job alerts** in Gmail (LinkedIn, Indeed, IrishJobs and others,
      set up by the person) and community keyword alerts (for example F5Bot).
      Read the emails, never the person's accounts.

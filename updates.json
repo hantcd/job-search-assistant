@@ -1,7 +1,16 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "1.9.0",
+ "latest": "1.9.1",
  "versions": [
+  {
+   "version": "1.9.1",
+   "date": "2026-11-06",
+   "summary": "Graduate job sites: Milkround, Graduate Recruitment Bureau and Higherin (formerly RateMyPlacement).",
+   "helps": [
+    "more graduate and entry-level jobs in the UK through their email alerts"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "1.9.0",
    "date": "2026-11-06",
