@@ -8,6 +8,9 @@ yourself.
 
 **[Read the step-by-step guide](GUIDE.md)** · **[Download the guide as a PDF](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf)** · **[Download the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip)**
 
+**Just want to try it?** [Try it in 10 minutes](QUICKSTART.md): one message
+to paste into any Claude chat, free plan included, no setup.
+
 > **Quick start**
 > 1. You need a paid Claude plan (Pro or Max), a computer, and a folder of
 >    your CVs and documents.

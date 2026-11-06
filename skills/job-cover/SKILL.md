@@ -13,7 +13,8 @@ something like it. Otherwise a 3-4 sentence note does the job.
 
 ```bash
 python3 "$SKILL_DIR/letter_check.py" letter.md --company "Acme Ltd" --role "Junior Data Analyst" \
-    --source EVIDENCE.md --other-companies jobsearch/pipeline.json --cv cv.md --ad ad.txt
+    --source EVIDENCE.md --other-companies jobsearch/pipeline.json --cv cv.md --ad ad.txt \
+    --gap "stakeholder management"                                  # the biggest gap, faced without apology
 python3 "$SKILL_DIR/letter_check.py" note.md --company "Acme Ltd" --kind note
 python3 "$SKILL_DIR/clean_text.py" letter.md > letter.clean.md     # before pasting into a form
 ```
@@ -40,10 +41,17 @@ note.
    number.
 3. **Reflect the company's values** in what the person did, not by repeating
    the words.
-4. **Don't repeat the CV**: one or two proof points, told as a story.
-5. **For top jobs**, offer the person 3 genuine reasons from their criteria
+4. **Face the biggest gap** (usually the third paragraph): the one main
+   requirement the person lacks, from job-cv's requirements map. Name it
+   plainly in one or two sentences, then the true reframe: related proof with
+   a number, or how they're already closing it (a course in progress, a
+   project). No apology ("although I don't have..."). Skip it when there's no
+   real gap, and never use it for a hard requirement the person can't meet
+   (a licence, the right to work): that job is a no, not a letter.
+5. **Don't repeat the CV**: one or two proof points, told as a story.
+6. **For top jobs**, offer the person 3 genuine reasons from their criteria
    and use the one they pick.
-6. **One clear ask** to close.
+7. **One clear ask** to close.
 
 Address a person or the team where known.
 
@@ -60,7 +68,9 @@ Address a person or the team where known.
    placeholders left in, another company's name, the company not named, a
    number not in the evidence, over 400 words. WARN items are judgement calls,
    including a sentence that just restates a CV line (`--cv`) or echoes the ad
-   (`--ad`): the letter's job is what the CV can't show.
+   (`--ad`): the letter's job is what the CV can't show. With `--gap` it
+   warns when the biggest gap isn't faced, and anywhere it warns on an
+   apology for a gap.
 4. Before the person pastes text into a form, run `clean_text.py`: it removes
    invisible characters and uses plain quotes.
 5. Show the letter. The person approves or edits; edits to their voice are

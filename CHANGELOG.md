@@ -3,6 +3,22 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.10.0 (2026-11-06)
+- job-cv: `audit.py`, a quick job audit for any ad: a match score out of 100
+  (must-haves count double, nice-to-haves half, "X or Y" needs one), the top
+  5 missing terms, and the skim's pile and top 3 red flags; Claude adds a
+  strong-candidate comparison from the ad and the evidence.
+- job-cv: `skim.py`, the 10-second skim: red flags strongest first (no
+  target role or number in the top third, few numbers, duty openers, long
+  bullets, unexplained gaps of a year or more, personal details, missing
+  must-haves) and a YES, MAYBE or NO pile. Replaces the 7-second check.
+- job-cover: the letter faces the biggest gap in one or two sentences with
+  the true reframe; `letter_check.py --gap` warns when it doesn't, and any
+  apology for a gap is flagged.
+- QUICKSTART.md and a guide section: a 10-minute message for any Claude
+  chat, free plan included, before setup.
+- Ideas from MavGPT's AI job seekers guide; none of its text is used.
+
 ## 1.9.1 (2026-11-06)
 - Graduate job sites in job-scout: Milkround, Graduate Recruitment Bureau and
   Higherin (formerly RateMyPlacement) for the UK, alongside gradireland,

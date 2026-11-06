@@ -129,6 +129,8 @@ python3 skills/job-scout/feeds.py live URL                     # Greenhouse, Lev
 python3 skills/job-scout/feeds.py questions GREENHOUSE_URL     # a Greenhouse job's exact application questions
 python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCORING.md
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
+python3 skills/job-cv/audit.py ad.txt cv.pdf --role "Junior Data Analyst"
+python3 skills/job-cv/skim.py cv.pdf --role "Junior Data Analyst" --ad ad.txt
 python3 skills/job-cv/keywords.py ad.txt cv.tex
 python3 skills/job-cv/truth_check.py cv.tex --source EVIDENCE.md
 python3 skills/job-cv/tex_check.py escapes cv.tex
@@ -286,6 +288,10 @@ newest.
 - The REFER kit (10x.with.ai): ideas for the referral path, Google searches
   for people on a team, checking each name and not greeting a recruiter who
   just rejected you. Ideas only; none of its text is used.
+- [MavGPT's AI job seekers guide](https://mavgpt.ai/resources/ai-resume-job-search-guide)
+  (Maverick Maltin): ideas for the quick job audit, the 10-second skim with
+  a yes, maybe or no pile, the cover letter's gap paragraph and a short
+  try-it message. Ideas only; none of its text is used.
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 

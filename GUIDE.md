@@ -8,6 +8,31 @@ Follow 8 steps in one 60–90 minute sitting, with your documents ready. Afterwa
 
 **The one rule: Claude drafts. You send.** Nothing goes out until you press Send or Submit yourself.
 
+## Try it in 10 minutes first (optional)
+
+Want to see what Claude can do before you set anything up? This works in any Claude chat, including the free plan (within its usage limits). It covers one job; the full setup below does it for every job, finds the jobs, keeps your list and finds people who could refer you.
+
+1. Open a new chat at claude.ai and attach your CV with the **+** button below the chat box.
+2. Copy the message below, paste the job ad where it says, and press Enter.
+3. Answer Claude's questions. Stuck? Send a screenshot of what you see.
+
+```
+You're helping me apply for one job. My CV is attached and the job ad is at the end. Go one step at a time and wait for me after each step.
+
+1. Quick audit: a match score out of 100 (how much of the ad's must-haves my CV shows), the top 5 missing keywords in the ad's own words, the 3 red flags a recruiter would spot in a 10-second skim, and which pile I'd land in: yes, maybe or no. Then 3-5 lines on what the strongest likely applicant's CV would show that mine doesn't.
+2. Ask me about each missing keyword and each bullet without a number: is it true, and what's the real number? Never invent experience, numbers or skills. If I say no, it stays a gap.
+3. Rewrite my experience bullets: a strong verb first, the result before the task, the ad's wording where it's true, one or two lines each, most relevant first. Use only facts from my CV and my answers.
+4. Check it twice: as screening software reads it (plain text; contact details not in a header, table or text box; no columns or icons) and as the hiring manager would. Then give me the revised CV.
+5. Write a cover note under 250 words: why this company (from the ad), the problem this hire solves with my best true proof, my biggest gap named plainly with what's true instead (no apology), and one clear ask.
+
+Don't send or submit anything. I'll do that myself.
+
+Job ad:
+[paste the job ad here]
+```
+
+The score is an estimate to guide your edits, not the employer's real screening result. Read every line before you use it: you know what's true about you.
+
 ## Before you start
 
 **What you need**
@@ -492,6 +517,7 @@ Timing: APPLY NOW + REACH OUT. The deadline is close, so apply this week and mes
 
 | You want to… | Say something like |
 | --- | --- |
+| Check one job quickly | *How well do I match this job?* \[paste the ad\] (Claude gives a match score out of 100, the 5 missing keywords that matter most, the 3 red flags a recruiter would spot in 10 seconds, and what a strong applicant's CV would show that yours doesn't). |
 | Get a pack for a job | *Prepare this one: the Acme Junior Data Analyst role.* |
 | Use a LinkedIn-only job | Copy the whole post, then: *Prepare this one:* \[paste\] |
 | Sort LinkedIn messages | Copy your recent messages or take screenshots, then: *Sort my LinkedIn inbox:* \[paste\] |

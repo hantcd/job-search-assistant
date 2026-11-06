@@ -1387,3 +1387,62 @@ class Release190(unittest.TestCase):
         self.assertEqual(self.sm.story_check(good, [self.EV])[-1][0], "PASS")
         bad = "I led a team of 20. I want data."
         self.assertTrue(any(r[0] == "FAIL" for r in self.sm.story_check(bad, [self.EV])))
+
+
+class Release1100(unittest.TestCase):
+    """Quick job audit, 10-second skim and the gap paragraph (fictional data)."""
+    sk = load("job-cv", "skim")
+    au = load("job-cv", "audit")
+    lc = load("job-cover", "letter_check")
+    AD = ("Junior Data Analyst, Acme Ltd\nWhat you'll need\n- SQL and Excel\n- Power BI or Tableau\n"
+          "- Stakeholder management\nNice to have\n- Python\n- Git\n")
+    WEAK_CV = ("Aoife Byrne\naoife@example.com\nMarketing Assistant\nBrightwater, Jan 2019 - Dec 2020\n"
+               "- Responsible for weekly reports in Excel for the sales team\n- Helped with campaign planning\n"
+               "Corrib Bank, Mar 2022 - Present\n- Built a claims dashboard in Power BI used by 12 managers\n"
+               "Date of birth: 1 May 1998\n")
+    GOOD_CV = ("Aoife Byrne | Data Analyst\naoife@example.com\nBuilt a Power BI claims dashboard used by 12 managers weekly\n"
+               "Skills: SQL, Excel, Power BI, Python, stakeholder management\n"
+               "Corrib Bank, Data Analyst, Mar 2022 - Present\n- Built a claims dashboard in SQL and Power BI used by 12 managers\n"
+               "- Cut weekly reporting from 6 hours to 40 minutes with a Python script\n"
+               "- Presented findings to 4 department heads each month\n"
+               "Brightwater, Analyst Intern, Jun 2021 - Feb 2022\n- Cleaned 3 years of sales data in Excel for 2 teams\n")
+
+    def test_weak_cv_lands_in_no_pile(self):
+        r = self.sk.skim(self.WEAK_CV, "Junior Data Analyst", self.AD)
+        self.assertEqual(r["pile"], "NO")
+        text = " ".join(r["flags"])
+        for bit in ("top third", "duty", "gap of a year", "date of birth"):
+            self.assertIn(bit, text)
+
+    def test_good_cv_lands_in_yes_pile(self):
+        r = self.sk.skim(self.GOOD_CV, "Junior Data Analyst", self.AD)
+        self.assertEqual(r["pile"], "YES", r["flags"])
+
+    def test_gap_explained_is_not_a_flag(self):
+        cv = self.WEAK_CV + "Career break, 2021: travelling\n"
+        self.assertFalse(any("gap of a year" in f for f in self.sk.skim(cv)["flags"]))
+
+    def test_single_source_is_not_personal(self):
+        cv = self.GOOD_CV + "- Made the dashboard the single source of truth for claims\n"
+        self.assertFalse(any("Personal" in f for f in self.sk.skim(cv)["flags"]))
+
+    def test_audit_scores_and_ranks_missing(self):
+        weak = self.au.audit(self.AD, self.WEAK_CV, "Junior Data Analyst")
+        good = self.au.audit(self.AD, self.GOOD_CV, "Junior Data Analyst")
+        self.assertLess(weak["match"], good["match"])
+        self.assertEqual(weak["missing"][0], "SQL")  # a must-have before a nice-to-have
+        self.assertNotIn("Tableau", weak["missing"])  # "Power BI or Tableau": one is enough
+        self.assertLessEqual(len(weak["missing"]), 5)
+        self.assertGreaterEqual(good["match"], 70)
+
+    def test_letter_faces_the_gap_without_apology(self):
+        base = ("Dear Claims Analytics team, Acme's post on its claims dashboards caught my eye. At Corrib Bank I built "
+                "a Power BI dashboard used by 12 managers and cut weekly reporting from 6 hours to 40 minutes. ")
+        sorry = base + "Although I don't have stakeholder management experience, I am keen to learn."
+        faced = base + "Stakeholder management is the part I've done least formally: I presented findings to 4 department heads each month."
+        res = {r[0]: r[1] for r in self.lc.check(sorry, "Acme", gap="stakeholder management")}
+        self.assertEqual(res["no apology"], "WARN")
+        res = {r[0]: r[1] for r in self.lc.check(faced, "Acme", gap="stakeholder management")}
+        self.assertEqual((res["faces the gap"], res["no apology"]), ("PASS", "PASS"))
+        res = {r[0]: r[1] for r in self.lc.check(base, "Acme", gap="stakeholder management")}
+        self.assertEqual(res["faces the gap"], "WARN")

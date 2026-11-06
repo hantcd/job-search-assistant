@@ -1,7 +1,19 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "1.9.1",
+ "latest": "1.10.0",
  "versions": [
+  {
+   "version": "1.10.0",
+   "date": "2026-11-06",
+   "summary": "A quick job audit, a 10-second CV skim, cover letters that face the biggest gap, and a 10-minute try-it message.",
+   "helps": [
+    "say 'How well do I match this job?' for a match score, the top 5 missing keywords, the 3 red flags and what a strong applicant would show",
+    "every CV gets a 10-second skim: red flags strongest first and a yes, maybe or no pile",
+    "cover letters name your biggest gap plainly with what's true instead, never an apology",
+    "friends can try it in 10 minutes on any Claude plan before setting anything up"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "1.9.1",
    "date": "2026-11-06",

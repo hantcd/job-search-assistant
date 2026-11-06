@@ -1,6 +1,6 @@
 ---
 name: job-cv
-description: Builds the achievement bank, master, base and tailored CVs in a style preset, and checks truth, keywords and layout. Use whenever a CV or resume is written or changed, even one bullet.
+description: Builds and tailors CVs from the person's evidence, checks truth, keywords and layout, and audits a CV against any job ad. Use whenever a CV is written or changed, or 'how well do I match'.
 ---
 
 # job-cv
@@ -12,6 +12,8 @@ person's evidence, the layout is checked by script, and nothing is invented.
 `$SKILL_DIR` below means this skill's folder.
 
 ```bash
+python3 "$SKILL_DIR/audit.py" ad.txt cv.pdf --role "Junior Data Analyst"          # quick job audit: match /100, top 5 missing, skim
+python3 "$SKILL_DIR/skim.py" cv.pdf --role "Junior Data Analyst" [--ad ad.txt]      # 10-second skim: red flags, yes/maybe/no
 python3 "$SKILL_DIR/keywords.py" ad.txt cv.tex [--bank keyword_bank.json]       # the ad's terms, in its own words
 python3 "$SKILL_DIR/truth_check.py" cv.tex --source EVIDENCE.md --source master_cv.md --allow "Acme Ltd" --corrections CORRECTIONS.md
 python3 "$SKILL_DIR/tex_check.py" escapes cv.tex                                   # unescaped % & # _ $
@@ -29,6 +31,27 @@ python3 "$SKILL_DIR/parse_check.py" cv.pdf --name "..." --email ... --phone "...
 - Writes the achievement bank, the master CV, base CVs, tailored CVs (PDF and
   an editable doc), a JSON Resume copy of the master CV, and a note on the
   application row (base CV and entries used, weights).
+
+## Quick job audit (any job ad, about a minute)
+
+For "how well do I match this job?", a job the person is only curious about,
+or a first look before anything is set up. Needs only the CV and the ad.
+
+1. Run `audit.py ad.txt cv.pdf --role "..."`. It gives a **match score out of
+   100** (the ad's terms the CV shows; must-haves count double,
+   nice-to-haves half, "X or Y" needs only one), the **top 5 missing terms**,
+   and the **10-second skim**: a pile (YES, MAYBE, NO) and its top 3 red flags.
+2. Write the **strong-candidate comparison** yourself, 3-5 lines: what the
+   strongest likely applicant's CV would show for this ad that this one
+   doesn't (a result with a number in the top third, the ad's exact tool
+   names, the level of ownership). Base it on the ad and the person's
+   evidence only; say nothing about real people.
+3. For each missing term, ask whether it's true. Yes: it goes into
+   EVIDENCE.md and, when tailoring, into the CV in the ad's words. No: it
+   stays a gap, and job-cover faces the biggest one in the letter.
+4. Say plainly what the score is: an estimate to guide edits, not the
+   employer's ATS result. Offer the tailored CV (steps below) when the match
+   is 70+ or the person wants it anyway.
 
 ## The CV family
 
@@ -151,7 +174,11 @@ dates) rather than the CV.
    cover letter relies on it; cut or shorten the line that scores lowest, never
    simply the oldest, then recompile.
 6. **Look at it**: render the page as an image and check what the script
-   can't see. Then the 7-second check: list exactly what the top third shows.
+   can't see. Then the **10-second skim** (`skim.py cv.pdf --role ... --ad
+   ad.txt`): list exactly what the top third shows, the red flags strongest
+   first, and the pile a reader sorting 200 CVs would put it in (YES, MAYBE,
+   NO). Fix strong flags from the evidence (ask for a missing number, never
+   invent one), then run it again.
 7. **Show** the person the CV, the changes from the base CV, the gaps and why
    they stay gaps. They approve it.
 

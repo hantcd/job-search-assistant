@@ -3,7 +3,7 @@
 
     python3 letter_check.py letter.md --company "Acme" --role "Junior Data Analyst" \
         [--team "Claims Analytics"] [--source EVIDENCE.md] [--other-companies pipeline.json] [--kind letter|note]
-        [--cv cv.md] [--ad ad.txt]
+        [--cv cv.md] [--ad ad.txt] [--gap "stakeholder management"]
 
 FAIL (exit 1)
   placeholders left in ([Company], {role}, XXX, TODO, [fill: ...])
@@ -15,7 +15,8 @@ WARN
   the role isn't named; no concrete proof (a sentence with a number); a generic greeting;
   under 150 or over 350 words (letters; a short note is 3-4 sentences); stock phrases and AI tells
   (your own writing samples win: if you really write like that, keep it); a sentence that just
-  restates a CV line (--cv) or echoes the ad (--ad): the letter should add what the CV can't
+  restates a CV line (--cv) or echoes the ad (--ad): the letter should add what the CV can't;
+  the biggest gap (--gap "SQL") isn't faced; an apology for a gap ("although I don't have...")
 
 Adapted from cover.py in hunter-skill (MIT, Jake Schincariol).
 """
@@ -36,6 +37,9 @@ STOCK = [
     "navigate the complexities", "ever-evolving", "seamlessly", "cutting-edge", "game-changer",
     "unwavering", "spearheaded", "honed my", "elevate", "embark", "a unique blend",
 ]
+APOLOGY = re.compile(r"\b(?:although|while|whilst|though) i (?:do not|don't|lack|have not|haven't)|\bdespite (?:my|not having)|"
+                     r"\bi (?:know|realise|realize|understand) (?:that )?i (?:do not|don't|lack|may not|might not)|"
+                     r"\bunfortunately,? i\b|\bi apologi[sz]e\b|\bmy lack of\b|\bi only have\b", re.I)
 CONTRAST = re.compile(r"\bnot (?:just|only|merely) [^.;]{1,60}?,? but\b", re.I)
 
 
@@ -72,7 +76,7 @@ def overlaps(text, refs, threshold=0.7):
     return out
 
 
-def check(text, company, role="", team="", sources=(), others=(), kind="letter", cv="", ad=""):
+def check(text, company, role="", team="", sources=(), others=(), kind="letter", cv="", ad="", gap=""):
     res = []
 
     def add(name, status, detail):
@@ -104,6 +108,15 @@ def check(text, company, role="", team="", sources=(), others=(), kind="letter",
         "use a name or the team" if GENERIC_GREETING.search(text) else "ok")
     stock = [s for s in STOCK if s in low] + (["'not X but Y' contrast"] if CONTRAST.search(text) else [])
     add("stock phrases", "WARN" if stock else "PASS", "; ".join(stock) if stock else "none")
+    if gap and kind == "letter":
+        gw = [w for w in words(gap) if len(w) > 2]
+        named = bool(gw) and any(re.search(r"(?<!\w)%s" % re.escape(w.lower()), low) for w in gw)
+        add("faces the gap", "PASS" if named else "WARN",
+            gap if named else "the letter doesn't address '%s': one or two sentences that name it and give the true reframe" % gap)
+    sorry = sorted({m.group(0) for m in APOLOGY.finditer(text)})
+    add("no apology", "WARN" if sorry else "PASS",
+        ("apologises: %s. Name the gap plainly, then what's true (related proof, how you're closing it)" % "; ".join(sorry))
+        if sorry else "none")
     if cv:
         same = overlaps(text, cv.splitlines())
         add("adds to the CV", "WARN" if same else "PASS",
@@ -139,13 +152,14 @@ def main(argv=None):
     p.add_argument("--kind", choices=("letter", "note", "answer"), default="letter")
     p.add_argument("--cv", help="the tailored CV as text or markdown")
     p.add_argument("--ad", help="the job ad as text")
+    p.add_argument("--gap", default="", help="the biggest requirement the person lacks, from the requirements map")
     a = p.parse_args(argv)
     text = open(a.file, encoding="utf-8").read()
     sources = [open(s, encoding="utf-8").read() for s in a.source]
     others = companies_from(a.other_companies) if a.other_companies else []
     cv = open(a.cv, encoding="utf-8").read() if a.cv else ""
     ad = open(a.ad, encoding="utf-8").read() if a.ad else ""
-    res = check(text, a.company, a.role, a.team, sources, others, a.kind, cv, ad)
+    res = check(text, a.company, a.role, a.team, sources, others, a.kind, cv, ad, a.gap)
     for name, status, detail in res:
         print("%-4s  %-18s %s" % (status, name, detail))
     return 1 if any(s == "FAIL" for _, s, _ in res) else 0
