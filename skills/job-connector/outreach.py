@@ -11,6 +11,14 @@
     python3 outreach.py check --channel email --stage applied --file note.txt --subject "Applied: Junior Data Analyst / TCD / data" --role "Junior Data Analyst"
     python3 outreach.py check --channel comment --file comment.txt      # a comment on their post about the job
     python3 outreach.py linkedin --company-slug acme --school-slug trinity-college-dublin --keywords "data analytics" [--city Dublin]
+    python3 outreach.py invites --file jobsearch/pipeline.json [--today 2026-11-06]
+
+invites: today's budget for LinkedIn connection requests in a connection session.
+LinkedIn publishes no number; accounts report restrictions at about 100
+invitations a week, and LinkedIn says many ignored or pending invitations also
+lead to restrictions. The pack stays at 80% of that: at most 16 on a working
+day and 80 in any 7 days, none while 250+ are pending, and lists invitations
+pending over 3 weeks for the person to withdraw.
     python3 outreach.py manager --file ad.txt          # the hiring manager's title, from 'reports to ...' lines
 
 check: emails under 75 words, a subject naming the role, no attachment in a first
@@ -249,6 +257,36 @@ def linkedin_steps(keywords, company_slug="", school_slug="", city=""):
     return out
 
 
+INVITES_PER_WEEK = 80   # 80% of the ~100 a week accounts report as the ceiling
+INVITES_PER_DAY = 16    # 80% of a working day's share (100 / 5 * 0.8)
+PENDING_STOP = 250
+
+
+def invite_budget(data, today):
+    """Connection requests sent (outreach rows: channel linkedin, stage note or invite) against the caps."""
+    sent = []
+    for o in data.get("outreach", []):
+        if o.get("channel") != "linkedin" or o.get("stage") not in ("note", "invite"):
+            continue
+        outs = [m for m in o.get("messages", []) or [] if m.get("direction") == "out"]
+        if not outs:
+            continue
+        try:
+            sent.append((datetime.date.fromisoformat(str(outs[0].get("date"))[:10]), o))
+        except ValueError:
+            pass
+    today_n = sum(1 for d, _ in sent if d == today)
+    week_n = sum(1 for d, _ in sent if 0 <= (today - d).days < 7)
+    pending = [(d, o) for d, o in sent if o.get("invite_pending")]
+    stale = sorted({o.get("contact_id") for d, o in pending if (today - d).days > 21})
+    if today.weekday() >= 5 or len(pending) >= PENDING_STOP:
+        left = 0
+    else:
+        left = max(0, min(INVITES_PER_DAY - today_n, INVITES_PER_WEEK - week_n))
+    return {"today": today_n, "last_7_days": week_n, "pending": len(pending), "left_today": left,
+            "withdraw": stale}
+
+
 def working_days_after(d, n):
     while n > 0:
         d += datetime.timedelta(days=1)
@@ -322,6 +360,9 @@ def main(argv=None):
     f.add_argument("--role", default="", help="the job title, for --posts")
     f.add_argument("--recruiters", action="store_true", help="also search for the team's recruiters")
     f.add_argument("--posts", action="store_true", help="also search for LinkedIn posts advertising the role")
+    iv = sub.add_parser("invites")
+    iv.add_argument("--file", default="jobsearch/pipeline.json")
+    iv.add_argument("--today")
     li = sub.add_parser("linkedin")
     li.add_argument("--keywords", required=True)
     li.add_argument("--company-slug", default="")
@@ -345,6 +386,10 @@ def main(argv=None):
         print(json.dumps({"titles": titles, "next": "outreach.py find --team '<title>' for each" if titles else
                           "the ad doesn't say; search for the team's most senior person in the job's function"},
                          indent=1))
+        return 0
+    if a.cmd == "invites":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        print(json.dumps(invite_budget(json.load(open(a.file, encoding="utf-8")), today), indent=1))
         return 0
     if a.cmd == "linkedin":
         print(json.dumps(linkedin_steps(a.keywords, a.company_slug, a.school_slug, a.city), indent=1))

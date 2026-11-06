@@ -1683,3 +1683,27 @@ class Release230(unittest.TestCase):
                 + "What's the report you'd automate first?")
         res = self.pc.check(good, "document")
         self.assertFalse([r for r in res if r[0] in ("FAIL", "WARN")], res)
+
+
+class Release240(unittest.TestCase):
+    """Connection sessions stay at 80% of LinkedIn's reported ceiling (fictional data)."""
+    o = load("job-connector", "outreach")
+
+    def rows(self, dates, pending=True):
+        return {"outreach": [{"channel": "linkedin", "stage": "invite", "invite_pending": pending, "contact_id": "c%d" % i,
+                              "messages": [{"date": d, "direction": "out"}]} for i, d in enumerate(dates)]}
+
+    def test_daily_and_weekly_caps(self):
+        self.assertEqual(self.o.invite_budget(self.rows([]), D(2026, 11, 6))["left_today"], 16)
+        self.assertEqual(self.o.invite_budget(self.rows(["2026-11-06"] * 10), D(2026, 11, 6))["left_today"], 6)
+        week = ["2026-11-02"] * 16 + ["2026-11-03"] * 16 + ["2026-11-04"] * 16 + ["2026-11-05"] * 16 + ["2026-11-06"] * 8
+        self.assertEqual(self.o.invite_budget(self.rows(week), D(2026, 11, 6))["left_today"], 8)
+        week[-1:] = ["2026-11-06"] * 9
+        self.assertEqual(self.o.invite_budget(self.rows(week + ["2026-11-06"] * 7), D(2026, 11, 6))["left_today"], 0)
+
+    def test_weekends_pending_and_withdrawals(self):
+        self.assertEqual(self.o.invite_budget(self.rows([]), D(2026, 11, 7))["left_today"], 0)
+        many = self.rows(["2026-10-01"] * 250)
+        b = self.o.invite_budget(many, D(2026, 11, 6))
+        self.assertEqual(b["left_today"], 0)
+        self.assertEqual(len(b["withdraw"]), 250)

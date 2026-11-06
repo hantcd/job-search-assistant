@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.3.0"
+PACK_VERSION = "2.4.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -211,6 +211,14 @@ MIGRATIONS = [
      "needs": "",
      "steps": "Add the form_notes table to the job list; run network.py companies and search their feeds in this "
               "week's check."},
+    {"id": "2.4.0-connection-sessions", "version": "2.4.0",
+     "title": "Connection sessions and new accounts on job sites",
+     "helps": "grow your network at target companies: Claude prepares each connection request, you click Send, at most "
+              "16 a working day and 80 a week (80% of the limit accounts report); sites that need an account get one, "
+              "with the password made and saved by your browser's password manager",
+     "needs": "",
+     "steps": "Mention both in the report: 'Connection session' to start one, and that sign-ups now happen during "
+              "applying. Nothing else changes."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

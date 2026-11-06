@@ -93,3 +93,24 @@ Moderately weak ties (alumni, past colleagues' colleagues, a few mutual
 connections) are the most useful strangers to ask: a LinkedIn experiment
 with 20 million people found they led to more job moves than strong ties or
 distant ones.
+
+## Connection sessions (growing the network at target companies)
+
+For people at the person's watched companies, top companies in their field
+and their network's companies, past or present: alumni and the same function
+first, then the team's peers and managers, from Google results and the
+LinkedIn searches the person runs (never from Claude reading LinkedIn).
+
+- `outreach.py invites` gives today's budget: at most 16 on a working day and
+  80 in any 7 days (80% of the ~100 a week accounts report as LinkedIn's
+  ceiling; LinkedIn publishes no number), none at weekends, none while 250+
+  are pending, and the invitations pending over 3 weeks to withdraw (the
+  person withdraws them; LinkedIn then blocks re-inviting for up to 3 weeks).
+- Most requests go without a note (free accounts get 3 notes a month); the
+  notes go to the people who matter most for an open job.
+- In the session Claude opens each profile in turn in the person's browser,
+  clicks Connect and Send without a note (or adds the approved note) as far
+  as the dialog before Send, and the person clicks Send: one click each.
+  Each is recorded as an outreach row (stage `invite`, `invite_pending`).
+- Accepted: they join the network table, and `network.py` ranks them for
+  future jobs. Never followed by a sales pitch or an automatic message.

@@ -1,7 +1,17 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "2.3.0",
+ "latest": "2.4.0",
  "versions": [
+  {
+   "version": "2.4.0",
+   "date": "2026-11-06",
+   "summary": "Connection sessions within 80% of LinkedIn's reported limit, and new accounts on job sites with passwords kept by your browser's password manager.",
+   "helps": [
+    "connection requests to people at your target and network companies: Claude prepares each one, you click Send; at most 16 a working day, 80 a week, none while 250+ are pending",
+    "job sites that need an account: Claude fills the sign-up and your browser makes and saves a strong password; Claude opens the verification email"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "2.3.0",
    "date": "2026-11-06",

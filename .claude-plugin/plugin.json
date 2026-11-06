@@ -2,7 +2,7 @@
   "name": "job-search-assistant",
   "displayName": "Job Search Assistant",
   "description": "17 Claude skills for a careful, personal job search: find and score jobs, true tailored CVs and letters, a portfolio site, career switches, a route per job (referral first or apply now), outreach with privacy checks and stop rules, follow-ups, interviews and offers. Claude submits and sends only on your one-click approval for each item. Plus read-only reviewer agents and hooks that ask before every send.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "author": {
     "name": "Job Search Assistant authors"
   },

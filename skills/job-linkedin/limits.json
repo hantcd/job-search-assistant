@@ -37,6 +37,15 @@
    "quote": "Each message can be up to 200 characters.",
    "free_notes_per_month": 3,
    "free_quote": "You can add a personalized message to up to three connection requests per month."
+  },
+  "invitations_per_week": {
+   "max": 100,
+   "pack_cap": 80,
+   "pack_cap_per_working_day": 16,
+   "unit": "connection requests",
+   "status": "reported",
+   "source": "https://www.hublead.io/linkedin-invitation-limit",
+   "note": "LinkedIn publishes no number; about 100 a week is the ceiling accounts report. LinkedIn Help: all members (Basic and Premium) are subject to invitation limits; many ignored or pending invitations can lead to a restriction, which typically lasts a week."
   }
  },
  "automation": {

@@ -3,6 +3,20 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.4.0 (2026-11-06)
+- Connection sessions (job-connector, `finding-people.md`): people at watched,
+  top and network companies, alumni and the same function first; Claude
+  opens each profile in turn and prepares the request; the person clicks
+  Send. `outreach.py invites` keeps to 80% of the ~100 a week accounts report
+  as LinkedIn's ceiling (16 a working day, 80 in 7 days), none at weekends or
+  with 250+ pending, and lists invitations pending over 3 weeks to withdraw.
+  The consent rules say so in every skill. Claude still never sends in
+  LinkedIn itself, and automatic tasks never act there.
+- Accounts on job sites (job-apply): Claude fills the sign-up and uses the
+  browser's own suggested strong password, so the password manager makes
+  and saves it; Claude opens the verification email and records that the
+  account exists. It never sees, types or stores a password.
+
 ## 2.3.0 (2026-11-06)
 Ideas from other open-source job and LinkedIn skills (none of their text is used):
 - `network.py companies`: the companies where the person knows the most
