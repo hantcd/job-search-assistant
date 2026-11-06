@@ -200,6 +200,14 @@ field (`answers.py lengths`: many forms cut text at 255 characters without
 warning); the right CV file is attached. The approval card then shows the
 person the full list of questions and answers.
 
+**Form memory**: after each form, save what was learned to the job list's
+`form_notes` table (site or ATS tenant, the quirk, how it was handled: a
+Workday tenant's extra page, a dropdown that wants "Ireland" not "Republic of
+Ireland", a degree list's wording), and read it before filling any form on
+the same site, so each form goes faster and fails less (idea from
+jobautopilot's knowledge base). Never stores passwords or answers to YOU
+questions.
+
 **Form traps** (from real applications):
 - Read consent fields: a marketing or talent-pool consent isn't a condition of
   applying, and 'required' means an option must be picked, not that it must be

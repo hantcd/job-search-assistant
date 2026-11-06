@@ -56,7 +56,7 @@ TEAM_WINDOW = 14
 REJECTION_WINDOW = 180  # days a rejection at a company is worth a warning before writing to its recruiters
 TABLES = ("jobs", "applications", "contacts", "outreach", "run_log", "email_log")
 # Free-form tables the skills also keep (checked only for being lists):
-OTHER_TABLES = ("companies", "events", "offers", "feedback", "story_grid",
+OTHER_TABLES = ("form_notes", "companies", "events", "offers", "feedback", "story_grid",
                 "keyword_bank", "watched", "network", "signals", "reddit", "linkedin_ids",
                 "question_bank", "updates")
 

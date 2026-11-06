@@ -51,8 +51,8 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      **When the feed comes through web fetch** (the sandbox can't reach the
      hiring system), web fetch may return a summary or cut a big feed short
      (Stripe's, Intercom's and an Ashby feed were cut off on 2026-11-04). So
-     use two steps: `feeds.py shortlist` on the light list (titles, places,
-     dates; `feeds.py url --light`), then fetch only the matching jobs' full
+     use two steps: `feeds.py shortlist --seen pipeline.json` on the light list
+     (minus jobs already listed; `url --light`), then fetch only the matching jobs' full
      ads one by one (about 7 KB each) and read each with `feeds.py job`, so the
      posting check runs on the real ad, not a summary. A list that comes back
      short of its own total is reported as partly checked. Where the person

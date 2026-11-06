@@ -10,6 +10,8 @@ A finding is a bullet line ('- ' or '* '). Each needs:
 Notes older than 90 days (the 'Researched:' line, or the newest finding date) are due a refresh.
 Lines with '(fill in)' are allowed and listed, never filled from memory.
 Exit 1 if any finding is missing its label or link.
+A flat 'no' or 'never' (no layoffs, doesn't sponsor, no reviews) is warned: not
+finding something isn't proof it doesn't exist, so say 'found no ... in <where>'.
 """
 
 import argparse
@@ -19,10 +21,14 @@ import sys
 
 LABELS = ("OFFICIAL", "SEVERAL REPORTS", "ONE REPORT", "GUESS")
 DATE = re.compile(r"\b(20\d\d-\d\d(?:-\d\d)?)\b")
+ABSOLUTE = re.compile(r"\b(?:no (?:layoffs|reviews|complaints|visa|sponsorship|remote|graduate|reports?)|never|does(?:n't| not) "
+                      r"(?:sponsor|hire|offer|allow)|not hiring|there (?:are|is) no)\b", re.I)
+FOUND_NO = re.compile(r"\b(?:found no|couldn't find|could not find|no .{0,40} found|none found|not found)\b", re.I)
 
 
-def check(text, today):
+def check(text, today, warnings=None):
     errors, todo, dates = [], [], []
+    warnings = warnings if warnings is not None else []
     for n, line in enumerate(text.splitlines(), 1):
         s = line.strip()
         m = re.match(r"Researched:\s*(20\d\d-\d\d-\d\d)", s, re.I)
@@ -33,6 +39,9 @@ def check(text, today):
         if "(fill in)" in s:
             todo.append("line %d: %s" % (n, s[2:60]))
             continue
+        if ABSOLUTE.search(s) and not FOUND_NO.search(s):
+            warnings.append("line %d: not finding something isn't proof: write 'found no ... in <where you looked>': %s"
+                            % (n, s[2:70]))
         label = next((l for l in LABELS if l in s), None)
         if not label:
             errors.append("line %d: no label (%s): %s" % (n, " / ".join(LABELS), s[2:70]))
@@ -58,9 +67,12 @@ def main(argv=None):
     p.add_argument("--today")
     a = p.parse_args(argv)
     today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
-    errors, todo, newest, stale = check(open(a.file, encoding="utf-8").read(), today)
+    warns = []
+    errors, todo, newest, stale = check(open(a.file, encoding="utf-8").read(), today, warns)
     for e in errors:
         print("FAIL  " + e)
+    for w in warns:
+        print("WARN  " + w)
     for t in todo:
         print("TODO  " + t)
     print("Newest finding: %s%s" % (newest or "none", "  (over 3 months old: refresh)" if stale else ""))

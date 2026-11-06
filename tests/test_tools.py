@@ -1637,3 +1637,49 @@ class Release220(unittest.TestCase):
         self.assertEqual(plain["match"], 60)
         self.assertIn("Worth a tailored CV", grad["next"][-1])
         self.assertNotIn("Worth a tailored CV", plain["next"][-1])
+
+
+class Release230(unittest.TestCase):
+    """Network companies, seen-filter, absence check, post check (fictional data)."""
+    n = load("job-connector", "network")
+    f = load("job-scout", "feeds")
+    nc = load("job-research", "notes_check")
+    pc = load("job-linkedin", "post_check")
+
+    def test_network_companies(self):
+        d = {"watched": [{"company": "Stripe"}], "contacts": [],
+             "network": [{"name": "A", "company": "Acme Ltd"}, {"name": "B", "company": "Acme"},
+                         {"name": "C", "company": "Acme", "tie_strength": "worked together"},
+                         {"name": "D", "company": "Stripe"}, {"name": "E", "company": "Stripe"},
+                         {"name": "F", "company": "Solo Co"}]}
+        rows = self.n.companies(d)
+        self.assertEqual([r["company"] for r in rows], ["Acme Ltd"])  # Stripe is watched, Solo Co has one person
+        self.assertEqual((rows[0]["people"], rows[0]["know_you"]), (3, 1))
+
+    def test_seen_jobs_skipped(self):
+        data = {"jobs": [{"title": "Junior Data Analyst", "absolute_url": "https://boards.greenhouse.io/acme/jobs/1",
+                          "location": {"name": "Dublin"}, "updated_at": "2026-11-05T00:00:00Z", "id": 1},
+                         {"title": "Junior Data Analyst II", "absolute_url": "https://boards.greenhouse.io/acme/jobs/2",
+                          "location": {"name": "Dublin"}, "updated_at": "2026-11-05T00:00:00Z", "id": 2}]}
+        seen = self.f.seen_keys({"jobs": [{"url": "https://boards.greenhouse.io/acme/jobs/1/"}]})
+        rows = self.f.shortlist("greenhouse", data, "Acme", ["Data Analyst"], [], 0, D(2026, 11, 6), False, seen)
+        self.assertEqual([r["url"] for r in rows], ["https://boards.greenhouse.io/acme/jobs/2"])
+
+    def test_absence_is_not_proof(self):
+        warns = []
+        self.nc.check("Researched: 2026-11-01\n- OFFICIAL Acme doesn't sponsor visas https://acme.ie/careers 2026-10\n"
+                      "- ONE REPORT found no layoff reports on Glassdoor https://glassdoor.ie/x 2026-10\n",
+                      D(2026, 11, 6), warns)
+        self.assertEqual(len(warns), 1)
+        self.assertIn("sponsor", warns[0])
+
+    def test_post_check(self):
+        bad = "Thrilled to share some news! https://example.com #a #b #c #d #e #f\nLike if you agree"
+        st = {r[2]: r[0] for r in self.pc.check(bad)}
+        self.assertEqual((st["links"], st["hashtags"]), ("FAIL", "FAIL"))
+        self.assertEqual(st["engagement bait"], "WARN")
+        good = ("I cut our weekly claims report from 6 hours to 40 minutes. Here's the one change that did it.\n\n"
+                + "We stopped rebuilding the same joins every Monday, and saved the query once.\n\n" * 9
+                + "What's the report you'd automate first?")
+        res = self.pc.check(good, "document")
+        self.assertFalse([r for r in res if r[0] in ("FAIL", "WARN")], res)

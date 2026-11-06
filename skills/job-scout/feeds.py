@@ -270,11 +270,26 @@ def keep(row, titles, locations, days, today, remote_only):
     return True
 
 
-def shortlist(kind, data, company, titles, locations, days, today, remote_only):
-    """Matching jobs from a light list, each with the address of its full ad."""
+def seen_keys(pipeline):
+    """URLs and references already on the job list, so known jobs aren't fetched again."""
+    keys = set()
+    for j in (pipeline or {}).get("jobs", []):
+        for k in ("url", "ref"):
+            if j.get(k):
+                keys.add(str(j[k]).rstrip("/").lower())
+        for u in j.get("other_links", []) or []:
+            keys.add(str(u).rstrip("/").lower())
+    return keys
+
+
+def shortlist(kind, data, company, titles, locations, days, today, remote_only, seen=None):
+    """Matching jobs from a light list, each with the address of its full ad (minus jobs already seen)."""
     out = []
     for r in normalise(kind, data, company):
         if not keep(r, titles, locations, days, today, remote_only):
+            continue
+        if seen and (str(r.get("url", "")).rstrip("/").lower() in seen
+                     or (r.get("ref") and str(r["ref"]).lower() in seen)):
             continue
         k, board, job = job_ref(r["url"])
         row = {k2: r[k2] for k2 in ("company", "title", "location", "posted", "remote", "url", "ref")}
@@ -318,6 +333,7 @@ def main(argv=None):
     sl.add_argument("--remote", action="store_true")
     sl.add_argument("--days", type=int, default=0)
     sl.add_argument("--today")
+    sl.add_argument("--seen", help="the job list snapshot (pipeline.json): skip jobs already on it")
     jb = sub.add_parser("job")
     jb.add_argument("url")
     jb.add_argument("--from-file", required=True)
@@ -371,7 +387,8 @@ def main(argv=None):
             print("could not read the light %s list for %r (%s). Fetch %s with web fetch and pass --from-file."
                   % (a.kind, a.token, e, LIGHT[a.kind].format(token=a.token)), file=sys.stderr)
             return 2
-        rows = shortlist(a.kind, data, a.company or a.token, a.title, a.location, a.days, today, a.remote)
+        seen = seen_keys(json.load(open(a.seen, encoding="utf-8"))) if a.seen else None
+        rows = shortlist(a.kind, data, a.company or a.token, a.title, a.location, a.days, today, a.remote, seen)
         total = ((data or {}).get("meta") or {}).get("total") if isinstance(data, dict) else None
         got = len(data.get("jobs", [])) if isinstance(data, dict) else len(data or [])
         if total and got < total:

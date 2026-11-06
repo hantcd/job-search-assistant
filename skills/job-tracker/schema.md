@@ -98,5 +98,6 @@ time*, task*, sources_checked, new, updated, closed, errors, stopped_early (and 
 ## Other tables
 companies (company notes, plus limit_max, limit_window_days, limit_scope and
 resets when a company limits applications per person), events, offers, feedback, story_grid,
-keyword_bank, watched, network, signals: lists of rows; see the skill that
+keyword_bank, watched, network, signals, form_notes (site, quirk, handling, date: job-apply's form
+memory): lists of rows; see the skill that
 keeps each.

@@ -15,6 +15,7 @@ does and wants. Claude writes; the person pastes and posts everything.
 python3 "$SKILL_DIR/profile_check.py" limits pack.json
 python3 "$SKILL_DIR/profile_check.py" keywords pack.json --terms keyword_bank.json
 python3 "$SKILL_DIR/profile_check.py" score ratings.json --visibility light
+python3 "$SKILL_DIR/post_check.py" post.txt [--format document]     # a post draft against reach signals
 ```
 
 ## Reads and writes
@@ -66,7 +67,8 @@ Off (profile only); Light (a post a fortnight, a few comments a week); Active
   post'; flag posts with fewer than about 20 comments, where a comment still
   gets seen.
 - No engagement pods, generic comments, hashtags (they cut reach) or links in
-  the post body.
+  the post body. Check every draft with `post_check.py` (each rule says how
+  sure it is: confirmed by LinkedIn, large-scale data, or practitioners).
 
 ## Messages the person pastes (text or screenshots)
 

@@ -33,6 +33,14 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
    proposed rather than applied.
 2. **Spot-check 10 saved jobs**: still open, scored sensibly, nothing
    duplicated.
+2b. **Your network's companies** (`../job-connector/network.py companies`):
+   the 20 companies where the person knows the most people, not already
+   watched. Find each one's public job feed or careers page (job-scout's
+   method) and search it for the role families' titles; matches go through
+   the normal checks and scoring, and their alerts name the people known
+   there. A search source, not a settings change: nothing is added to the
+   watched list without the person's yes (idea from Proficiently's network
+   scan).
 3. **The Monday summary line**: conversations and replies, not just
    applications (job-tracker `summary`).
 4. **Usage**: a rough note of the automatic tasks' share of the allowance.

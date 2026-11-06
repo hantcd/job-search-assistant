@@ -51,7 +51,9 @@ interview. Reuse notes under 3 months old; refresh them every 3 months.
    reports): never invent a report. Missing facts stay '(fill in)' until a
    source is opened and read.
 6. **Check** with `notes_check.py`: every bullet labelled, linked (unless a
-   GUESS) and dated; notes over 3 months old flagged for refresh.
+   GUESS) and dated; notes over 3 months old flagged for refresh. Not
+   finding something isn't proof it doesn't exist: "found no layoff reports
+   on Glassdoor or the Irish Times, 2026-11" rather than "no layoffs".
 7. **Fact check** before any of it goes into something in the person's name
    (a letter, a message, an interview brief, an offer review): the
    `fact-checker` agent (`$SKILL_DIR/agents/fact-checker.md`, where a separate

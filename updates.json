@@ -1,7 +1,19 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "2.2.0",
+ "latest": "2.3.0",
  "versions": [
+  {
+   "version": "2.3.0",
+   "date": "2026-11-06",
+   "summary": "Jobs at your network's companies, form memory, already-seen jobs skipped, a post check with confidence labels, and research that never treats 'not found' as proof.",
+   "helps": [
+    "each week, open roles at the companies where you know the most people, with those people named",
+    "application forms get faster and fail less as Claude remembers each site's quirks",
+    "LinkedIn post drafts checked against reach signals, each rule labelled confirmed, large-scale data or practitioner",
+    "company notes say 'found no ... in <where>' instead of 'no ...'"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "2.2.0",
    "date": "2026-11-06",

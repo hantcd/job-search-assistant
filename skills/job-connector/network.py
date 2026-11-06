@@ -5,6 +5,11 @@
     python3 network.py rank --file jobsearch/pipeline.json --job <id> [--manager "Head of Sales Development"] [--top 3]
     python3 network.py route --file jobsearch/pipeline.json --job <id> [--today 2026-11-06]
     python3 network.py plan --file jobsearch/pipeline.json --job <id> [--manager "..."] [--today 2026-11-06]
+    python3 network.py companies --file jobsearch/pipeline.json [--min 2] [--top 20]
+
+companies: the companies where the person knows the most people (people who know
+them or their work count double), not already watched, for job-weekly to search
+for open roles: a job where you know someone is the easiest referral there is.
 
 plan: who to contact for one job, in two waves, as a fallback if the first people
 don't answer: up to 4 people (the hiring manager, the recruiter and 1-2 on the
@@ -331,6 +336,26 @@ def plan(data, job_id, manager_titles=(), today=None, max_people=4):
             "if_no_reply": [dict(r, wave=2, send_on=later) for r in second]}
 
 
+def companies(data, min_people=2, top=20):
+    watched = {norm_company(w.get("company") or w.get("name")) for w in data.get("watched", []) if isinstance(w, dict)}
+    seen, groups = set(), {}
+    for c in data.get("network", []) + data.get("contacts", []):
+        if not isinstance(c, dict) or not c.get("company") or c.get("do_not_contact"):
+            continue
+        key = (norm_company(c["company"]), (c.get("name") or "").lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        g = groups.setdefault(key[0], {"company": c["company"], "people": 0, "know_you": 0, "names": []})
+        g["people"] += 1
+        if knows_them(c):
+            g["know_you"] += 1
+            g["names"].append(c.get("name"))
+    rows = [g for k, g in groups.items() if k and k not in watched and g["people"] >= min_people]
+    rows.sort(key=lambda g: (-(g["people"] + g["know_you"]), g["company"].lower()))
+    return rows[:top]
+
+
 def summary_line(m):
     if not m["total"]:
         return "People you know: none yet (search for two on the team)"
@@ -350,6 +375,9 @@ def main(argv=None):
     r.add_argument("--job", required=True)
     r.add_argument("--manager", action="append", default=[])
     r.add_argument("--top", type=int, default=3)
+    co = sub.add_parser("companies")
+    co.add_argument("--min", type=int, default=2)
+    co.add_argument("--top", type=int, default=20)
     pl = sub.add_parser("plan")
     pl.add_argument("--job", required=True)
     pl.add_argument("--manager", action="append", default=[])
@@ -360,8 +388,13 @@ def main(argv=None):
     for q in (r,):
         q.add_argument("--today")
     a = p.parse_args(argv)
-    today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+    today = datetime.date.fromisoformat(a.today) if getattr(a, "today", None) else datetime.date.today()
     data = json.load(open(a.file, encoding="utf-8"))
+    if a.cmd == "companies":
+        for g in companies(data, a.min, a.top):
+            print("%-30s %3d people, %d who know you%s" % (g["company"][:30], g["people"], g["know_you"],
+                                                          (": " + ", ".join(g["names"][:3])) if g["names"] else ""))
+        return 0
     if a.cmd == "plan":
         r = plan(data, a.job, a.manager, today)
         for wave, rows in (("NOW", r["now"]), ("IF NO REPLY BY " + (r["if_no_reply"][0]["send_on"] if r["if_no_reply"] else "-"),

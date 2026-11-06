@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.2.0"
+PACK_VERSION = "2.3.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -204,6 +204,13 @@ MIGRATIONS = [
      "needs": "",
      "steps": "Run network.py plan for every open job on APPLY NOW + REACH OUT and save the waves; set each role "
               "family's playbook in MASTER_PLAN.md from its industry (say which in the report); nothing else changes."},
+    {"id": "2.3.0-network-companies", "version": "2.3.0",
+     "title": "Jobs at your network's companies, form memory, sharper checks",
+     "helps": "each week, open roles at the companies where you know the most people; forms that get faster as "
+              "Claude learns each site's quirks; jobs already on your list skipped before their ads are fetched",
+     "needs": "",
+     "steps": "Add the form_notes table to the job list; run network.py companies and search their feeds in this "
+              "week's check."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

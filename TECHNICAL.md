@@ -132,6 +132,8 @@ python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json plan --job acme-junior-data-analyst
 python3 skills/job-network/chat_prep.py check prep.md
+python3 skills/job-linkedin/post_check.py post.txt --format document
+python3 skills/job-connector/network.py --file jobsearch/pipeline.json companies --top 20
 python3 skills/job-connector/outreach.py linkedin --keywords "data analytics" --company-slug acme --school-slug trinity-college-dublin
 python3 skills/job-cv/audit.py ad.txt cv.pdf --role "Junior Data Analyst"
 python3 skills/job-cv/skim.py cv.pdf --role "Junior Data Analyst" --ad ad.txt
@@ -316,6 +318,12 @@ newest.
   Careers (apply at 60-70% for graduate schemes), and
   [attainmentlabs/linkedin-algorithm-skill](https://github.com/attainmentlabs/linkedin-algorithm-skill)
   (comment depth).
+- Ideas only, none of their text used: [Proficiently](https://github.com/proficientlyjobs/proficiently-claude-skills)
+  (network scan), [jobautopilot](https://github.com/jerronl/jobautopilot-claude)
+  (a knowledge base of form quirks),
+  [backpropagation6/claude-linkedin-automation](https://github.com/backpropagation6/claude-linkedin-automation)
+  (absence isn't proof) and [job-apply-ai](https://github.com/ShipItAndPray/job-apply-ai)
+  (reading each form back from a screenshot before submitting, which the pack already did).
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 

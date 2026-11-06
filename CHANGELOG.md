@@ -3,6 +3,26 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.3.0 (2026-11-06)
+Ideas from other open-source job and LinkedIn skills (none of their text is used):
+- `network.py companies`: the companies where the person knows the most
+  people, not yet watched; job-weekly searches their feeds for open roles
+  (Proficiently's network scan). A source, not a settings change.
+- job-apply form memory: the `form_notes` table records each site's quirks
+  and is read before the next form (jobautopilot's knowledge base).
+- `feeds.py shortlist --seen pipeline.json` skips jobs already on the list
+  before their ads are fetched (ai-job-search's seen filter).
+- job-linkedin `post_check.py`: links in the body and 6+ hashtags fail; the
+  hook before 'see more', length, a closing question, paragraph size and
+  engagement bait are warned; each rule labelled CONFIRMED, LARGE-SCALE or
+  PRACTITIONER (attainmentlabs/linkedin-algorithm-skill).
+- job-research `notes_check.py` warns on a flat 'no' or 'never' without
+  where it was looked for (the epistemic gate in
+  backpropagation6/claude-linkedin-automation).
+- Not adopted: tools that drive the person's LinkedIn account or scrape it
+  (stealth-browser MCP servers, cloud invite senders, paid LinkedIn scrapers),
+  and tools that create accounts or store passwords to submit applications.
+
 ## 2.2.0 (2026-11-06)
 - Fallback contacts (`network.py plan`): up to 4 people per job in two
   waves, the best 2 now (one in recruiting, one on the team), the next 2
