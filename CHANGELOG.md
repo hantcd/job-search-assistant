@@ -3,6 +3,22 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.5.0 (2026-11-06)
+- The daily connection queue: a scheduled task on the person's computer
+  builds each weekday's queue up to `outreach.py invites`' budget from Google
+  results only (never opening linkedin.com), plus Monday searches for roles
+  posted only on companies' own hiring systems; the person runs the 2-minute
+  connection session and clicks Send.
+- job-weekly "Companies most people miss": 10 growing, lesser-known companies
+  a week from funding news, Enterprise Ireland's start-up directory,
+  Deloitte's Fast 50 and EMEA Fast 500, the FT 1000, the Sunday Times 100,
+  exhibitor and member lists, and competitors, suppliers and customers of the
+  big names.
+- job-cv: own your slice of team work; relative metrics; a functional title
+  in brackets beside the exact official title, only for work the evidence
+  shows. job-linkedin `profile_check.py limits` warns on 'Aspiring...' and
+  'Seeking opportunities' headlines and on 'assisted with' and 'helped with'.
+
 ## 2.4.0 (2026-11-06)
 - Connection sessions (job-connector, `finding-people.md`): people at watched,
   top and network companies, alumni and the same function first; Claude

@@ -30,6 +30,12 @@ RUBRIC = {"headline": 12, "about_opening": 10, "about_rest": 8, "current_role": 
 REWRITE_CANT_FIX = ("recommendations", "activity")
 
 
+PASSIVE = __import__("re").compile(r"\baspiring\b|seeking (?:new )?(?:opportunities|roles|a role)|looking for "
+                                   r"(?:opportunities|a role|work)|open to (?:work|opportunities)|job seeker", 2)
+WEAK_OPEN = __import__("re").compile(r"\b(?:assisted with|helped (?:with|to)|responsible for|involved in|"
+                                     r"participated in)\b", 2)
+
+
 def limits():
     with open(os.path.join(HERE, "limits.json"), encoding="utf-8") as fh:
         return json.load(fh)["fields"]
@@ -53,6 +59,16 @@ def check_limits(pack):
         length("position_description", pos.get("description", ""))
     if pack.get("invitation_note"):
         length("invitation_note", pack["invitation_note"])
+    head = pack.get("headline", "") or ""
+    passive = PASSIVE.findall(head)
+    if passive:
+        out.append(("WARN", "headline voice", "drop %s: say the discipline, the specialism and 2-3 core skills"
+                    % ", ".join(repr(p) for p in passive)))
+    for pos in pack.get("positions", []):
+        weak = WEAK_OPEN.findall(pos.get("description", "") or "")
+        if weak:
+            out.append(("WARN", "experience voice", "%s: %r; claim the part you owned, with its result"
+                        % (pos.get("title", "a role"), weak[0])))
     about = pack.get("about", "")
     opening = about[:265]
     out.append(("INFO", "about opening", "first ~265 characters show before 'see more': %r" % opening[:80]))

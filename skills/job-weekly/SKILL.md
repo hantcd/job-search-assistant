@@ -41,6 +41,22 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
    there. A search source, not a settings change: nothing is added to the
    watched list without the person's yes (idea from Proficiently's network
    scan).
+2c. **Companies most people miss**: 10 growing companies a week in the role
+   families' fields that aren't household names, from: funding rounds in the
+   last 6 months (Silicon Republic, Tech.eu, TechIreland's funding review,
+   the business pages; a fresh round usually means hiring); Enterprise
+   Ireland's start-up directory; Deloitte's Technology Fast 50 (Ireland) and
+   EMEA Fast 500, the FT 1000 and the Sunday Times 100 for the UK; conference
+   exhibitor and sponsor lists and trade-association member directories;
+   competitors, suppliers and customers of the big names the person targets
+   ("alternatives to" lists, G2 categories); and roles posted only on a
+   company's own hiring system (the Monday ATS searches in the connection
+   queue task). Each company goes through job-scout's checks; its open roles
+   are scored as usual and its people join the connection queue. Why: per-job
+   applications aren't lower at small firms in Ashby's data (13M
+   applications, firms of 1-1,500 staff), but there the hiring manager often
+   reads applications, outreach reaches the person deciding, and roles posted
+   only on their own page get fewer applicants than a big-name listing.
 3. **The Monday summary line**: conversations and replies, not just
    applications (job-tracker `summary`).
 4. **Usage**: a rough note of the automatic tasks' share of the allowance.

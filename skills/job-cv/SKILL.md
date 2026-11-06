@@ -95,7 +95,17 @@ an interviewer probes it.
 - **A number on every line that can have one**: when the evidence has none,
   ask for an honest estimate and write it as 'about' ('about 40 customers a
   week'); the person confirms it and it goes into EVIDENCE.md, labelled.
-- **Scope and outcome over task**: who used it, how many, what changed.
+- **Scope and outcome over task**: who used it, how many, what changed;
+  percentages, volume or speed where there's no revenue ('cut weekly
+  reporting by 40%', 'onboarded 50+ clients').
+- **Own your slice**: on a team project, the part the person owned from start
+  to finish, in active words, never 'assisted with' or 'helped'.
+- **A functional title, carefully**: where the official title was vague
+  ('Associate III', 'Coordinator') and the work was specialised, the exact
+  official title stays, with what they actually did in brackets: 'Operations
+  Coordinator (Project & Workflow Lead)'. The bracket must be work the
+  evidence shows and a reference would recognise; background checks compare
+  the official title.
 - **Everything counts**: projects, coursework, volunteering, societies and
   part-time jobs are experience entries, framed for the role; tools used even
   briefly are listed at their real level.

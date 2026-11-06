@@ -114,3 +114,9 @@ LinkedIn searches the person runs (never from Claude reading LinkedIn).
   Each is recorded as an outreach row (stage `invite`, `invite_pending`).
 - Accepted: they join the network table, and `network.py` ranks them for
   future jobs. Never followed by a sales pitch or an automatic message.
+- **The daily queue** (a scheduled task on the person's computer, weekdays
+  before the working day): it builds today's queue up to the budget, from
+  Google results only (never opening linkedin.com), as outreach rows with
+  stage `invite` and status `drafted`, each with why, and sends one line:
+  "16 people ready: say Connection session (about 2 minutes)". The session
+  works through that queue; anything left rolls to the next day.

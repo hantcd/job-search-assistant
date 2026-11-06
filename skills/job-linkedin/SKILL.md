@@ -29,10 +29,12 @@ python3 "$SKILL_DIR/post_check.py" post.txt [--format document]     # a post dra
 ## The profile pack (refreshed every 3 months)
 
 A headline led by the primary target role, 2-3 keyword-bank skills and one
-proof point (not a list of identities); About (the problem the person solves,
+proof point (not a list of identities, and never 'Aspiring...' or 'Seeking
+opportunities': `profile_check.py limits` warns); About (the problem the person solves,
 2-3 proof points with numbers, what they're looking for), with the strongest
 line in the opening that shows before 'see more'; the most-searched skills
-for the target role first; exact titles with outcome bullets; 2-3 Featured
+for the target role first; exact titles (with job-cv's functional title in
+brackets where it applies) and outcome bullets that own the person's slice; 2-3 Featured
 proof-of-work items; a banner with what they do and one proof point; 2-3
 recommendation requests. Follow the Open to Work choice (public banner or
 recruiters only). CV, LinkedIn and portfolio must agree on dates and titles.

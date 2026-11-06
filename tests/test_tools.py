@@ -1707,3 +1707,17 @@ class Release240(unittest.TestCase):
         b = self.o.invite_budget(many, D(2026, 11, 6))
         self.assertEqual(b["left_today"], 0)
         self.assertEqual(len(b["withdraw"]), 250)
+
+
+class Release250(unittest.TestCase):
+    """Passive headlines and 'helped with' flagged on LinkedIn (fictional data)."""
+    pc = load("job-linkedin", "profile_check")
+
+    def test_passive_voice(self):
+        pack = {"headline": "Aspiring Data Analyst | Seeking opportunities", "about": "x", "skills": [],
+                "positions": [{"title": "Intern", "description": "Assisted with weekly reports for the sales team."}]}
+        res = {r[1]: r[0] for r in self.pc.check_limits(pack)}
+        self.assertEqual((res["headline voice"], res["experience voice"]), ("WARN", "WARN"))
+        good = {"headline": "Data Analyst | SQL, Power BI | Claims dashboard used by 12 managers", "about": "x",
+                "skills": [], "positions": [{"title": "Intern", "description": "Built the weekly sales report."}]}
+        self.assertNotIn("headline voice", {r[1] for r in self.pc.check_limits(good)})

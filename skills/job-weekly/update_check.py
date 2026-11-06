@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.4.0"
+PACK_VERSION = "2.5.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -219,6 +219,14 @@ MIGRATIONS = [
      "needs": "",
      "steps": "Mention both in the report: 'Connection session' to start one, and that sign-ups now happen during "
               "applying. Nothing else changes."},
+    {"id": "2.5.0-daily-connection-queue", "version": "2.5.0",
+     "title": "A daily connection queue, and companies most people miss",
+     "helps": "each weekday morning, up to 16 people at your target, network and lesser-known growing companies "
+              "queued for a 2-minute connection session; each week, 10 growing companies that aren't household names",
+     "needs": "your OK for one scheduled task that runs on your computer while the Claude desktop app is open "
+              "(about 1 minute)",
+     "steps": "Create the scheduled task 'Daily connection queue (on your computer)' as job-connector's "
+              "finding-people.md describes, weekdays before the working day, requiring the person's computer."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",
