@@ -273,7 +273,7 @@ ESSENTIALS (ask now)
 - Role families: suggest 1–4 groups of jobs that fit my evidence and interests (fewer is more focused; one is primary); I tick, rename or add. For each: job titles, level, industries, company types.
 - Where and when: locations, remote or hybrid, relocation, languages, minimum pay, start date.
 - Dealbreakers (pass or fail), and what matters most, ranked: pay, learning, prestige, responsibility, people, stability, or my own.
-- Pace: how many applications can I realistically make a week (default 5)? Show me roles a bit above my level (default yes)?
+- Pace: how many minutes a day I'll give it (default 5), my weekly targets (default 3 coffee chats and 2 interviews), how many applications I can realistically make a week (default 5)? Show me roles a bit above my level (default yes)?
 
 DEFAULTS (don't ask about these one by one: suggest them in THE SETUP, and put every opt-in marked default No or Off into one multiple-choice question)
 - Ways in: am I open to contract-to-hire, temp-to-perm, returnships, graduate programmes or freelance work? Suggest 2–3 specialist recruitment agencies per role family.
@@ -496,6 +496,8 @@ All checks passed. Mark version 1.0 ACTIVE in CHANGELOG.md, and confirm every au
 Once it's switched on, you mostly read alerts and reply in plain words.
 
 ### Step 7: Everyday use
+
+**Your 5 minutes a day.** Each weekday morning the automatic tasks prepare everything, and your phone gets one line: *Your 5 minutes are ready.* Open a chat in the project and say ***Go***. Claude shows what needs you, ranked by what most directly leads to a chat or an interview and cut to fit your time: times to offer someone who said yes, replies, thank-yous, applications to submit, chat asks to people who accepted your connection requests, then today's connection requests. Each is one tap; the rest waits for tomorrow. When someone confirms a time, Claude puts it in your calendar with a video link, the prep card inside the event and a prep block before it. The table below is for anything else, whenever you want it.
 
 *A minute or two a day*
 

@@ -1760,3 +1760,76 @@ class Release260(unittest.TestCase):
         self.assertEqual(self.fn.source_of({"source": "LinkedIn alert email"}), "linkedin")
         self.assertEqual(self.fn.source_of({"source": "watched company feed"}), "company site")
         self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)
+
+
+class Release300(unittest.TestCase):
+    """Morning session, booking, acceptances, weekly targets, after-round steps (fictional data)."""
+    td = load("job-followup", "today")
+    bk = load("job-network", "booking")
+    o = load("job-connector", "outreach")
+    fn = load("job-weekly", "funnel")
+    fu = load("job-followup", "followup")
+
+    def test_morning_session_fits_five_minutes(self):
+        d = {"contacts": [{"id": "s", "name": "Siobhan"}, {"id": "c", "name": "Ciara"}],
+             "jobs": [{"id": "j1", "company": "Acme", "title": "Analyst", "apply_queue": {"added": "2026-11-06"},
+                       "deadline": "2026-11-10", "fit": 72, "status": "new"},
+                      {"id": "j2", "company": "Beta", "title": "Analyst", "apply_queue": {"added": "2026-11-06"},
+                       "fit": 61, "status": "new"}],
+             "outreach": [{"contact_id": "s", "booking": "chat, 3 slots", "messages": []},
+                          {"contact_id": "c", "stage": "chat", "status": "drafted", "messages": []}]
+             + [{"contact_id": "p%d" % i, "stage": "invite", "status": "drafted", "channel": "linkedin",
+                 "messages": []} for i in range(40)]}
+        r = self.td.plan(d, D(2026, 11, 9), 300)
+        kinds = [x["kind"] for x in r["today"]]
+        self.assertEqual(kinds[:4], ["BOOK", "APPLY", "CHAT ASK", "APPLY"])
+        self.assertEqual(kinds[-1], "CONNECT")
+        self.assertLessEqual(sum(x["seconds"] for x in r["today"]), 300)
+        self.assertTrue(r["waits_for_tomorrow"])  # not all 40 invites fit
+
+    def test_booking_intent(self):
+        self.assertEqual(self.bk.intent("Sure, happy to chat! What times work next week?")[0], "BOOK")
+        self.assertEqual(self.bk.intent("We'd like to schedule a phone screen. Please send your availability.")[0],
+                         "INTERVIEW")
+        self.assertEqual(self.bk.intent("Grab a slot here: https://calendly.com/siobhan/30min")[0], "THEIR_LINK")
+        self.assertEqual(self.bk.intent("Unfortunately I'm not able to help right now.")[0], "NO")
+
+    def test_slots_avoid_busy_times_and_weekends(self):
+        busy = [{"start": "2026-11-10T09:00:00+00:00", "end": "2026-11-10T17:30:00+00:00"}]
+        now = __import__("datetime").datetime(2026, 11, 6, 10, 0, tzinfo=__import__("datetime").timezone.utc)
+        s = self.bk.free_slots(busy, D(2026, 11, 7), length=30, now=now)
+        self.assertEqual([x.date().isoformat() for x in s], ["2026-11-09", "2026-11-11", "2026-11-12"])
+        self.assertTrue(all(10 <= x.hour < 16 for x in s))
+        ev = self.bk.event("interview", "Siobhan Kelly", "Acme", "2026-11-09T11:00", 45)
+        self.assertEqual(ev["event"]["summary"], "Interview: Siobhan Kelly (Acme)")
+        self.assertTrue(ev["prep_block"]["start"].startswith("2026-11-06T16:00"))  # Friday before a Monday
+
+    def test_acceptances_become_chat_asks(self):
+        d = {"contacts": [{"id": "a", "name": "Aoife Ní Bhriain"}, {"id": "b", "name": "Bob Lee", "email": "b@x.ie"}],
+             "outreach": [{"contact_id": "a", "channel": "linkedin", "stage": "invite", "invite_pending": True,
+                           "messages": [{"date": "2026-11-02", "direction": "out"}]},
+                          {"contact_id": "b", "channel": "linkedin", "stage": "invite", "invite_pending": True,
+                           "messages": [{"date": "2026-11-02", "direction": "out"}]}]}
+        done = self.o.accepted(d, ["Aoife Ni Bhriain accepted your invitation", "Bob Lee has accepted your invitation",
+                                   "Someone else accepted your invitation"], D(2026, 11, 9))
+        self.assertEqual(len(done), 2)
+        asks = [x for x in d["outreach"] if x.get("stage") == "chat"]
+        self.assertEqual([x["channel"] for x in asks], ["linkedin", "email"])
+        self.assertFalse(d["outreach"][0]["invite_pending"])
+
+    def test_weekly_targets(self):
+        r = self.fn.weekly_plan({"jobs": [], "outreach": []}, D(2026, 11, 9), chats=3, interviews=2, apps_cap=5)
+        self.assertEqual(r["needed_per_week"]["chat_asks"], 20)          # 3 / 0.15
+        self.assertEqual(r["needed_per_week"]["connection_requests"], 67)  # 20 / 0.30
+        self.assertIn("starting guess", r["rates"]["accept"][1])
+        self.assertTrue(r["advice"])  # 2 interviews need more than 5 applications at starting rates
+
+    def test_after_round_steps(self):
+        d = {"jobs": [{"id": "j", "company": "Acme", "title": "Analyst", "status": "interview", "referred_by": "Ciara",
+                       "interviews": [{"date": "2026-11-06", "stage": "first"}, {"date": "2026-11-12", "stage": "final"}]},
+                      {"id": "k", "company": "Beta", "title": "Analyst", "status": "interview",
+                       "interviews": [{"date": "2026-11-02", "stage": "first"}]}]}
+        due, _ = self.fu.application_items(d, D(2026, 11, 7))
+        text = " ".join(due)
+        for bit in ("referrer: tell Ciara", "value-add: Acme", "references: brief", "timing: tell Beta"):
+            self.assertIn(bit, text)

@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.6.0"
+PACK_VERSION = "3.0.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -242,6 +242,16 @@ MIGRATIONS = [
               "report gives the exact searches)",
      "steps": "List the saved searches to create on each board from the role families' titles and places; the daily "
               "search reads their alert emails from then on."},
+    {"id": "3.0.0-morning-session", "version": "3.0.0",
+     "title": "A 5-minute morning session, bookings into your calendar, and weekly targets",
+     "helps": "say 'Go' once a day: everything that needs you, ranked and cut to 5 minutes; a yes to a chat or an "
+              "interview becomes 3 free slots and then a calendar invite with a prep block; accepted connection "
+              "requests become chat asks; the weekly check works back from the chats and interviews you want",
+     "needs": "about 1 minute: how many minutes a day (default 5) and your weekly targets (default 3 chats and 2 "
+              "interviews); Google Calendar connected if it isn't",
+     "steps": "Record daily_minutes and weekly targets in MASTER_PLAN.md; the email tracker task also reads LinkedIn "
+              "acceptance emails and replies for booking; every morning report ends with 'Your N minutes are "
+              "ready: say Go'."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

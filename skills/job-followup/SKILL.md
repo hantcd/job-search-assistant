@@ -1,6 +1,6 @@
 ---
 name: job-followup
-description: Lists what's due today (follow-ups, thank-yous, deadlines, replies to answer) and drafts each nudge inside stop rules that end a thread at the first no. Use for 'who do I follow up with'.
+description: Runs the person's 5-minute morning session ('Go'): bookings, replies, applications and messages ranked and cut to fit, plus follow-ups inside stop rules. Use for 'Go', 'what's due'.
 ---
 
 # job-followup
@@ -11,9 +11,29 @@ chased. Every morning run and every "what's due?" uses the same list.
 `$SKILL_DIR` below means this skill's folder.
 
 ```bash
+python3 "$SKILL_DIR/today.py" --file jobsearch/pipeline.json [--budget 300]   # the 5-minute morning session
 python3 "$SKILL_DIR/followup.py" --file jobsearch/pipeline.json due --today 2026-10-20
 python3 "$SKILL_DIR/followup.py" --file jobsearch/pipeline.json can-follow-up siobhan-kelly-acme --today 2026-10-20
 ```
+
+## The morning session ("Go", about 5 minutes a day)
+
+The person's whole daily job: one list, ranked by how directly each item leads
+to a chat or an interview, cut to their daily time (`today.py`, default 5
+minutes; MASTER_PLAN.md can change it). Order: booking a time (BOOK), answering
+a reply (REPLY), thank-yous, queued applications (deadline soon first, then
+Fit), chat asks to people who accepted a connection request, other messages
+and nudges, then the connection queue for whatever time is left. The rest
+waits for tomorrow, and the list says so.
+
+Everything is prepared before the session (the morning automatic runs:
+drafts written and checked, slots found, packs ready), so each item is one
+tap: show the items as approval cards (AskUserQuestion, up to 4 at a time,
+Approve or Skip, with Edit as the typed answer), then act on each Approve:
+send the email, submit the application (job-apply), book (job-network's
+`booking.py`), and finish with the connection session for the people that
+fit. Nothing that isn't approved goes out; a skipped item comes back
+tomorrow once, then drops a place.
 
 ## Reads and writes
 

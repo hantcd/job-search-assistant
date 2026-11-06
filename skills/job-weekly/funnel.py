@@ -174,6 +174,57 @@ def thresholds(data, fit_min=60, weights=(60, 40)):
     return out
 
 
+# Starting assumptions until the person's own numbers exist (10+ of each), each labelled.
+PRIORS = {"accept": (0.30, "starting guess: connection requests accepted"),
+          "chat": (0.15, "starting guess: chat asks that become a chat"),
+          "interview_cold": (0.03, "Ashby 2021-24: cold applications reaching interview"),
+          "interview_referred": (0.40, "Ashby 2021-24: referred applications reaching interview")}
+
+
+def own_rate(hits, total, prior):
+    return (hits / float(total), "your numbers (%d of %d)" % (hits, total)) if total >= 10 else prior
+
+
+def weekly_plan(data, today, chats=3, interviews=2, apps_cap=5, invite_cap=80):
+    """Work back from weekly targets (chats, interviews) to this week's volume, and say how far along it is."""
+    invites = [o for o in data.get("outreach", []) if o.get("stage") in ("invite", "note") and o.get("messages")]
+    asks = [o for o in data.get("outreach", []) if o.get("stage") == "chat" and o.get("messages")]
+    accept, accept_src = own_rate(sum(1 for o in invites if o.get("accepted")), len(invites), PRIORS["accept"])
+    chat, chat_src = own_rate(sum(1 for o in asks if o.get("chat_held") or o.get("booked")), len(asks), PRIORS["chat"])
+    apps = app_rows(data)
+    referred = [r for r in apps if r.get("route") in ("REFERRAL FIRST", "referral_first", "referral")]
+    cold = [r for r in apps if r not in referred]
+    p_cold, cold_src = own_rate(sum(r["interview"] for r in cold), len(cold), PRIORS["interview_cold"])
+    p_ref, ref_src = own_rate(sum(r["interview"] for r in referred), len(referred), PRIORS["interview_referred"])
+    share = len(referred) / float(len(apps)) if apps else 0.2
+    p_int = share * p_ref + (1 - share) * p_cold
+    import math
+
+    def ceil(x):
+        return int(math.ceil(round(x, 6)))
+    need_asks = ceil(chats / chat) if chat else 0
+    need_invites = min(invite_cap, ceil(need_asks / accept)) if accept else invite_cap
+    need_apps = ceil(interviews / p_int) if p_int else 0
+    expect_int = round(min(need_apps, apps_cap) * p_int, 1)
+    monday = today - datetime.timedelta(days=today.weekday())
+    booked = sum(1 for o in data.get("outreach", []) if o.get("booked") and day(o["booked"]) and
+                 day(o["booked"]) >= monday)
+    ivs = sum(1 for j in data.get("jobs", []) for iv in j.get("interviews", []) or []
+              if day(iv.get("date")) and day(iv.get("date")) >= monday)
+    advice = []
+    if need_apps > apps_cap:
+        advice.append("%d applications a week would be needed at these rates but capacity is %d: more referral-first "
+                      "jobs and fallback contacts raise the rate, or raise capacity" % (need_apps, apps_cap))
+    return {"targets": {"chats": chats, "interviews": interviews},
+            "this_week": {"chats_booked": booked, "interviews": ivs},
+            "needed_per_week": {"chat_asks": need_asks, "connection_requests": need_invites,
+                                "applications": min(need_apps, apps_cap)},
+            "expected_interviews_at_capacity": expect_int,
+            "rates": {"accept": [round(accept, 2), accept_src], "chat": [round(chat, 2), chat_src],
+                      "interview_cold": [p_cold, cold_src], "interview_referred": [p_ref, ref_src]},
+            "advice": advice}
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="Funnels with counts and a diagnosis.")
     p.add_argument("--file", default=os.path.join("jobsearch", "pipeline.json"))
@@ -182,7 +233,17 @@ def main(argv=None):
     r.add_argument("--json", action="store_true")
     t = sub.add_parser("thresholds")
     t.add_argument("--fit", type=int, default=60, help="the alert threshold for Fit")
+    wp = sub.add_parser("targets")
+    wp.add_argument("--chats", type=int, default=3)
+    wp.add_argument("--interviews", type=int, default=2)
+    wp.add_argument("--capacity", type=int, default=5)
+    wp.add_argument("--today")
     a = p.parse_args(argv)
+    if a.cmd == "targets":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        out = weekly_plan(json.load(open(a.file, encoding="utf-8")), today, a.chats, a.interviews, a.capacity)
+        print(json.dumps(out, indent=1, ensure_ascii=False))
+        return 0
     if a.cmd == "thresholds":
         out = thresholds(json.load(open(a.file, encoding="utf-8")), a.fit)
         print(json.dumps(out, indent=1, ensure_ascii=False))

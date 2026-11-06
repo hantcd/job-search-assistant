@@ -106,6 +106,16 @@ side by side, both built only from their evidence, with one line on what
 makes the difference. Idea from InterviewThread (Wei Yu) and
 interview-skills (jennifer88huang); none of their text is used.
 
+**After each round** (job-followup lists each as one tap): the thank-you
+within a day; within 2 days an update to the referrer, if there is one, and an
+optional value-add follow-up (one idea or quick analysis since the interview,
+not a repeat of the thank-you); a nudge after a week of silence; referees
+briefed before a final round; and once any process reaches a final round or
+an offer, the others asked for their timelines so offers land close together
+(only what's true). Every interview's calendar event carries the card: what
+the round tests, the 3 stories, the questions to ask (job-network's
+`booking.py event`).
+
 **A second opinion from inside**: if someone at the company agreed in a chat
 to look at a few answers (job-network's closing ask), draft a short email with
 2-3 of the person's core answers (from the proof pack's stories) and one

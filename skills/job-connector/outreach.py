@@ -12,6 +12,12 @@
     python3 outreach.py check --channel comment --file comment.txt      # a comment on their post about the job
     python3 outreach.py linkedin --company-slug acme --school-slug trinity-college-dublin --keywords "data analytics" [--city Dublin]
     python3 outreach.py invites --file jobsearch/pipeline.json [--today 2026-11-06]
+    python3 outreach.py accepted --file jobsearch/pipeline.json --subjects subjects.txt [--today 2026-11-09]
+
+accepted: from the subjects of LinkedIn's "... accepted your invitation" emails in
+Gmail (one per line), marks each matching invitation accepted and adds a drafted
+chat request (stage chat, draft_needed) for the morning session: a short thanks
+and a 15-minute ask, by email if a work address is known, otherwise LinkedIn.
 
 invites: today's budget for LinkedIn connection requests in a connection session.
 LinkedIn publishes no number; accounts report restrictions at about 100
@@ -287,6 +293,44 @@ def invite_budget(data, today):
             "withdraw": stale}
 
 
+ACCEPTED = re.compile(r"^\s*(?:re:\s*)?(.+?)\s+(?:has\s+)?accepted your (?:invitation|connection request)", re.I)
+
+
+def _name_key(n):
+    import unicodedata
+    n = unicodedata.normalize("NFKD", str(n or "")).encode("ascii", "ignore").decode().lower()
+    return " ".join(re.findall(r"[a-z]+", n))
+
+
+def accepted(data, subjects, today):
+    contacts = {c.get("id"): c for c in data.get("contacts", [])}
+    by_name = {}
+    for o in data.get("outreach", []):
+        if o.get("channel") == "linkedin" and o.get("stage") in ("invite", "note"):
+            c = contacts.get(o.get("contact_id"), {})
+            by_name.setdefault(_name_key(c.get("name")), []).append(o)
+    done = []
+    for line in subjects:
+        m = ACCEPTED.match(line or "")
+        if not m:
+            continue
+        rows = by_name.get(_name_key(m.group(1)))
+        if not rows:
+            continue
+        for o in rows:
+            if o.get("accepted"):
+                continue
+            o["invite_pending"] = False
+            o["accepted"] = today.isoformat()
+            c = contacts.get(o.get("contact_id"), {})
+            data["outreach"].append({"contact_id": o.get("contact_id"), "job_id": o.get("job_id"),
+                                     "channel": "email" if c.get("email") else "linkedin", "stage": "chat",
+                                     "status": "drafted", "draft_needed": True, "messages": [],
+                                     "why": "accepted your connection request: thanks and a 15-minute chat ask"})
+            done.append(c.get("name") or o.get("contact_id"))
+    return done
+
+
 def working_days_after(d, n):
     while n > 0:
         d += datetime.timedelta(days=1)
@@ -360,6 +404,10 @@ def main(argv=None):
     f.add_argument("--role", default="", help="the job title, for --posts")
     f.add_argument("--recruiters", action="store_true", help="also search for the team's recruiters")
     f.add_argument("--posts", action="store_true", help="also search for LinkedIn posts advertising the role")
+    ac = sub.add_parser("accepted")
+    ac.add_argument("--file", default="jobsearch/pipeline.json")
+    ac.add_argument("--subjects", required=True, help="one email subject per line")
+    ac.add_argument("--today")
     iv = sub.add_parser("invites")
     iv.add_argument("--file", default="jobsearch/pipeline.json")
     iv.add_argument("--today")
@@ -386,6 +434,14 @@ def main(argv=None):
         print(json.dumps({"titles": titles, "next": "outreach.py find --team '<title>' for each" if titles else
                           "the ad doesn't say; search for the team's most senior person in the job's function"},
                          indent=1))
+        return 0
+    if a.cmd == "accepted":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        data = json.load(open(a.file, encoding="utf-8"))
+        names = accepted(data, open(a.subjects, encoding="utf-8").read().splitlines(), today)
+        with open(a.file, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=1, ensure_ascii=False)
+        print("accepted: %s" % (", ".join(names) or "none matched"))
         return 0
     if a.cmd == "invites":
         today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()

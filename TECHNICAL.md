@@ -131,6 +131,9 @@ python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCO
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json plan --job acme-junior-data-analyst
+python3 skills/job-followup/today.py --file jobsearch/pipeline.json --budget 300
+python3 skills/job-network/booking.py slots --events busy.json --start 2026-11-09
+python3 skills/job-weekly/funnel.py --file jobsearch/pipeline.json targets --chats 3 --interviews 2
 python3 skills/job-scout/hidden.py queries --industry fintech --place Dublin --country IE
 python3 skills/job-scout/hidden.py rank --file jobsearch/pipeline.json --industry fintech --place Dublin
 python3 skills/job-network/chat_prep.py check prep.md

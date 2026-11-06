@@ -112,8 +112,13 @@ LinkedIn searches the person runs (never from Claude reading LinkedIn).
   clicks Connect and Send without a note (or adds the approved note) as far
   as the dialog before Send, and the person clicks Send: one click each.
   Each is recorded as an outreach row (stage `invite`, `invite_pending`).
-- Accepted: they join the network table, and `network.py` ranks them for
-  future jobs. Never followed by a sales pitch or an automatic message.
+- Accepted: LinkedIn emails "<name> accepted your invitation" to Gmail; the
+  morning run passes those subjects to `outreach.py accepted`, which marks
+  the invitation accepted and adds a drafted chat ask (thanks, one specific
+  reason, a 15-minute ask, an easy no; `check --stage chat`), by email where
+  a work address is known. It reaches the person as one tap in the morning
+  session. They join the network table, and `network.py` ranks them for
+  future jobs. Never a sales pitch or an automatic message.
 - **The daily queue** (a scheduled task on the person's computer, weekdays
   before the working day): it builds today's queue up to the budget, from
   Google results only (never opening linkedin.com), as outreach rows with

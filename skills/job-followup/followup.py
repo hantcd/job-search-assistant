@@ -30,7 +30,10 @@ working days with no referral, apply anyway and nudge once. APPLY NOW + REACH
 OUT: the nudge after 5 working days.
 Applications: a follow-up 7 days after applying with no reply, 3 days after a
 reply or a test with nothing since (to the agency recruiter for agency roles),
-a thank-you within a day of each interview, deadline reminders 3 days and 1 day
+a thank-you within a day of each interview (plus, within 2 days, an update to the
+referrer and an optional value-add follow-up), references briefed before a final
+round, other processes asked for their timelines once one reaches a final round or
+an offer, deadline reminders 3 days and 1 day
 before closing, and 'stale' after 4 weeks with no news.
 
 Stop-rule logic adapted from hunter-skill (MIT, Jake Schincariol). Sends nothing.
@@ -138,6 +141,16 @@ def application_items(data, today):
             d = day(iv.get("date"))
             if d and d <= today and (today - d).days <= 1 and not iv.get("thank_you_sent"):
                 due.append("thank-you: %s interview on %s (send within a day)" % (label, d))
+            if d and d <= today and (today - d).days <= 2:
+                if j.get("referred_by") and not iv.get("referrer_updated"):
+                    due.append("referrer: tell %s how the %s round at %s went, and thank them"
+                               % (j["referred_by"], iv.get("stage") or "latest", j.get("company")))
+                if not iv.get("value_add_sent") and iv.get("stage") not in ("final", "offer"):
+                    due.append("value-add: %s, one short follow-up with something you thought of since the "
+                               "interview (an idea, a quick analysis), on top of the thank-you" % label)
+            if d and d > today and (d - today).days <= 7 and iv.get("stage") == "final" and not j.get("refs_briefed"):
+                due.append("references: brief your referees before the final round at %s on %s (job-network)"
+                           % (j.get("company"), d))
         if st not in ("applied", "screen", "interview"):
             continue
         applied = day(j.get("applied"))
@@ -164,6 +177,16 @@ def application_items(data, today):
                 due.append("follow-up: %s, 7 days after applying with no reply (to %s)" % (label, to))
             else:
                 waiting.append("%s: applied %s" % (label, applied))
+    # an offer or a final round somewhere: ask the others for their timelines, so offers can land together
+    late = [j for j in data.get("jobs", []) if j.get("status") == "offer" or any(
+        iv.get("stage") == "final" for iv in j.get("interviews", []) or [])]
+    if late:
+        lead = late[0].get("company")
+        for j in data.get("jobs", []):
+            if j in late or j.get("status") not in ("screen", "interview") or j.get("timing_told"):
+                continue
+            due.append("timing: tell %s you're at a late stage elsewhere (%s) and ask their timeline, so offers can "
+                       "land close together (only what's true)" % (j.get("company"), lead))
     return due, waiting
 
 

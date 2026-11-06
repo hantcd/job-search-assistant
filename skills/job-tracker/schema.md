@@ -65,7 +65,9 @@ contact_id*, job_id*, channel* (email, linkedin, phone, in-person, other),
 status* (drafted, sent, replied, booked, declined, closed), messages* [{date,
 direction: out or in, slot (e.g. 'Tue morning'), text}], draft {text,
 subject}, approval {reply, date, hash} (the person's exact yes),
-stage* (ask and nudge for a job's route; note, thanks and chat for building
+booking (what to offer: 'chat, 3 slots' or 'interview times'), booked (the
+date a time was confirmed), accepted (the date a connection request was
+accepted), draft_needed, chat_held; stage* (ask and nudge for a job's route; note, thanks and chat for building
 a network without a job in mind), route (referral_first or apply_now, from
 `network.py route`: sets when the one nudge is due), invite_pending (a
 LinkedIn invitation: no follow-up), suggested_other (a

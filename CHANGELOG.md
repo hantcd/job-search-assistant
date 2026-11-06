@@ -3,6 +3,26 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.0.0 (2026-11-06)
+The goal: about 5 minutes a day, a calendar of chats and interviews, and the
+best odds of an offer.
+- job-followup `today.py`: the morning session ('Go'): bookings, replies,
+  thank-yous, applications (deadline soon, then Fit), chat asks, messages
+  and the connection queue, ranked by how directly each leads to a chat or
+  interview and cut to the person's daily time (default 5 minutes).
+- job-network `booking.py`: reply intent (BOOK, INTERVIEW, THEIR_LINK, NO,
+  OTHER), 3 free slots on different weekdays from Google Calendar busy times,
+  the reply, and on confirmation the event (video call, the prep card in the
+  description, reminders) and its prep block.
+- job-connector `outreach.py accepted`: LinkedIn's "accepted your
+  invitation" emails become drafted chat asks.
+- job-weekly `funnel.py targets`: from weekly chat and interview targets back
+  to chat asks, connection requests and applications, using the person's
+  own rates once there are 10+ (labelled starting assumptions until then).
+- job-followup after each round: referrer update and value-add follow-up
+  within 2 days, references briefed before a final round, other processes
+  asked for their timelines once one reaches a final round or an offer.
+
 ## 2.6.0 (2026-11-06)
 - job-scout `hidden.py` and `hidden_sources.json`: growing companies most
   applicants miss. Sources by country and cadence (funding news, Series A/B

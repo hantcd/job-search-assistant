@@ -13,6 +13,9 @@ never ask for a job, and referees who know what to say.
 ```bash
 python3 "$SKILL_DIR/events.py" --file jobsearch/pipeline.json due --today 2026-10-20
 python3 "$SKILL_DIR/chat_prep.py" check prep.md      # before every informational chat
+python3 "$SKILL_DIR/booking.py" intent --file reply.txt   # BOOK, INTERVIEW, THEIR_LINK, NO or OTHER
+python3 "$SKILL_DIR/booking.py" slots --events busy.json --start 2026-11-09 --length 30
+python3 "$SKILL_DIR/booking.py" event --kind chat --person "Siobhan Kelly" --company Acme --start 2026-11-10T11:00 --card card.md
 ```
 
 ## Reads and writes
@@ -62,6 +65,23 @@ Project; ideas only), checked with `chat_prep.py check`:
 
 Never ask for a job or a referral in a first chat; the referral comes from
 job-connector's route once there's a real exchange.
+
+**Booking: from a yes to a calendar invite** (`booking.py`). When a reply
+arrives (email tracker, or one the person pastes from LinkedIn), classify it:
+- BOOK or INTERVIEW: read the person's Google Calendar (busy times only),
+  pick 3 free slots on different weekdays (`slots`; 45-60 minutes for an
+  interview), and draft the reply with them (`reply`); mark the outreach row
+  `booking` so the morning session offers it as one tap.
+- THEIR_LINK: they sent a booking page; in the session, pick the first free
+  slot there on the person's approval, with their name and email only.
+- NO: a short thank-you, mark the thread stopped.
+When they confirm a time, create the event on approval (`event`): a video
+call, the prep card in the description (chat: the questions and the closing
+ask; interview: job-interview's proof pack summary and what the round tests),
+reminders 30 and 10 minutes before, and a prep block (15 minutes before a
+chat; an hour the afternoon before an interview). Accept a calendar
+invitation the other side sends only on the person's approval. Record the
+booked date on the outreach row (`booked`) or the job's interviews.
 
 ## Referees
 

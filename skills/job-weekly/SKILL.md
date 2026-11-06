@@ -33,6 +33,14 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
    proposed rather than applied.
 2. **Spot-check 10 saved jobs**: still open, scored sensibly, nothing
    duplicated.
+2a. **Weekly targets** (`funnel.py targets --chats 3 --interviews 2
+   --capacity 5`, the targets in MASTER_PLAN.md): works back from the chats
+   and interviews the person wants each week to the chat asks, connection
+   requests and applications needed, from their own rates once there are 10+
+   of each (labelled starting assumptions until then), and says how far this
+   week has got. The Monday line leads with it ("2 of 3 chats booked, 1 of 2
+   interviews"); the daily queue and the connection budget follow it, never
+   past the caps.
 2b. **Your network's companies** (`../job-connector/network.py companies`):
    the 20 companies where the person knows the most people, not already
    watched. Find each one's public job feed or careers page (job-scout's
