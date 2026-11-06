@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "3.3.0"
+PACK_VERSION = "3.4.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -242,6 +242,18 @@ MIGRATIONS = [
               "report gives the exact searches)",
      "steps": "List the saved searches to create on each board from the role families' titles and places; the daily "
               "search reads their alert emails from then on."},
+    {"id": "3.4.0-situation", "version": "3.4.0",
+     "title": "Advice that fits where you're starting from",
+     "helps": "in work and exploring: a confidential search, chat and interview times outside work hours, and alerts "
+              "only for jobs that beat your current one; not in work, a new graduate or returning: routes open to any "
+              "background and other real ways onto the ladder, suggested alongside your target roles",
+     "needs": "about 2 minutes: your situation (one question), and if you're in work, your current job rated on the "
+              "same Career Value parts as every job",
+     "steps": "Record 'Situation: <in work, exploring | not in work | new graduate | returning | changing field>' in "
+              "MASTER_PLAN.md. In work: add current_job {career_value, margin 5} to the scoring JSON, LinkedIn Open "
+              "to Work recruiters-only, booking.py slots --employed. Otherwise: suggest role families and routes from "
+              "job-scout's ways-in.md, each with match, gap, time to entry, pay, outlook and AI change, for the "
+              "person to tick. Add a 30-second pitch and a reason for the move per role family to VOICE.md."},
     {"id": "3.3.0-calibration-and-models", "version": "3.3.0",
      "title": "5-10 good jobs a day, kept there automatically; Sonnet by default",
      "helps": "after your first week, the weekly check moves the pack threshold and widens or narrows the search "

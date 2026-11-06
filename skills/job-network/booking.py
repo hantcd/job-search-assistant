@@ -13,7 +13,9 @@ NO (a no or not now: stop, thank them), OTHER (read it and answer).
 
 slots: up to 3 free times on different weekdays, inside working hours (09:00-17:30,
 preferring 10:00-16:00), with 15 minutes clear either side, never in the past or at
-weekends, from the person's busy times (Google Calendar's events as JSON: a list of
+weekends, from the person's busy times. --employed (someone exploring from a job they
+have) offers only times outside core hours instead: 08:00-09:00, 12:30-13:30 or
+17:30-18:30, mixed across the three days (Google Calendar's events as JSON: a list of
 {start, end} in ISO format).
 
 event: the calendar event (title, times, a video call, the prep card in its
@@ -67,8 +69,11 @@ def _dt(s, tz):
     return d.astimezone(tz)
 
 
+EMPLOYED_WINDOWS = ((8.0, 9.0), (12.5, 13.5), (17.5, 18.5))  # before work, lunch, after work
+
+
 def free_slots(busy, start, days=5, length=30, zone="Europe/Dublin", count=3, now=None,
-               work=(9.0, 17.5), prefer=(10.0, 16.0), buffer=15):
+               work=(9.0, 17.5), prefer=(10.0, 16.0), buffer=15, windows=None):
     tz = ZoneInfo(zone) if ZoneInfo else datetime.timezone.utc
     now = now or datetime.datetime.now(tz)
     blocks = []
@@ -78,21 +83,31 @@ def free_slots(busy, start, days=5, length=30, zone="Europe/Dublin", count=3, no
                            _dt(e["end"], tz) + datetime.timedelta(minutes=buffer)))
         except (KeyError, ValueError):
             continue
-    out, d, seen_days = [], start, 0
+    out, d, seen_days, used_w = [], start, 0, set()
     while len(out) < count and seen_days < days * 3:
         seen_days += 1
         if d.weekday() < 5:
             day_slots = []
-            minute = int(work[0] * 60)
-            while minute + length <= int(work[1] * 60):
-                s = datetime.datetime(d.year, d.month, d.day, minute // 60, minute % 60, tzinfo=tz)
-                e = s + datetime.timedelta(minutes=length)
-                if s > now + datetime.timedelta(hours=12) and not any(s < b1 and e > b0 for b0, b1 in blocks):
-                    pref = prefer[0] * 60 <= minute and minute + length <= prefer[1] * 60
-                    day_slots.append((0 if pref else 1, abs(minute - 11 * 60), s))
-                minute += 30
+            spans = windows or (work,)
+            for rank_w, (w0, w1) in enumerate(spans):
+                minute = int(w0 * 60)
+                while minute + length <= int(w1 * 60):
+                    s = datetime.datetime(d.year, d.month, d.day, minute // 60, minute % 60, tzinfo=tz)
+                    e = s + datetime.timedelta(minutes=length)
+                    if s > now + datetime.timedelta(hours=12) and not any(s < b1 and e > b0 for b0, b1 in blocks):
+                        if windows:
+                            # a window not offered yet comes first, so the 3 offers cover morning, lunch and evening
+                            day_slots.append((rank_w in used_w, (rank_w - d.weekday()) % len(spans), minute, s,
+                                              rank_w))
+                        else:
+                            pref = prefer[0] * 60 <= minute and minute + length <= prefer[1] * 60
+                            day_slots.append((0 if pref else 1, abs(minute - 11 * 60), s))
+                    minute += 30
             if day_slots:
-                out.append(sorted(day_slots)[0][2])
+                best = sorted(day_slots, key=lambda x: x[:3])[0]
+                out.append(best[3] if windows else best[2])
+                if windows:
+                    used_w.add(best[4])
         d += datetime.timedelta(days=1)
     return out
 
@@ -137,6 +152,7 @@ def main(argv=None):
     s.add_argument("--days", type=int, default=5)
     s.add_argument("--length", type=int, default=30)
     s.add_argument("--zone", default="Europe/Dublin")
+    s.add_argument("--employed", action="store_true", help="only before work, at lunch or after work")
     r = sub.add_parser("reply")
     r.add_argument("--slots", required=True)
     r.add_argument("--name", required=True)
@@ -155,7 +171,8 @@ def main(argv=None):
         print(kind + (" " + link if link else ""))
     elif a.cmd == "slots":
         busy = json.load(open(a.events, encoding="utf-8"))
-        slots = free_slots(busy, datetime.date.fromisoformat(a.start), a.days, a.length, a.zone)
+        slots = free_slots(busy, datetime.date.fromisoformat(a.start), a.days, a.length, a.zone,
+                           windows=EMPLOYED_WINDOWS if a.employed else None)
         print(json.dumps([x.isoformat() for x in slots], indent=1))
     elif a.cmd == "reply":
         tz = ZoneInfo(a.zone) if ZoneInfo else datetime.timezone.utc

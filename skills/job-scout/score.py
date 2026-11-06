@@ -47,6 +47,8 @@ EXAMPLE_PREFS = {
     "thresholds": {"alert_fit": 60, "pack_fit": 62},
     "max_alerts": 5,
     "packs_per_alert": 2,
+    "_current_job": "optional, for someone in work: {\"career_value\": 64, \"margin\": 5} (their current job "
+                    "rated on the same Career Value parts); alerts then only include jobs that beat it by the margin",
 }
 
 
@@ -225,6 +227,13 @@ def alerts(scored, prefs):
         r.setdefault("fit", fit_of(r["career_value"], r["attainability"], f))
     keep = [r for r in scored if r["fit"] >= fit_min
             and r.get("legitimacy") != "SUSPICIOUS" and not r.get("alerted")]
+    cur = prefs.get("current_job")
+    if cur and cur.get("career_value") is not None:
+        # Someone already in work only hears about jobs that beat the one they have, on their own Career Value.
+        bar = cur["career_value"] + cur.get("margin", 5)
+        for r in keep:
+            r["beats_current_by"] = r["career_value"] - cur["career_value"]
+        keep = [r for r in keep if r["career_value"] >= bar]
     keep = rank(keep)[: prefs.get("max_alerts", 5)]
     pack_min = t.get("pack_fit", fit_min + 2)
     packs = [r["id"] for r in keep if r["fit"] >= pack_min][: prefs.get("packs_per_alert", 2)]

@@ -1762,6 +1762,42 @@ class Release260(unittest.TestCase):
         self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)
 
 
+class Release340(unittest.TestCase):
+    """Where the person starts from: in work and exploring, or not in work (fictional data)."""
+    sc = load("job-scout", "score")
+    bk = load("job-network", "booking")
+
+    def test_in_work_only_hears_about_better_jobs(self):
+        prefs = {"thresholds": {"alert_fit": 60, "pack_fit": 62}, "fit": {"career_value": 60, "attainability": 40},
+                 "current_job": {"career_value": 64, "margin": 5}}
+        rows = [{"id": "a", "career_value": 72, "attainability": 70}, {"id": "b", "career_value": 66,
+                                                                       "attainability": 90}]
+        keep, packs = self.sc.alerts(rows, prefs)
+        self.assertEqual([r["id"] for r in keep], ["a"])  # b has a higher Fit but isn't better than now
+        self.assertEqual(keep[0]["beats_current_by"], 8)
+        prefs.pop("current_job")
+        self.assertEqual(len(self.sc.alerts(rows, prefs)[0]), 2)
+
+    def test_employed_times_are_outside_core_hours(self):
+        import zoneinfo
+        tz = zoneinfo.ZoneInfo("Europe/Dublin")
+        now = datetime.datetime(2026, 11, 6, 10, 0, tzinfo=tz)
+        slots = self.bk.free_slots([{"start": "2026-11-09T07:30", "end": "2026-11-09T09:30"}], D(2026, 11, 9),
+                                   now=now, windows=self.bk.EMPLOYED_WINDOWS)
+        self.assertEqual(len(slots), 3)
+        for x in slots:
+            m = x.hour * 60 + x.minute
+            self.assertTrue(480 <= m < 540 or 750 <= m < 810 or 1050 <= m < 1110, x)
+        self.assertNotEqual(slots[0].hour, 8)  # Monday morning is busy, so another window that day
+        self.assertEqual(len({x.hour for x in slots}), 3)  # morning, lunch and evening across the days
+
+    def test_ways_in_reference_names_real_schemes(self):
+        text = open(os.path.join(os.path.dirname(__file__), "..", "skills", "job-scout", "ways-in.md")).read()
+        for must in ("Work Placement Experience Programme", "Springboard+", "Skills Bootcamps", "Fast Stream",
+                     "Open to any background", "In work, exploring", "economic-index"):
+            self.assertIn(must, text)
+
+
 class Release330(unittest.TestCase):
     """5-10 applications a day, and the weekly self-calibration (fictional data)."""
     st = load("job-followup", "streak")

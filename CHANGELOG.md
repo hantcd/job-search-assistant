@@ -3,6 +3,31 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.4.0 (2026-11-06)
+From Sarah Baker Andrus's career-pivot prompts, Claude's "plan your career
+path" guide, Seth Godin's coaching-prompt advice, Techpresso's career-coach
+prompts and Rich Westhorpe's account of Claude as a career coach.
+- Setup asks the situation first (in work and exploring, not in work, new
+  graduate, returning, changing field), because advice built on a wrong
+  assumption is wasted; it sets the defaults.
+- job-scout `ways-in.md`: routes open to any background (consulting, Big
+  Four, banking, public service, retail and commercial schemes, sales, law
+  conversion) as a role family of their own, a job in several families, and
+  for people not in work, non-linear ways onto the ladder (paid bridge jobs,
+  Ireland's Work Placement Experience Programme and Springboard+,
+  apprenticeships, UK Skills Bootcamps, skills-based volunteering, freelance
+  projects, adjacent first roles). Each path rated: match, gap and quickest
+  fix, time to entry, pay by level, five-year outlook, and how AI is changing
+  it (Anthropic Economic Index).
+- In work and exploring: score.py `current_job` (alerts only for jobs that
+  beat the current one on Career Value, margin 5), booking.py `--employed`
+  (before work, lunch, after work), a confidential LinkedIn default, and
+  job-offer's counter-offer check.
+- Chat 1 reads performance reviews and feedback, and lists skills and traits,
+  inferred ones marked GUESSED until confirmed. Chat 2 flags contradictions
+  between rankings and goals, sets 90-day and 12-month goals and learning
+  hours, and writes a 30-second pitch and reason for the move per family.
+
 ## 3.3.0 (2026-11-06)
 - 'Applications a day' is a range, default 5-10 (`streak.py` reads '5-10';
   the week's bar aims at the minimum, the session stops at the maximum).

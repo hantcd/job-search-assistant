@@ -9,6 +9,12 @@ When a job reaches offer: what it's really worth, how it compares, what the
 contract says, and a counter the person can send. Information, not legal or
 financial advice; the person decides.
 
+**A counter-offer from the current employer** (someone who was in work and
+exploring): list the reasons they started looking, from MASTER_PLAN.md and
+their own words, and check each against the counter-offer: fixed, partly or
+not at all. Money rarely fixes the other reasons. Information only; the
+person decides.
+
 `$SKILL_DIR` below means this skill's folder.
 
 ```bash

@@ -332,6 +332,10 @@ newest.
   [backpropagation6/claude-linkedin-automation](https://github.com/backpropagation6/claude-linkedin-automation)
   (absence isn't proof) and [job-apply-ai](https://github.com/ShipItAndPray/job-apply-ai)
   (reading each form back from a screenshot before submitting, which the pack already did).
+- Starting points and ways in, ideas only: Sarah Baker Andrus (Avarah
+  Careers) career-pivot prompts, Claude's "Plan your career path" use case,
+  Seth Godin's coaching prompt, Techpresso's career-coach prompts and Rich
+  Westhorpe's account of Claude as a career coach.
 - The streak, ideas only: Duolingo's published streak experiments (freezes,
   starting with two, earn-back, separating the streak from the daily goal,
   milestone goals, the evening streak-saver reminder).
