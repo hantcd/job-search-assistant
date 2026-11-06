@@ -32,7 +32,7 @@ marked * are checked by `pipeline.py validate`.
 | notes | dated lines, e.g. `2026-10-16: open -> applied` |
 | fetch_attempts, first_unreachable, last_fetch_error | failed page loads (closed as unreachable after 3 tries over 48+ hours) |
 | closed_reason | e.g. unreachable |
-| apply_queue | on the apply list: {added, preview (every question and answer, files, declarations word for word), person_submits (the employer asks AI agents not to apply: the person presses Submit), streak_keeper (a real, open job below the usual Fit, kept ready so the streak can go on)} |
+| apply_queue | on the apply list: {added, preview (every question and answer, files, declarations word for word), person_submits (the employer asks AI agents not to apply: the person presses Submit), streak_keeper (a real, open job below the usual Fit, kept ready so the streak can go on), readiness (job-apply's readiness card: colour, red, orange, green, choices)} |
 
 ## applications
 job_id*, pack_made*, base_cv, entries_used, answers [{question, answer}] and
@@ -105,8 +105,9 @@ resets when a company limits applications per person), events, offers, feedback,
 keyword_bank, watched, network, signals, form_notes (site, quirk, handling, date: job-apply's form
 memory), hidden (job-scout's `hidden.py`: growing companies most applicants miss, with source,
 funding date, size, feed and status), approvals (today's items for the job list page's Today
-panel: {id, date, order, kind, item, job_id, preview, status: waiting, approved or skipped,
-skip_reason, decided_at}; job-followup), today (one row "now": {welcome, date}, the streak
+panel: {id, date, order, kind, item, job_id, preview, readiness, choices, status: waiting,
+approved or skipped, choice (Send as is, Make suggested changes, or Make suggested
+changes and save to profile), skip_reason, decided_at}; job-followup), today (one row "now": {welcome, date}, the streak
 line the page shows), sessions ({date, minutes, approved, skipped}: the 5-minute promise,
 measured), answers_bank ({question, answer, reuse, date}: answers the person gave once to
 reuse; never eligibility, declarations or diversity questions; job-apply): lists of rows;

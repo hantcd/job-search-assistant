@@ -188,7 +188,10 @@ dates) rather than the CV.
    questions and save the answer to EVIDENCE.md and the bank. Two or more
    must-haves with no evidence: offer the experience interview (now or in
    the morning session) for the role most likely to hold it, with those
-   must-haves as `--terms`.
+   must-haves as `--terms`. Save the map as reqmap.json for job-apply's
+   readiness card: each requirement with must, evidence (strong, partial or
+   none), on_cv, and a fix with its kind (ready, needs you, later), including
+   fixes the evidence doesn't hold yet (a course, a project, a question).
 2. **Weights**: set the screening profile (above) and record it.
 3. **Build** from the nearest base CV: map each key requirement to its
    strongest entry and framing, covering each once; drop anything a

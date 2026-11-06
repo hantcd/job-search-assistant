@@ -14,6 +14,7 @@ weekly capacity in MASTER_PLAN.md) and on request.
 ```bash
 python3 "$SKILL_DIR/answers.py" form.json --bank jobsearch/pipeline.json  # what Claude fills, what's the person's, saved answers
 python3 "$SKILL_DIR/answers.py" lengths filled.json   # answers the form would cut off
+python3 "$SKILL_DIR/readiness.py" build --map reqmap.json --years-need 4 --years-have 2.5  # red, orange, green
 python3 ../job-tracker/pipeline.py can-apply <job-id>   # caps, limits and mid-interview holds (job-tracker)
 python3 "$SKILL_DIR/apply_form.py" scan URL --out form.json   # the form's questions, for answers.py
 python3 ../job-scout/feeds.py questions GREENHOUSE_JOB_URL --out form.json   # Greenhouse: the exact questions, no browser needed
@@ -31,23 +32,18 @@ python3 ../job-connector/network.py route --job <job-id>   # REFERRAL FIRST or A
 
 ## Before anything: may the person apply here?
 
-Run job-tracker's `can-apply` for the job. BLOCK means don't make the pack or
-fill the form: the person already applied to this role, has reached the cap of
-2 applications per company (they can raise it), applied there today (one role
-per company per day), applied to this role through an agency (or directly), or
-the company limits applications per person and the window is used up
-(`limits.json`, plus any limit recorded in company notes). ASK means the person
-must say yes first: they're mid-process at the company (a new application can
-look unfocused), or the company limits applications, so this one should be the
-best fit. If the form itself shows a limit banner, record it in the company
-notes with its reset date.
+Run job-tracker's `can-apply`. BLOCK (no pack, no form): already applied to this
+role, the cap of 2 per company, a role there today, the same role through an
+agency (or directly), or the company's per-person limit used up (`limits.json`,
+company notes). ASK (the person's yes first): mid-process there, or a limited
+company where this should be the best fit. A form's limit banner goes into the
+company notes with its reset date.
 
 ## The pack
 
 1. **Requirements map and CV** (job-cv): each requirement, its evidence and
-   the gaps; the tailored CV in its preset, PDF and editable doc. For an 'ask
-   when needed' detail, ask 1-2 quick questions in one round (job-cv's
-   'Asking the person') and save the answer.
+   the gaps, which become the readiness card; the tailored CV in its preset,
+   PDF and editable doc.
 2. **Cover letter or note** (job-cover), following the plan's rule.
 3. **Form answers** (or the typical ones for the role), reusing the person's
    saved answers where they fit. `answers.py` sorts each question: FILL (a
@@ -114,10 +110,8 @@ Record it as applied only once it's in their Sent folder. Idea from Dossier (Aie
 
 ## Before applying: the checklist
 
-Tailored CV approved · letter or note approved · answers checked, YOU items
-answered by the person · company notes read · route followed (referral asked
-and its 2 working days up, or apply now) · the same role not already applied
-for through an agency (or directly).
+Readiness card chosen · CV and note approved · answers checked, YOU items answered ·
+company notes read · route followed · not already applied through an agency (or directly).
 
 ## The apply list
 
@@ -132,11 +126,19 @@ for word. It keeps at least one job ready every planned day: if nothing
 passes the Fit threshold, the best real, open job below it, marked
 `streak_keeper`, so the person's streak can go on.
 
+**The readiness card, for every application** (`readiness.py build` from
+job-cv's requirements map, saved on the queue row): red, orange and green, each
+gap with a fix (ready, needs you, or later: never claimed as done), and three
+choices: send as is, make the suggested changes, or make them and save to the
+profile (the rules are in readiness.py). No gaps: one line, then carry on.
+
 **The daily session: approve in the chat, Claude submits.** In job-followup's
 session (`today.py`), post each job's preview in the chat (answers, files,
 declarations), then show the approval card: up to 16 items in one card
 (AskUserQuestion, 4 questions of 4 options, multiSelect), one option per
-application or email, so the person ticks what goes. Then Claude fills and
+green application or email, so the person ticks what goes; a red or orange
+application gets its own question with its card and the three choices plus
+Skip. Then Claude fills and
 submits each approved application in the browser, one after another, while
 the person's computer is on (they needn't watch): the CV attached first, every
 field read back against the approved preview, Submit, the confirmation saved.
@@ -261,11 +263,9 @@ job-tracker `move ... applied`.
 
 ## Example
 
-Aoife Byrne (fictional), Acme Ltd, Junior Data Analyst, posted 6 hours ago,
-nobody she knows there: APPLY NOW + REACH OUT. The pack: tailored CV, a short
-note, 4 draft answers, emails and connection requests to the hiring manager
-and one analyst. "Do you require sponsorship?" waits for her answer; then
-she ticks it in the morning card with 11 other jobs, and Claude submits.
+Aoife Byrne (fictional), Acme, Junior Data Analyst asking 2 years (she has
+1.5: in). APPLY NOW + REACH OUT; the card is orange (SQL in her evidence, not
+on the CV: ready); she taps "Make suggested changes" and Claude submits.
 
 ## Other skills it uses (if installed)
 

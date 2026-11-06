@@ -17,7 +17,7 @@ python3 "$SKILL_DIR/feeds.py" fetch lever someco --from-file someco.json   # whe
 python3 "$SKILL_DIR/feeds.py" detect "https://jobs.ashbyhq.com/liffeylabs/123"   # the ATS, its feed and the job's application form
 python3 "$SKILL_DIR/feeds.py" live "https://job-boards.greenhouse.io/acme/jobs/123"   # still open? (Greenhouse, Lever, Ashby)
 python3 "$SKILL_DIR/posting_guard.py" --in ad.html --html                       # check every ad before reading it
-python3 "$SKILL_DIR/gates.py" ad.txt --years-max 2 --languages "English:C2,Irish:B1" [--needs-sponsorship] [--not-citizen]
+python3 "$SKILL_DIR/gates.py" ad.txt --years-have 2.5 --languages "English:C2,Irish:B1" [--needs-sponsorship] [--not-citizen]
 python3 "$SKILL_DIR/fetch_page.py" URL --text            # one retry after a 403, only if robots.txt allows
 python3 "$SKILL_DIR/linkedin_jobs.py" search -q "data analyst" -l "Dublin, County Dublin, Ireland" --joblist jobsearch/pipeline.json   # opt-in only
 python3 "$SKILL_DIR/jobposting.py" page.html --url URL   # the employer's own job data (schema.org JobPosting) from a saved page
@@ -187,16 +187,16 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
    can say "senior" in paragraph three; a years gate can be written in words,
    "six (6) years"); a company that sponsors visas can refuse it for one role;
    the pay range may be in the text when the feed's pay field is empty.
-   **Eligibility**: an ad that says nothing about who may apply is UNVERIFIED,
-   not open (big graduate schemes often state citizenship rules only on their
-   own site; a company-wide "we sponsor" doesn't cover every role), so check
-   the employer's own careers or international-applicant page before drafting.
+   **Eligibility**: an ad silent on who may apply is UNVERIFIED, not open (graduate
+   schemes often state rules only on their own site; a company-wide "we sponsor"
+   doesn't cover every role): check the employer's own page before drafting.
    **Languages**: a language the role requires that the person doesn't speak is
    a fail; a higher level than theirs ("fluent", "native", "C1") is a flag for
    them to decide; "a plus" is nice to have; the language the ad is written in
-   isn't a requirement. A hard mismatch no fact could fix (too many years, no
-   sponsorship when it's needed, citizenship, clearance, a language they don't
-   speak) is a skip with one line in the log, quoting the ad's exact words; a
+   isn't a requirement. **Years**: apply at about 60% of what's asked (2.5 years
+   against "4-5": in; 40-60%: a stretch, kept and shown on the readiness card).
+   A hard mismatch no fact could fix (under 40% of the years, no sponsorship
+   when needed, citizenship, clearance, a language they don't speak) is a skip with one line in the log, quoting the ad's exact words; a
    missing detail the person could supply is a question. Apply dealbreakers and
    eligibility (pass or fail, with the reason); **dedupe** with job-tracker (same reference
    number updates the row); **update the keyword bank** (role family, term,

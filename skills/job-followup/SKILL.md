@@ -28,8 +28,10 @@ asks), then the jobs, best first, up to the day's maximum (10-20 jobs fit in 5
 minutes; the weekly check keeps 5-10 good ones coming):
 1. **In the chat**: post each job's preview (answers, files, declarations),
    then one approval card of up to 16 items (AskUserQuestion: 4 questions x 4
-   options, multiSelect): each job's application and its two hiring-team
-   emails. The person ticks; Claude sends the emails and then fills and submits
+   options, multiSelect): each green job's application and its two
+   hiring-team emails. A red or orange job (job-apply's readiness card) gets
+   its own question: the gaps and fixes, then Send as is, Make suggested
+   changes, Make suggested changes and save to profile, or Skip. The person ticks; Claude sends the emails and then fills and submits
    each ticked application in the browser (job-apply), while their computer is
    on. A skipped item comes back tomorrow once, then drops a place.
 2. **On the page**: for the best jobs, a connection request (or a message, if

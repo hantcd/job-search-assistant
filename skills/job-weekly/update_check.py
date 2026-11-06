@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "3.5.0"
+PACK_VERSION = "3.6.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -242,6 +242,16 @@ MIGRATIONS = [
               "report gives the exact searches)",
      "steps": "List the saved searches to create on each board from the role families' titles and places; the daily "
               "search reads their alert emails from then on."},
+    {"id": "3.6.0-readiness-and-years", "version": "3.6.0",
+     "title": "Apply at 60% of the years asked, and a red, orange and green check on every application",
+     "helps": "jobs asking a bit more experience than you have are kept (2.5 years against '4-5': in); every "
+              "application shows its gaps in red and orange with a fix for each, and you choose: send as is, "
+              "make the suggested changes, or make them and save them to your profile",
+     "needs": "nothing (if PREFERENCES_AND_SCORING.md has a years ceiling, it is read as your years of experience)",
+     "steps": "In PREFERENCES_AND_SCORING.md, record the person's relevant years as 'Years of experience: N' and use "
+              "gates.py --years-have N; build a readiness card (job-apply readiness.py) for every prepared "
+              "application and save it on the queue row; add the card and its three choices to the job list "
+              "page's Today panel if the page predates 3.6 (job-tracker)."},
     {"id": "3.5.0-reliable-and-learning", "version": "3.5.0",
      "title": "Runs that catch up, approvals on your phone, and a search that learns",
      "helps": "missed runs (usage limit, computer off) are caught up and reported once; tap Approve or Skip on "

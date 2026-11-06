@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Find the hidden gates in a job ad before anyone scores it or opens a form.
 
-    python3 gates.py ad.txt [--years-max 2] [--needs-sponsorship] [--languages "English:C2,Irish:B1"]
+    python3 gates.py ad.txt [--years-have 2.5] [--needs-sponsorship] [--languages "English:C2,Irish:B1"]
                             [--not-citizen] [--json]
 
 Titles mislead: "Early Career" can mean 1-3 years after graduating, a plain
@@ -26,7 +26,14 @@ lists, with the surrounding words so a person can judge:
                level than theirs ("fluent", "native", "C1") is a FLAG for them to decide.
                The language the ad is written in is not a requirement.
 
-With --years-max or --needs-sponsorship, a hard mismatch is marked SKIP (no fact
+Years are a guide, not a wall. Careers advisers and recruiters agree: apply when you
+meet about 60% of what's asked, because ads list a wish list and hire people who are
+close. With --years-have (the person's relevant years, e.g. 2.5), an ad asking for
+up to 1/0.6 of that is in (2.5 years: ads asking 4 years pass, and "4-5 years" counts
+from its lower end); 40-60% is a STRETCH, kept and flagged for the readiness check;
+under 40% (2.5 against 7+) is a skip. --years-max is the older name, read the same way.
+
+With --years-have or --needs-sponsorship, a hard mismatch is marked SKIP (no fact
 could make the person eligible), which is different from a missing detail the
 person could supply. Quote the exact wording when ruling a job out. Ideas from
 please-hire-me's field notes (MIT, Alex Wang) and ai-job-search's eligibility and
@@ -125,7 +132,20 @@ def languages(text, mine=None):
     return found
 
 
-def scan(text, years_max=None, needs_sponsorship=False, my_languages=None, not_citizen=False):
+APPLY_AT, STRETCH_FROM = 0.6, 0.4  # share of the asked-for years: apply from 60%, a flagged stretch from 40%
+
+
+def years_verdict(need, have):
+    """IN (have at least 60% of the minimum asked), STRETCH (40-60%) or SKIP (under 40%)."""
+    if not need or have is None:
+        return "IN", 1.0
+    ratio = float(have) / need
+    return ("IN" if ratio >= APPLY_AT else "STRETCH" if ratio >= STRETCH_FROM else "SKIP"), round(ratio, 2)
+
+
+def scan(text, years_max=None, needs_sponsorship=False, my_languages=None, not_citizen=False, years_have=None):
+    if years_have is None:
+        years_have = years_max
     found = {"YEARS": years_found(text)}
     for name, rx in (("SENIORITY", SENIOR), ("SPONSORSHIP", SPONSOR), ("CITIZENSHIP", CITIZEN),
                      ("NOT-GRAD", NOTGRAD), ("INTERNSHIP", INTERN), ("PAY", PAY)):
@@ -147,11 +167,15 @@ def scan(text, years_max=None, needs_sponsorship=False, my_languages=None, not_c
         if l.get("verdict") == "FAIL":
             skip.append('needs %s, which the person doesn\'t list: "%s"' % (l["language"], l["match"]))
     req_years = [y["years"] for y in found["YEARS"] if not y["bio"]]
-    if years_max is not None and req_years and min(req_years) > years_max:
-        skip.append("needs %d+ years; the person's ceiling is %d" % (min(req_years), years_max))
+    if years_have is not None and req_years:
+        need = min(req_years)
+        verdict, ratio = years_verdict(need, years_have)
+        found["YEARS_FIT"] = [{"need": need, "have": years_have, "share": ratio, "verdict": verdict}]
+        if verdict == "SKIP":
+            skip.append("needs %d+ years; %s is under 40%% of that" % (need, ("%g" % years_have)))
     if needs_sponsorship and found["SPONSORSHIP"]:
         skip.append("this role offers no visa sponsorship")
-    if found["NOT-GRAD"] and years_max is not None and years_max <= 1:
+    if found["NOT-GRAD"] and years_have is not None and years_have <= 1:
         skip.append("not open to new graduates")
     return found, skip
 
@@ -159,14 +183,15 @@ def scan(text, years_max=None, needs_sponsorship=False, my_languages=None, not_c
 def main(argv=None):
     p = argparse.ArgumentParser(description="Hidden gates in a job ad.")
     p.add_argument("ad")
-    p.add_argument("--years-max", type=int)
+    p.add_argument("--years-have", type=float, help="the person's relevant years of experience, e.g. 2.5")
+    p.add_argument("--years-max", type=float, help="older name for --years-have")
     p.add_argument("--needs-sponsorship", action="store_true")
     p.add_argument("--languages", help='the person\'s languages, e.g. "English:C2,Irish:B1"')
     p.add_argument("--not-citizen", action="store_true", help="the person isn't a citizen or resident where the job is")
     p.add_argument("--json", action="store_true")
     a = p.parse_args(argv)
     found, skip = scan(open(a.ad, encoding="utf-8").read(), a.years_max, a.needs_sponsorship,
-                       parse_languages(a.languages) if a.languages else None, a.not_citizen)
+                       parse_languages(a.languages) if a.languages else None, a.not_citizen, a.years_have)
     if a.json:
         print(json.dumps({"found": found, "skip": skip}, indent=1, ensure_ascii=False))
         return 1 if skip else 0

@@ -78,6 +78,7 @@ def bundles(data, today):
                                                          " (closes %s)" % dl if soon else ""),
              "value": VALUE["APPLY"] + (25 if soon else 0) + int((j.get("fit") or j.get("career_value") or 0) / 10),
              "person_submits": bool(q.get("person_submits")), "streak_keeper": bool(q.get("streak_keeper")),
+             "readiness": (q.get("readiness") or {}).get("colour"),
              "emails": [], "linkedin": [], "invites": [], "comment": None}
         for o in rows.get(j.get("id"), []):
             if o.get("channel") == "email":
@@ -127,7 +128,7 @@ def plan(data, today, budget=300, per_day=10):
 
     def add(kind, text, job=None, n=1):
         nonlocal used
-        sec = SECONDS[kind] * n
+        sec = SECONDS[kind] * n + (10 if " gaps and fixes to choose]" in text else 0)  # reading the readiness card
         if used + sec <= budget:
             keep.append({"kind": kind, "item": text, "seconds": sec, "job_id": job})
             used += sec
@@ -148,7 +149,8 @@ def plan(data, today, budget=300, per_day=10):
             continue
         label = b["label"] + (" (you press Submit: the employer asks AI agents not to apply)"
                               if b["person_submits"] else "") + (
-            " (keeps your streak: below your usual Fit)" if b["streak_keeper"] else "")
+            " (keeps your streak: below your usual Fit)" if b["streak_keeper"] else "") + (
+            " [%s: gaps and fixes to choose]" % b["readiness"] if b["readiness"] in ("red", "orange") else "")
         if not add("SUBMIT" if b["person_submits"] else "APPLY", label, b["job_id"]):
             continue
         jobs_done += 1
@@ -207,10 +209,12 @@ def approval_docs(r, data, today):
     for i, x in enumerate(r["today"], 1):
         if x["kind"] in ("CONNECT", "LINKEDIN", "COMMENT", "SUBMIT"):
             continue  # done on the page at the computer, with the person clicking Send, Post or Submit
-        preview = (jobs.get(x.get("job_id"), {}).get("apply_queue") or {}).get("preview") if x["kind"] == "APPLY" \
-            else None
+        q = (jobs.get(x.get("job_id"), {}).get("apply_queue") or {}) if x["kind"] == "APPLY" else {}
+        ready = q.get("readiness") or None
         out.append({"id": "%s-%02d" % (today.isoformat(), i), "date": today.isoformat(), "order": i,
-                    "kind": x["kind"], "item": x["item"], "job_id": x.get("job_id"), "preview": preview,
+                    "kind": x["kind"], "item": x["item"], "job_id": x.get("job_id"), "preview": q.get("preview"),
+                    "readiness": ready,
+                    "choices": (ready or {}).get("choices") if ready and not ready.get("no_gaps") else None,
                     "status": "waiting"})
     return out
 
@@ -222,6 +226,7 @@ def decisions(rows, today):
     for a in rows:
         d = day(a.get("date"))
         if a.get("status") == "approved":
+            a = dict(a, choice=a.get("choice") or "Send as is")
             (go if d and (today - d).days <= 2 else expired).append(a)
         elif a.get("status") == "skipped":
             skipped.append({"kind": "skip", "job_id": a.get("job_id"), "reason": a.get("skip_reason"),

@@ -52,6 +52,10 @@ update), first on the page and made for a phone:
   (Application, Email, Reply), the item, and, for an application, the preview
   folded under "See every answer" (each question and answer, the files, every
   declaration word for word), so nothing is approved unseen.
+- An application with a readiness card shows its colour and each gap with its
+  fix; instead of Approve it offers the card's choices (Send as is, Make
+  suggested changes, Make suggested changes and save to profile), saved as
+  status approved with that choice.
 - Two large buttons per card, Approve and Skip. Skip opens one-tap reasons
   (too junior, too senior, wrong place, not my industry, pay too low, not this
   company, wrong kind of role, other). Each tap writes status, skip_reason

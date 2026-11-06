@@ -3,6 +3,21 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.6.0 (2026-11-06)
+- job-scout `gates.py --years-have`: years are a guide, not a wall. From 60%
+  of the minimum asked the job is in (2.5 years against "4-5 years": in), 40-60%
+  is a stretch kept and flagged, under 40% is a skip. `--years-max` is read the
+  same way.
+- job-apply `readiness.py`: every application gets a readiness card from job-cv's
+  requirements map. Red: a must-have with no evidence, or 40-60% of the years.
+  Orange: partly shown, in the evidence but not on the CV, 60-99% of the years,
+  a missing nice-to-have, or an add-on that would help. Green: what's strongly
+  covered. Each gap has a fix, even one the evidence doesn't hold yet, marked
+  ready, needs you or later (never claimed as done). Three choices: send as is,
+  make the suggested changes, or make them and save to the profile. No gaps:
+  one line, and it goes. The card and choices travel through the session, the
+  chat card (its own question for red or orange) and the page's Today panel.
+
 ## 3.5.0 (2026-11-06)
 - job-tracker `health.py`: missed runs (a usage limit or the computer off
   leave no trace) found from the run log against the schedule; every task

@@ -1958,6 +1958,70 @@ class Personas(unittest.TestCase):
         self.assertTrue(all(x.hour in (8, 12, 13, 17, 18) for x in slots))
 
 
+class Release360(unittest.TestCase):
+    """Apply at about 60% of the years asked, and a readiness card for every application (fictional data)."""
+    g = load("job-scout", "gates")
+    rd = load("job-apply", "readiness")
+    td = load("job-followup", "today")
+
+    def test_sixty_percent_of_the_years(self):
+        cases = {"Requires 4-5 years of experience in sales.": ("IN", []),
+                 "5+ years of B2B sales.": ("STRETCH", []),
+                 "7+ years in enterprise sales.": ("SKIP", ["needs 7+ years; 2.5 is under 40% of that"]),
+                 "3 years in SaaS.": ("IN", [])}
+        for ad, (verdict, skip) in cases.items():
+            found, got = self.g.scan(ad, years_have=2.5)
+            self.assertEqual(found["YEARS_FIT"][0]["verdict"], verdict, ad)
+            self.assertEqual(got, skip, ad)
+        found, skip = self.g.scan("Requires 3+ years.", years_max=2)  # the older flag reads the same way
+        self.assertEqual((found["YEARS_FIT"][0]["verdict"], skip), ("IN", []))
+
+    def test_card_colours_fixes_and_choices(self):
+        reqmap = {"job": "Northlight, Account Executive", "requirements": [
+            {"text": "B2B sales", "must": True, "evidence": "strong", "on_cv": True},
+            {"text": "Pipeline generation", "must": True, "evidence": "strong", "on_cv": False},
+            {"text": "Salesforce", "must": True, "evidence": "none", "fix": "have you used it?",
+             "fix_kind": "needs you"},
+            {"text": "Payments", "must": False, "evidence": "none", "fix": "a short course", "fix_kind": "later"}]}
+        c = self.rd.build(reqmap, 4, 2.5)
+        self.assertEqual(c["colour"], "red")
+        self.assertEqual([g["fix_kind"] for g in c["red"]], ["needs you"])
+        kinds = {g["gap"].split(":")[0]: g["fix_kind"] for g in c["orange"]}
+        self.assertEqual(kinds["Pipeline generation"], "ready")
+        self.assertEqual(kinds["Payments (nice to have)"], "later")
+        self.assertTrue(any("years" in g["gap"] for g in c["orange"]))
+        self.assertEqual(c["choices"], ["Send as is", "Make suggested changes",
+                                        "Make suggested changes and save to profile"])
+        self.assertEqual(len(c["needs_you"]), 1)
+        stretch = self.rd.build({"job": "x", "requirements": []}, 5, 2.5)
+        self.assertEqual(stretch["colour"], "red")  # 50% of the years: a stretch, flagged in red
+
+    def test_no_gaps_goes_as_it_is(self):
+        c = self.rd.build({"job": "Acme, SDR", "requirements": [
+            {"text": "cold calling", "must": True, "evidence": "strong", "on_cv": True}]})
+        self.assertTrue(c["no_gaps"])
+        self.assertEqual(c["choices"], ["Send as is"])
+        self.assertIn("no gaps", self.rd.text(c))
+
+    def test_session_and_page_carry_the_choice(self):
+        card = self.rd.build({"job": "Co, AE", "requirements": [
+            {"text": "CRM", "must": True, "evidence": "partial", "fix": "name the CRM", "fix_kind": "ready"}]})
+        data = {"jobs": [{"id": "j1", "company": "Co", "title": "AE", "status": "new", "fit": 80,
+                          "apply_queue": {"added": "2026-11-08", "readiness": card}},
+                         {"id": "j2", "company": "Green", "title": "SDR", "status": "new", "fit": 75,
+                          "apply_queue": {"added": "2026-11-08"}}]}
+        r = self.td.plan(data, D(2026, 11, 9))
+        items = {x["job_id"]: x for x in r["today"]}
+        self.assertIn("[orange: gaps and fixes to choose]", items["j1"]["item"])
+        self.assertGreater(items["j1"]["seconds"], items["j2"]["seconds"])  # time to read the card
+        docs = {d["job_id"]: d for d in self.td.approval_docs(r, data, D(2026, 11, 9))}
+        self.assertEqual(len(docs["j1"]["choices"]), 3)
+        self.assertIsNone(docs["j2"]["choices"])
+        out = self.td.decisions([dict(docs["j1"], status="approved", choice="Make suggested changes"),
+                                 dict(docs["j2"], status="approved")], D(2026, 11, 9))
+        self.assertEqual([a["choice"] for a in out["carry_out"]], ["Make suggested changes", "Send as is"])
+
+
 class Release340(unittest.TestCase):
     """Where the person starts from: in work and exploring, or not in work (fictional data)."""
     sc = load("job-scout", "score")
