@@ -3,6 +3,28 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.2.0 (2026-11-06)
+- Fallback contacts (`network.py plan`): up to 4 people per job in two
+  waves, the best 2 now (one in recruiting, one on the team), the next 2
+  only after 3 working days without a reply (`followup.py` flags it on
+  APPLY NOW + REACH OUT threads), a different message each.
+  `pipeline.py contact-check` warns at 2 people in recruiting or 2 on the
+  team at one company within 2 weeks (Management Consulted's 2/2/2,
+  Wonsulting's pivot to a peer).
+- job-cv: "the strongest true version" of every line (the biggest verb the
+  evidence supports, honest 'about' estimates the person confirms, projects
+  and societies as experience); never invented titles, dates, employers,
+  grades, skills or numbers. `audit.py --graduate` treats 60+ as worth
+  tailoring.
+- job-interview: answers to Leila Hormozi's 7 screening questions and one
+  insight to teach the interviewer; job-apply: at small and founder-led
+  firms, the finished work sample by default (Alex Hormozi).
+- job-connector `playbooks.md`: banking (Mergers & Inquisitions), consulting
+  (Management Consulted), tech (Wonsulting) and Irish/UK graduate schemes
+  (Sinéad Brady, UCC Careers, ISE, Prospects).
+- Comments on a post: 15+ words preferred (LinkedIn ranking research
+  gathered by attainmentlabs/linkedin-algorithm-skill).
+
 ## 2.1.0 (2026-11-06)
 Ideas from David DeGenova's job-search material (Post Grad Project:
 davidatpgp.netlify.app and his finding-people and conversation-prep

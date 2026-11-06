@@ -72,7 +72,9 @@ notes with its reset date.
 6. **For top jobs**: 3 genuine reasons to pick from for the letter, and an
    optional value validation project (a short analysis, mock-up or demo
    showing how the person would help) to send the hiring manager with a short
-   note.
+   note. At small firms and founder-led companies it's the default: send the
+   finished thing, not an offer to do one (Alex Hormozi: "Don't ask how you
+   can provide value. Do it."), sized to an hour or two of the person's time.
 7. **Review pass, for top jobs**: once drafted, where a separate agent can
    run (Cowork, Claude Code, or a chat that can start one), give the file
    paths to the pack's `hiring-manager-reviewer` agent

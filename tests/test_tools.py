@@ -1583,3 +1583,57 @@ class Release210(unittest.TestCase):
         bad = "## Questions\n### Their story\n- Tell me about yourself?\n- Could you refer me for the role?\n"
         fails = {r[1] for r in self.cp.check(bad) if r[0] == "FAIL"}
         self.assertTrue({"questions", "things you can do", "closing ask", "no job or referral ask"} <= fails)
+
+
+class Release220(unittest.TestCase):
+    """Fallback contacts in two waves, the team cap, graduate audit threshold (fictional data)."""
+    n = load("job-connector", "network")
+    p = load("job-tracker", "pipeline")
+    fu = load("job-followup", "followup")
+    au = load("job-cv", "audit")
+
+    def data(self):
+        people = [("Siobhan Kelly", "Head of Analytics"), ("Declan Moore", "Talent Acquisition Partner"),
+                  ("Ciara Doyle", "Data Analyst"), ("Eoin Ryan", "Senior Data Analyst"), ("Niamh Byrne", "Recruiter"),
+                  ("Aidan Walsh", "Analyst"), ("Ruth Kenny", "Graduate Recruiter")]
+        return {"jobs": [{"id": "j", "company": "Acme", "title": "Junior Data Analyst"}], "network": [],
+                "applications": [], "outreach": [],
+                "contacts": [{"id": nm.lower().replace(" ", "-"), "name": nm, "role": r, "company": "Acme"}
+                             for nm, r in people]}
+
+    def test_two_waves_with_caps(self):
+        plan = self.n.plan(self.data(), "j", ["Head of Analytics"], D(2026, 11, 6))
+        now = [x["name"] for x in plan["now"]]
+        self.assertEqual(now, ["Siobhan Kelly", "Declan Moore"])  # the team's best, and a recruiter
+        later = plan["if_no_reply"]
+        self.assertEqual(len(now) + len(later), 4)
+        self.assertEqual(later[0]["send_on"], "2026-11-11")  # 3 working days
+        rec = sum(1 for x in plan["now"] + later if self.n.RECRUITING.search(x["role"]))
+        self.assertLessEqual(rec, 2)
+
+    def test_team_cap_warns(self):
+        d = self.data()
+        for cid in ("siobhan-kelly", "ciara-doyle"):
+            d["outreach"].append({"contact_id": cid, "job_id": "j",
+                                  "messages": [{"date": "2026-11-04", "direction": "out", "text": "x"}]})
+        d["contacts"][0]["employer_checked"] = "2026-11-01"
+        verdict, why = self.p.contact_check(d, "eoin-ryan", D(2026, 11, 6))
+        self.assertTrue(any("2 people in the team" in w for w in why), why)
+        verdict, why = self.p.contact_check(d, "niamh-byrne", D(2026, 11, 6))
+        self.assertFalse(any("in the last 2 weeks" in w for w in why))  # recruiting is counted separately
+
+    def test_second_wave_due_after_three_days(self):
+        o = {"contact_id": "c", "status": "sent", "stage": "ask", "channel": "email", "route": "apply_now",
+             "messages": [{"date": "2026-11-06", "direction": "out", "text": "x"}]}
+        st, why = self.fu.thread_state(o, {"name": "Siobhan"}, D(2026, 11, 11))
+        self.assertEqual(st, "DUE NOW")
+        self.assertIn("second wave", why)
+
+    def test_graduate_threshold(self):
+        ad = "What you'll need\n- SQL\n- Excel\n- Power BI\n- Python\n- stakeholder management\n"
+        cv = "Aoife Byrne | Data Analyst\nBuilt dashboards for 12 managers\n- SQL, Excel and Power BI, 12 managers\n"
+        plain = self.au.audit(ad, cv, "Data Analyst")
+        grad = self.au.audit(ad, cv, "Data Analyst", graduate=True)
+        self.assertEqual(plain["match"], 60)
+        self.assertIn("Worth a tailored CV", grad["next"][-1])
+        self.assertNotIn("Worth a tailored CV", plain["next"][-1])

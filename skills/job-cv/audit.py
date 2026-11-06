@@ -31,7 +31,7 @@ from keywords import compare  # noqa: E402
 from skim import must_section, skim  # noqa: E402
 
 
-def audit(ad, cv, role="", terms=None, bank=None, this_year=2026):
+def audit(ad, cv, role="", terms=None, bank=None, this_year=2026, graduate=False):
     terms = terms if terms is not None else load_terms()
     must, nice = must_section(ad)
     whole = compare(ad, cv, terms, bank)
@@ -71,7 +71,8 @@ def audit(ad, cv, role="", terms=None, bank=None, this_year=2026):
         nxt.append("Ask: is '%s' true for you? Yes: add it in the ad's words. No: it stays a gap." % t)
     if whole["reword"]:
         nxt.append("Use the ad's wording where true: " + ", ".join("%s (CV says %s)" % x for x in whole["reword"][:5]))
-    if score >= 70 and s["pile"] != "NO":
+    worth = 60 if graduate else 70  # graduate schemes hire for potential: apply at about 60-70% of requirements
+    if score >= worth and s["pile"] != "NO":
         nxt.append("Worth a tailored CV: start job-cv's tailored CV steps.")
     elif score >= 40:
         nxt.append("A stretch: tailor only if the person confirms some missing terms, and name the biggest gap in the letter.")
@@ -88,10 +89,11 @@ def main(argv=None):
     p.add_argument("--role", default="")
     p.add_argument("--bank", help="JSON list of extra terms (your keyword bank)")
     p.add_argument("--year", type=int, default=2026)
+    p.add_argument("--graduate", action="store_true", help="a graduate scheme: worth tailoring from 60")
     p.add_argument("--json", action="store_true")
     a = p.parse_args(argv)
     bank = json.load(open(a.bank, encoding="utf-8")) if a.bank else None
-    r = audit(read_text(a.ad), read_text(a.cv), a.role, bank=bank, this_year=a.year)
+    r = audit(read_text(a.ad), read_text(a.cv), a.role, bank=bank, this_year=a.year, graduate=a.graduate)
     if a.json:
         print(json.dumps(r, indent=1))
         return 0

@@ -28,7 +28,8 @@ one real result with a number, under 100 words for email, and no stock
 enthusiasm ("sincerest enthusiasm", "incredible fit", "thank you in advance").
 
 With --channel comment (a comment on the post where someone advertised the
-job, which the person posts by hand): under 300 characters, says something
+job, which the person posts by hand): 15+ words and under 300 characters
+(longer comments count for more in LinkedIn's ranking), says something
 specific about the post or the work, no link, no CV, no ask for a referral,
 and not a bare "Great post!" or "Congrats!".
 
@@ -101,6 +102,8 @@ def check(channel, text, subject="", role="", stage="", ref=""):
         add("length", "PASS" if len(text) <= 300 else "WARN", "%d characters (under 300)" % len(text))
         add("specific", "FAIL" if GENERIC_COMMENT.match(text.strip()) or words < 8 else "PASS",
             "say something specific about the post or the work, not just 'Great post!'")
+        if 8 <= words < 15:
+            add("depth", "WARN", "%d words: comments of 15+ words count for more in LinkedIn's ranking" % words)
         add("no link", "FAIL" if URL.search(text) else "PASS", "no links in a comment")
         if re.search(r"\brefer(?:ral|ring)?\b|\bmy (?:cv|resume)\b|\bdm me\b|\bhire me\b", text, re.I):
             add("no ask", "FAIL", "no referral ask, CV or 'hire me' in a public comment; the ask goes in the message")

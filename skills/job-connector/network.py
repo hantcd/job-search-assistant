@@ -4,6 +4,14 @@
     python3 network.py match --file jobsearch/pipeline.json [--job <id>] [--top 5] [--write] [--today 2026-11-06]
     python3 network.py rank --file jobsearch/pipeline.json --job <id> [--manager "Head of Sales Development"] [--top 3]
     python3 network.py route --file jobsearch/pipeline.json --job <id> [--today 2026-11-06]
+    python3 network.py plan --file jobsearch/pipeline.json --job <id> [--manager "..."] [--today 2026-11-06]
+
+plan: who to contact for one job, in two waves, as a fallback if the first people
+don't answer: up to 4 people (the hiring manager, the recruiter and 1-2 on the
+team), the best 2 now (one in recruiting and one on the team where both exist),
+the next 2 only if nobody has replied after 3 working days, never more than 2 in
+recruiting or 2 on the team, and a different message for each (they compare
+notes). From Wonsulting's 'pivot to a peer' and Management Consulted's 2/2/2 rule.
 
 route: REFERRAL FIRST or APPLY NOW + REACH OUT for one job, with the dates.
   REFERRAL FIRST  someone who knows the person or their work is at the company (tie_strength
@@ -295,6 +303,34 @@ def route(data, job_id, today=None):
             "nudge_on": add_working_days(today, 5).isoformat(), "warm": warm}
 
 
+RECRUITING = re.compile(r"recruit|talent|sourc|\bhr\b|human resources|people (?:partner|team|ops)", re.I)
+
+
+def plan(data, job_id, manager_titles=(), today=None, max_people=4):
+    today = today or datetime.date.today()
+    ranked = rank(data, job_id, manager_titles, top=50, today=today)
+    rec = [r for r in ranked if RECRUITING.search(r.get("role") or "")]
+    team = [r for r in ranked if r not in rec]
+    first = []
+    if team:
+        first.append(team.pop(0))
+    if rec:
+        first.append(rec.pop(0))
+    while len(first) < 2 and team:
+        first.append(team.pop(0))
+    counts = {"recruiting": sum(1 for r in first if RECRUITING.search(r.get("role") or "")),
+              "team": sum(1 for r in first if not RECRUITING.search(r.get("role") or ""))}
+    second = []
+    for r in sorted(team + rec, key=lambda x: -x["score"]):
+        b = "recruiting" if RECRUITING.search(r.get("role") or "") else "team"
+        if counts[b] < 2 and len(first) + len(second) < max_people:
+            second.append(r)
+            counts[b] += 1
+    later = add_working_days(today, 3).isoformat()
+    return {"now": [dict(r, wave=1, send_on=today.isoformat()) for r in first],
+            "if_no_reply": [dict(r, wave=2, send_on=later) for r in second]}
+
+
 def summary_line(m):
     if not m["total"]:
         return "People you know: none yet (search for two on the team)"
@@ -314,6 +350,10 @@ def main(argv=None):
     r.add_argument("--job", required=True)
     r.add_argument("--manager", action="append", default=[])
     r.add_argument("--top", type=int, default=3)
+    pl = sub.add_parser("plan")
+    pl.add_argument("--job", required=True)
+    pl.add_argument("--manager", action="append", default=[])
+    pl.add_argument("--today")
     rt = sub.add_parser("route")
     rt.add_argument("--job", required=True)
     rt.add_argument("--today")
@@ -322,6 +362,15 @@ def main(argv=None):
     a = p.parse_args(argv)
     today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
     data = json.load(open(a.file, encoding="utf-8"))
+    if a.cmd == "plan":
+        r = plan(data, a.job, a.manager, today)
+        for wave, rows in (("NOW", r["now"]), ("IF NO REPLY BY " + (r["if_no_reply"][0]["send_on"] if r["if_no_reply"] else "-"),
+                                                r["if_no_reply"])):
+            print(wave)
+            for x in rows:
+                print("  %-26s %-40s %s" % ((x["name"] or "")[:26], (x["role"] or "")[:40], x["why"]))
+        print("A different message for each; at most 2 in recruiting and 2 on the team.")
+        return 0
     if a.cmd == "route":
         r = route(data, a.job, today)
         print("%s: %s" % (r["route"], r["why"]))

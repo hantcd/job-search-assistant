@@ -30,7 +30,8 @@ you' or 'Nothing needs you'.
 
 ## Outreach cadence (working days)
 
-- **No reply after 3**: suggest another person at that company (keep the
+- **No reply after 3**: the next people in job-connector's `network.py plan`
+  second wave, or another person at that company (keep the
   first thread).
 - **After 7** (10 for directors and above): one follow-up that adds something
   new (a result, a relevant post of theirs, an answer to their question),

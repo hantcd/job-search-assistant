@@ -75,6 +75,13 @@ one, and research on panellists is public and professional only
    for a longer study plan. Other role families skip this.
 5. **A 1-3 sentence, positive reason for leaving** each role.
 6. **Questions to ask** about their priorities, and notes to bring.
+   Plus **one insight to teach the interviewer** (from the company notes:
+   something about their market, product or customers they may not have
+   seen), since hiring managers such as Leila Hormozi say the candidates who
+   win teach them something. And answers ready for her 7 screening
+   questions: why are you looking, why us, your weaknesses, your ideal job,
+   who are you, what hours you want, how much you need (pay from job-offer's
+   market range, never past pay).
 7. **A short study plan**, most useful first.
 8. **Reminders**: have ID ready in case of on-camera identity checks; never use
    AI tools during an interview (several employers forbid it; prepare with

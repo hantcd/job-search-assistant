@@ -51,7 +51,8 @@ or a first look before anything is set up. Needs only the CV and the ad.
    stays a gap, and job-cover faces the biggest one in the letter.
 4. Say plainly what the score is: an estimate to guide edits, not the
    employer's ATS result. Offer the tailored CV (steps below) when the match
-   is 70+ or the person wants it anyway.
+   is 70+ (60+ for graduate schemes, which hire for potential) or the person
+   wants it anyway.
 
 ## The CV family
 
@@ -82,6 +83,26 @@ When the bank or a CV needs facts only the person has, ask in rounds
   'ask when needed', and a guess they accept is CONFIRMED only once they've
   said it's true.
 - Stop when nothing is left silently assumed, and say what was settled.
+
+## The strongest true version (every CV)
+
+Push every line as far as the evidence goes, and no further: true lines,
+told at full strength, get interviews without anything that falls apart when
+an interviewer probes it.
+- **The biggest verb the evidence supports** ('built', 'ran', 'cut'), never
+  'helped with' where the person did it; never bigger than the evidence
+  (`truth_check.py` flags that).
+- **A number on every line that can have one**: when the evidence has none,
+  ask for an honest estimate and write it as 'about' ('about 40 customers a
+  week'); the person confirms it and it goes into EVIDENCE.md, labelled.
+- **Scope and outcome over task**: who used it, how many, what changed.
+- **Everything counts**: projects, coursework, volunteering, societies and
+  part-time jobs are experience entries, framed for the role; tools used even
+  briefly are listed at their real level.
+- **The job's language**: the ad's words where true (`keywords.py`), the
+  person's major translated into the role.
+Never invented: titles, dates, employers, degrees, grades, skills or numbers
+the person can't stand behind in an interview.
 
 ## Format
 

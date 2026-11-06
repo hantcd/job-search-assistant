@@ -51,6 +51,8 @@ EMAIL_CONFIDENCE = ("published", "given", "high", "medium", "low", "unknown", ""
 # accept, a short chat, the referral ask, one nudge.
 STAGES = ("note", "thanks", "chat", "ask", "nudge", "")
 RECRUITER_RE = re.compile(r"recruit|talent|sourc|\bhr\b|human resources|people (?:partner|team|ops)", re.I)
+TEAM_CAP = 2  # at most 2 people per part of a company (recruiting, the team) in 2 weeks
+TEAM_WINDOW = 14
 REJECTION_WINDOW = 180  # days a rejection at a company is worth a warning before writing to its recruiters
 TABLES = ("jobs", "applications", "contacts", "outreach", "run_log", "email_log")
 # Free-form tables the skills also keep (checked only for being lists):
@@ -377,6 +379,26 @@ def contact_check(data, contact_id, today, job_id=None):
             if d and (today - d).days <= REJECTION_WINDOW:
                 check.append("%s recruits at %s, which rejected you for %s on %s: may be the same recruiter"
                              % (name, j.get("company"), j.get("title"), d))
+    if company:
+        bucket = "recruiting" if RECRUITER_RE.search(str(c.get("role", ""))) else "the team"
+        others = {}
+        by_id = {x.get("id"): x for x in data["contacts"]}
+        for o in data["outreach"]:
+            oc = by_id.get(o.get("contact_id"))
+            if not oc or oc.get("id") == contact_id or norm(oc.get("company")) != norm(company):
+                continue
+            ob = "recruiting" if RECRUITER_RE.search(str(oc.get("role", ""))) else "the team"
+            for m in o.get("messages", []) or []:
+                try:
+                    d = datetime.date.fromisoformat(str(m.get("date"))[:10])
+                except ValueError:
+                    continue
+                if m.get("direction") == "out" and ob == bucket and 0 <= (today - d).days <= TEAM_WINDOW:
+                    others[oc.get("name") or oc.get("id")] = d
+        if len(others) >= TEAM_CAP:
+            check.append("you've already written to %d people in %s at %s in the last 2 weeks (%s): wait, or pick "
+                         "someone in another part of the company" % (len(others), bucket, company,
+                                                                     ", ".join(sorted(others))))
     if job_id and job_id not in jobs:
         raise PipelineError("no job with id %r" % job_id)
     if stop:

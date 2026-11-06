@@ -109,6 +109,9 @@ def thread_state(o, contact, today):
                 return "DUE NOW", ("%s: the 2-day referral wait is up: apply now, then one short nudge saying "
                                    "you've applied (with the reference), then stop" % name)
             return "DUE NOW", "%s: one short nudge on the ask, then stop" % name
+        if str(o.get("route", "")).lower().startswith("apply") and wd >= 3 and not o.get("suggested_other"):
+            return "DUE NOW", ("%s: no reply after 3 working days: contact the next people in network.py plan's "
+                               "second wave (keep this thread; its one nudge is due after 5)" % name)
         return "WAITING", "%s: ask sent; one nudge after %d working days (%d so far)" % (name, wait, wd)
     wait = 10 if contact.get("senior") else 7
     if follow_ups == 0:

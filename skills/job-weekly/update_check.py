@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.1.0"
+PACK_VERSION = "2.2.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -196,6 +196,14 @@ MIGRATIONS = [
      "needs": "",
      "steps": "Mention the four in the report with how to use them: 'Prep my chat with <name>', 'LinkedIn searches for "
               "<company>', and pasting Lios's Monday matches. Nothing else changes."},
+    {"id": "2.2.0-fallback-contacts", "version": "2.2.0",
+     "title": "Fallback contacts, the strongest true CV, interview prep from hiring managers, industry playbooks",
+     "helps": "up to 4 people per job (the best 2 first, the next 2 if nobody answers in 3 working days); every CV "
+              "line at the strongest version your evidence supports; answers to Leila Hormozi's 7 screening questions "
+              "and one insight to teach the interviewer; banking, consulting, tech and graduate-scheme rules",
+     "needs": "",
+     "steps": "Run network.py plan for every open job on APPLY NOW + REACH OUT and save the waves; set each role "
+              "family's playbook in MASTER_PLAN.md from its industry (say which in the report); nothing else changes."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

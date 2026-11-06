@@ -130,6 +130,7 @@ python3 skills/job-scout/feeds.py questions GREENHOUSE_URL     # a Greenhouse jo
 python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCORING.md
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
+python3 skills/job-connector/network.py --file jobsearch/pipeline.json plan --job acme-junior-data-analyst
 python3 skills/job-network/chat_prep.py check prep.md
 python3 skills/job-connector/outreach.py linkedin --keywords "data analytics" --company-slug acme --school-slug trinity-college-dublin
 python3 skills/job-cv/audit.py ad.txt cv.pdf --role "Junior Data Analyst"
@@ -308,6 +309,13 @@ newest.
   searches the person runs (alumni tab, company People tab, 2nd-degree
   intros) and the chat prep with its closing ask. Ideas only; none of his
   text is used.
+- Ideas only, none of their text used: Leila and Alex Hormozi (screening
+  questions; "do it, don't offer"), Brian DeChesare's Mergers & Inquisitions
+  (the mini-ask and real ask), Management Consulted (the 2/2/2 rule),
+  Wonsulting (the 10-day sequence and pivot to a peer), Sinéad Brady and UCC
+  Careers (apply at 60-70% for graduate schemes), and
+  [attainmentlabs/linkedin-algorithm-skill](https://github.com/attainmentlabs/linkedin-algorithm-skill)
+  (comment depth).
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 

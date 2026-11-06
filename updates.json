@@ -1,7 +1,19 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "2.1.0",
+ "latest": "2.2.0",
  "versions": [
+  {
+   "version": "2.2.0",
+   "date": "2026-11-06",
+   "summary": "Fallback contacts in two waves, the strongest true version of every CV line, interview prep from hiring managers' own screens, and industry playbooks.",
+   "helps": [
+    "up to 4 people per job: the best 2 now, the next 2 only if nobody replies within 3 working days, never more than 2 per team",
+    "every CV line pushed to the strongest version your evidence supports, with honest 'about' estimates you confirm",
+    "answers to Leila Hormozi's 7 screening questions, one insight to teach the interviewer, and finished work samples for small firms",
+    "banking, consulting, tech and Irish/UK graduate-scheme playbooks; graduate schemes worth applying to from about a 60% match"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "2.1.0",
    "date": "2026-11-06",

@@ -25,7 +25,7 @@ python3 "$SKILL_DIR/outreach.py" find --company "Acme" --team "data analytics" -
 python3 "$SKILL_DIR/outreach.py" check --channel email --stage applied --file note.txt --subject "Applied: Junior Data Analyst / TCD / data" --role "Junior Data Analyst"
 python3 "$SKILL_DIR/network.py" --file jobsearch/pipeline.json match --write   # people you know, every open job
 python3 "$SKILL_DIR/network.py" --file jobsearch/pipeline.json route --job <id>  # REFERRAL FIRST or APPLY NOW + REACH OUT
-python3 "$SKILL_DIR/network.py" --file jobsearch/pipeline.json rank --job <id>   # the 2-3 people best for the role
+python3 "$SKILL_DIR/network.py" --file jobsearch/pipeline.json plan --job <id>   # best 2 now, the next 2 if nobody replies
 python3 "$SKILL_DIR/outreach.py" manager --file ad.txt   # the hiring manager's title, from the ad
 python3 ../job-tracker/pipeline.py contact-check siobhan-kelly-acme --job acme-junior-data-analyst --today 2026-10-20
 python3 "$SKILL_DIR/emails.py" guess --name "Siobhan Kelly" --domain acme.ie --known "Ciara Doyle ciara.doyle@acme.ie"
@@ -100,8 +100,12 @@ manager found on Google comes before a connection in another department, and
 a connection on the team comes before a stranger on the team. Each comes with
 its first step: a message if already connected, a connection request with a
 short note, or for the hiring manager an email plus a request without a note.
-The report lists the top three per job with why; messages follow the job's
-route, and the person approves each one.
+**Fallback contacts** (`network.py plan`): up to 4 people per job, the best 2
+now (one in recruiting, one on the team), the next 2 only if nobody has
+replied after 3 working days; a different message each; never more than 2 in
+recruiting or 2 on the team in 2 weeks (`contact-check` warns). Field-specific
+rules (banking, consulting, tech, Irish and UK graduate schemes):
+`playbooks.md`.
 
 ### Finding people through Google, and on the person's computer
 
