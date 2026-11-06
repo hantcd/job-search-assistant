@@ -35,7 +35,10 @@ Once it's set up, Claude works on your job search every weekday:
   still open. It works with LinkedIn, Indeed, Welcome to the Jungle,
   Handshake, Jack & Jill and hundreds of company careers sites on Greenhouse,
   Lever and Ashby, and favours
-  jobs posted in the last 24 hours that aren't reposts.
+  jobs posted in the last 24 hours that aren't reposts. Each week it also
+  finds about 10 growing companies most applicants miss (recent funding,
+  fast-growth lists, start-up directories, jobs posted only on their own
+  sites) and searches their jobs too.
 - **Scores each job** the same way every time, against what you said matters
   to you, and alerts you only about the best (at most 5 at a time).
 - **Prepares an application pack** for the top jobs: a CV tailored to the job,
@@ -57,6 +60,10 @@ Once it's set up, Claude works on your job search every weekday:
   verify, or to a recruiter at a company that just turned you down.
 - **Sends messages on your one-click yes** to hiring managers, recruiters
   and possible referrers, follows up once, and stops at the first no.
+- **Grows your network where you want to work**: each weekday morning it
+  queues people at your target companies (alumni and your field first), and
+  in a 2-minute connection session you click Send on each, at most 16 a day
+  so your LinkedIn account stays safe.
 - **Gets you ready for each interview and offer**: a one-page proof pack
   before each round (your three strongest proofs, three honest gaps, likely
   follow-up questions), a quick debrief afterwards that shapes the next
@@ -81,7 +88,7 @@ applications, so it works both routes.
 
 ## How it works
 
-- **Skills**: this repository is a pack of 15 *skills*, instruction sets that
+- **Skills**: this repository is a pack of 17 *skills*, instruction sets that
   teach Claude how to do each part of a job search well (finding jobs, CVs,
   cover letters, messages, interviews and more). You install them in Claude
   in one step.
