@@ -94,11 +94,13 @@ class Hooks(unittest.TestCase):
     def test_no_send(self):
         ns = hook("no_send")
         on = {}
-        self.assertEqual(ns.decide({"tool_name": "mcp__Gmail__send_message"}, on)[0], "deny")
-        self.assertEqual(ns.decide({"tool_name": "mcp__Gmail__forward"}, on)[0], "deny")
-        self.assertEqual(ns.decide({"tool_name": "mcp__claude_ai_Gmail__reply"}, on)[0], "deny")
-        self.assertEqual(ns.decide({"tool_name": "mcp__Outlook__send_email"}, on)[0], "deny")
-        self.assertEqual(ns.decide({"tool_name": "mcp__plugin_x_slack__send_message"}, on)[0], "deny")
+        self.assertEqual(ns.decide({"tool_name": "mcp__Gmail__send_message"}, on)[0], "ask")
+        self.assertEqual(ns.decide({"tool_name": "mcp__Gmail__forward"}, on)[0], "ask")
+        self.assertEqual(ns.decide({"tool_name": "mcp__claude_ai_Gmail__reply"}, on)[0], "ask")
+        self.assertEqual(ns.decide({"tool_name": "mcp__Outlook__send_email"}, on)[0], "ask")
+        self.assertEqual(ns.decide({"tool_name": "mcp__plugin_x_slack__send_message"}, on)[0], "ask")
+        self.assertEqual(ns.decide({"tool_name": "mcp__LinkedIn__send_message"}, on)[0], "deny")
+        self.assertEqual(ns.decide({"tool_name": "mcp__reddit__post_comment"}, on)[0], "deny")
         self.assertIsNone(ns.decide({"tool_name": "mcp__Gmail__create_draft"}, on)[0])
         self.assertIsNone(ns.decide({"tool_name": "mcp__Google_Drive__create_file"}, on)[0])
         self.assertIsNone(ns.decide({"tool_name": "Bash"}, on)[0])
@@ -108,13 +110,13 @@ class Hooks(unittest.TestCase):
         self.assertIsNone(ns.decide({"tool_name": "mcp__Gmail__send_message"},
                                     {"CLAUDE_PLUGIN_OPTION_BLOCK_SENDING": "false"})[0])
 
-    def test_no_send_prints_a_denial(self):
+    def test_no_send_asks_before_email(self):
         out = subprocess.run([sys.executable, os.path.join(ROOT, "hooks", "no_send.py")],
                              input='{"tool_name": "mcp__Gmail__send_message", "tool_input": {}}',
                              capture_output=True, text=True, env={"PATH": os.environ.get("PATH", "")})
         reply = json.loads(out.stdout)["hookSpecificOutput"]
-        self.assertEqual(reply["permissionDecision"], "deny")
-        self.assertIn("draft", reply["permissionDecisionReason"])
+        self.assertEqual(reply["permissionDecision"], "ask")
+        self.assertIn("approve", reply["permissionDecisionReason"])
 
     def test_flag_page(self):
         fp = hook("flag_page")

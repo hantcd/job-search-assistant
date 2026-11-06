@@ -19,7 +19,7 @@ marked * are checked by `pipeline.py validate`.
 | deadline | closing date, for reminders 3 days and 1 day before |
 | role_family | which role family it belongs to |
 | dealbreakers_passed, dealbreaker_notes | pass or fail, and why |
-| career_value*, attainability* | 0-100 (from `job-scout/score.py`) |
+| fit, career_value*, attainability* | 0-100 (from `job-scout/score.py`; Fit is the one the person sees: by default 60% Career Value + 40% Attainability) |
 | score_breakdown | each part's points, rating, support and reason |
 | confidence* | HIGH, MEDIUM or LOW, plus up to 3 checks that could change it |
 | legitimacy* | HIGH CONFIDENCE, PROCEED WITH CAUTION or SUSPICIOUS, with reasons |
@@ -38,19 +38,21 @@ job_id*, pack_made*, base_cv, entries_used, answers [{question, answer}] and
 confirmation (a screenshot or the confirmation email) once submitted, and the
 archive: posting_text (as posting_guard cleaned it), cv_sent and letter_sent
 (the exact files), screening_weights* {search, scan,
-read} totalling 100, timing_call (REFERRAL FIRST, APPLY NOW + REACH OUT,
-APPLY NOW or ASK ME), documents (links), edits (what the person changed),
+read} totalling 100, timing_call (REFERRAL FIRST, APPLY NOW + REACH OUT or
+ALREADY APPLIED, from job-connector's `network.py route`), documents (links), edits (what the person changed),
 submitted*, outcome.
 
 ## contacts
 id* (`name-company`), name, role, company, linkedin, email*, email_confidence*
-(given, published, high, medium, low, unknown), found_how* (a URL when
-'published'), privacy_risk* (LOW, MEDIUM, HIGH), privacy_decision* (the
+(given, published, verified, high, medium, low, unknown), phone (work numbers
+only, with phone_type: office, direct, mobile, unknown), found_how* (a URL when
+'published', or the tool: "Hunter via Orthogonal", "Apollo", "RocketReach"), privacy_risk* (LOW, MEDIUM, HIGH), privacy_decision* (the
 person's choice and date: required for any email they weren't given), senior
 (directors and above wait 10 working days before a follow-up), referred,
 employer_checked* (the date the person opened the profile and saw they still
 work there; empty = UNVERIFIED), in_common (what they share with the person,
-from public results only), do_not_contact (true after a stop request: never
+from public results only), knows_work (true when they know the person or their
+work: makes the route REFERRAL FIRST), tie_strength, do_not_contact (true after a stop request: never
 contacted again), notes.
 
 Before any draft or send to a contact, `pipeline.py contact-check` returns
@@ -63,7 +65,9 @@ contact_id*, job_id*, channel* (email, linkedin, phone, in-person, other),
 status* (drafted, sent, replied, booked, declined, closed), messages* [{date,
 direction: out or in, slot (e.g. 'Tue morning'), text}], draft {text,
 subject}, approval {reply, date, hash} (the person's exact yes),
-stage* (note, thanks, chat, ask, nudge: the referral path), invite_pending (a
+stage* (ask and nudge for a job's route; note, thanks and chat for building
+a network without a job in mind), route (referral_first or apply_now, from
+`network.py route`: sets when the one nudge is due), invite_pending (a
 LinkedIn invitation: no follow-up), suggested_other (a
 second person suggested after 3 working days), next_followup*, booked {when,
 minutes, where}.

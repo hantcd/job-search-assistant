@@ -23,8 +23,8 @@ is sent or submitted without your yes.
 | `job-research` | Company notes: values, the hiring system, interview stages and reports, each labelled, linked and dated |
 | `job-cv` | Achievement bank, master CV, base CVs and tailored CVs in a style preset, weighted for how they'll be read first; truth, keyword and layout checks |
 | `job-cover` | Cover letters and notes in your voice; checks for truth, leftovers and AI tells |
-| `job-apply` | The full application pack for one job, a hiring-manager review pass, and forms filled while you watch |
-| `job-connector` | Referral contacts, the hiring manager and recruiter; email and LinkedIn drafts; privacy checks; send times; your exact yes |
+| `job-apply` | The full application pack for one job, a hiring-manager review pass, and forms filled while you watch and submitted on your approval |
+| `job-connector` | A route per job (referral first or apply now); the hiring manager, recruiter and team; work emails from connected tools; messages sent on your one-click yes; privacy checks; send times |
 | `job-followup` | What's due today, inside stop rules that end a thread at the first no |
 | `job-linkedin` | Your profile pack scored out of 100, posts and comments at your visibility level, and sorting messages you paste |
 | `job-reddit` | Threads where you can genuinely help or someone is hiring, with short honest replies you post yourself |
@@ -54,7 +54,7 @@ them, so the skills fall back to doing the same steps themselves.
 
 | hook | when | what it does |
 |---|---|---|
-| `no_send.py` | before any mail, chat or social tool | refuses send, reply, forward and post (drafts still work); asks before calendar invitations to other people |
+| `no_send.py` | before any mail, chat or social tool | asks you before every send, reply, forward and post (one click to approve), refuses them outright in LinkedIn, Reddit and X; asks before calendar invitations to other people |
 | `check_joblist.py` | after Claude writes `pipeline.json` | checks the job list at once and makes Claude fix any error |
 | `flag_page.py` | after a web page, job ad or email is read | runs the posting check and quotes any hidden instructions, so they're shown to you and never followed |
 
@@ -129,6 +129,7 @@ python3 skills/job-scout/feeds.py live URL                     # Greenhouse, Lev
 python3 skills/job-scout/feeds.py questions GREENHOUSE_URL     # a Greenhouse job's exact application questions
 python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCORING.md
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
+python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
 python3 skills/job-cv/audit.py ad.txt cv.pdf --role "Junior Data Analyst"
 python3 skills/job-cv/skim.py cv.pdf --role "Junior Data Analyst" --ad ad.txt
 python3 skills/job-cv/keywords.py ad.txt cv.tex
@@ -203,11 +204,14 @@ newest.
 
 ## Fine print
 
-- **Nothing goes out without your yes**, for that exact message. Email goes
-  in as a Gmail draft you send. LinkedIn notes and messages are pasted by
-  Claude in your browser while you watch, one person at a time, and you click
-  Send. Forms stop at Submit. Automatic tasks never act in LinkedIn and never
-  send anything. LinkedIn's User Agreement forbids bots and automated
+- **Nothing goes out without your yes**, for that exact item, and each yes
+  is one click. Claude sends an email from your Gmail when you tap Approve
+  for it. On an employer's site Claude fills the form while you watch, shows
+  every answer and declaration in the chat, and presses Submit when you
+  approve that application (you press it yourself where the employer asks AI
+  agents not to apply). LinkedIn notes and messages are pasted by Claude in
+  your browser while you watch, one person at a time, and you click Send.
+  Automatic tasks never act in LinkedIn and never send or submit anything. LinkedIn's User Agreement forbids bots and automated
   activity; keeping every step watched and human-paced is the safeguard, and
   the choice is yours.
 - **Nothing invented.** Only facts from your evidence go into anything in your
@@ -223,10 +227,15 @@ newest.
 - **Blocked pages.** After a 403, one retry with ordinary browser headers, only
   where the site's robots.txt allows it. Never round a login, a CAPTCHA or a
   robots.txt refusal.
-- **Privacy.** Public, professional information only. Before using contact
-  details you weren't given, a LOW, MEDIUM or HIGH privacy label with
-  reasoning, and you decide. Never personal mobiles, personal emails or home
-  details; never data-broker tools.
+- **Privacy.** Work details only, for the hiring manager, the team and
+  referral contacts on a job you're pursuing: from public pages, a checked
+  guess at the address format, or a contact-data tool you connect
+  (Orthogonal with Hunter, Apollo, RocketReach). Each gets its source and a
+  LOW, MEDIUM or HIGH privacy label with reasoning, and you decide. Never
+  personal emails or home details; a mobile or personal number is HIGH risk
+  and used only if you say so; Claude never calls or texts. France's
+  regulator fined Kaspr in 2024 for contact data taken from LinkedIn, so
+  tools built that way are labelled HIGH.
 - **Stop rules.** The first no, two follow-ups, or 21 days of silence ends a
   thread; a request to stop is honoured forever.
 - **No guarantees.** It makes you better prepared and better connected; it

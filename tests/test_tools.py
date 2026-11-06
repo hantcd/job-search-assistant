@@ -155,7 +155,7 @@ class Scout(unittest.TestCase):
 
     def test_exact_scores(self):
         r = self.s.score_all([self.job(4)], self.prefs(), D(2026, 10, 16))[0]
-        self.assertEqual((r["career_value"], r["attainability"], r["confidence"]), (80, 80, "HIGH"))
+        self.assertEqual((r["fit"], r["career_value"], r["attainability"], r["confidence"]), (80, 80, 80, "HIGH"))
         self.assertTrue(r["apply_today"])
 
     def test_unknown_never_neutral(self):
@@ -1232,11 +1232,11 @@ class Release181(unittest.TestCase):
     def test_threshold_drought(self):
         d = {"jobs": [{"company": "C%d" % i, "title": "t", "career_value": 40 + i, "attainability": 60}
                       for i in range(12)]}
-        out = self.fn.thresholds(d, 70, 40)
+        out = self.fn.thresholds(d, 60)
         self.assertEqual(out["alert_worthy"], 0)
         self.assertIn("Your call", out["suggest"])
-        d["jobs"][0]["career_value"] = 75
-        self.assertNotIn("suggest", self.fn.thresholds(d, 70, 40))
+        d["jobs"][0]["career_value"] = 75  # fit 69
+        self.assertNotIn("suggest", self.fn.thresholds(d, 60))
 
     def test_allowed_sites_is_optional(self):
         r = self.u.check(copy.deepcopy(PIPE), None)
@@ -1446,3 +1446,92 @@ class Release1100(unittest.TestCase):
         self.assertEqual((res["faces the gap"], res["no apology"]), ("PASS", "PASS"))
         res = {r[0]: r[1] for r in self.lc.check(base, "Acme", gap="stakeholder management")}
         self.assertEqual(res["faces the gap"], "WARN")
+
+
+class Release200(unittest.TestCase):
+    """Routes, one Fit score, after-applying notes and contact privacy (fictional data)."""
+    n = load("job-connector", "network")
+    o = load("job-connector", "outreach")
+    e = load("job-connector", "emails")
+    s = load("job-scout", "score")
+    fu = load("job-followup", "followup")
+    u = load("job-weekly", "update_check")
+
+    def data(self, **job):
+        j = {"id": "acme-jda", "company": "Acme Ltd", "title": "Junior Data Analyst", "status": "new"}
+        j.update(job)
+        return {"jobs": [j], "contacts": [], "network": [], "applications": []}
+
+    def test_nobody_known_means_apply_now(self):
+        r = self.n.route(self.data(), "acme-jda", D(2026, 11, 6))
+        self.assertEqual(r["route"], "APPLY NOW + REACH OUT")
+        self.assertEqual(r["apply_by"], "2026-11-06")
+        self.assertEqual(r["nudge_on"], "2026-11-13")  # 5 working days
+
+    def test_someone_who_knows_your_work_means_referral_first(self):
+        d = self.data()
+        d["network"].append({"name": "Ciara Doyle", "company": "Acme", "position": "Data Analyst", "tie_strength": "worked together"})
+        d["network"].append({"name": "Stranger", "company": "Acme", "position": "Analyst"})
+        r = self.n.route(d, "acme-jda", D(2026, 11, 6))  # a Friday
+        self.assertEqual(r["route"], "REFERRAL FIRST")
+        self.assertEqual(r["warm"], ["Ciara Doyle"])
+        self.assertEqual(r["apply_by"], "2026-11-10")  # 2 working days, over the weekend
+
+    def test_closing_soon_or_recent_application_overrides(self):
+        d = self.data(deadline="2026-11-09")
+        d["contacts"].append({"name": "Ciara Doyle", "company": "Acme Ltd", "knows_work": True})
+        self.assertEqual(self.n.route(d, "acme-jda", D(2026, 11, 6))["route"], "APPLY NOW + REACH OUT")
+        d = self.data()
+        d["contacts"].append({"name": "Ciara Doyle", "company": "Acme Ltd", "knows_work": True})
+        d["jobs"].append({"id": "acme-old", "company": "Acme Ltd", "title": "Intern"})
+        d["applications"].append({"job_id": "acme-old", "submitted": "2026-08-01"})
+        r = self.n.route(d, "acme-jda", D(2026, 11, 6))
+        self.assertEqual(r["route"], "APPLY NOW + REACH OUT")
+        self.assertIn("may not count", r["why"])
+        d["applications"].append({"job_id": "acme-jda", "submitted": "2026-11-05"})
+        self.assertEqual(self.n.route(d, "acme-jda", D(2026, 11, 6))["route"], "ALREADY APPLIED")
+
+    def test_after_applying_note(self):
+        stock = "Hi Siobhan, I just applied to the XYZ role and wanted to express my sincerest enthusiasm. Thank you in advance!"
+        res = {r[0]: r[1] for r in self.o.check("email", stock, "Thank you! - Junior Data Analyst", "Junior Data Analyst", "applied")}
+        self.assertEqual((res["own words"], res["real result"]), ("WARN", "WARN"))
+        good = ("Hi Siobhan, I applied for the Junior Data Analyst role today (ref JDA-12). At Corrib Bank I built a claims "
+                "dashboard used by 12 managers weekly. Is there anything else that would help the team?")
+        res = self.o.check("email", good, "Applied: Junior Data Analyst / TCD / claims analytics", "Junior Data Analyst", "applied")
+        self.assertFalse([r for r in res if r[1] != "PASS"], res)
+        self.assertEqual(self.o.check("handshake", good, role="Junior Data Analyst", stage="applied")[-1][1], "PASS")
+
+    def test_recruiter_and_post_searches(self):
+        q = [x["query"] for x in self.o.find_queries("Acme", "data analytics", role="Junior Data Analyst",
+                                                      recruiters=True, posts=True)]
+        self.assertTrue(any("talent acquisition" in x for x in q))
+        self.assertTrue(any(x.startswith("site:linkedin.com/posts") and "Junior Data Analyst" in x for x in q))
+
+    def test_contact_privacy_labels(self):
+        self.assertEqual(self.e.PRIVACY["contact-database"][0], "MEDIUM")
+        self.assertEqual(self.e.PRIVACY["mobile"][0], "HIGH")
+        self.assertEqual(self.e.PRIVACY["personal"][0], "REFUSED")
+        code, _, _ = quiet(self.e.main, ["privacy", "--method", "mobile"])
+        self.assertEqual(code, 3)
+
+    def test_one_fit_score(self):
+        prefs = self.s.read_prefs(fixture("prefs.md"))  # old thresholds 70/40
+        self.assertEqual(prefs["thresholds"]["alert_fit"], 60)
+        rows = [{"id": "stripe", "career_value": 75, "attainability": 45},
+                {"id": "capital", "career_value": 43, "attainability": 84},
+                {"id": "twilio", "career_value": 56, "attainability": 73}]
+        keep, _ = self.s.alerts(rows, prefs)
+        self.assertEqual(sorted(r["id"] for r in keep), ["stripe", "twilio"])
+        self.assertEqual(next(r for r in rows if r["id"] == "stripe")["fit"], 63)
+
+    def test_referral_first_nudge_after_two_days(self):
+        o = {"contact_id": "c", "job_id": "j", "channel": "email", "status": "sent", "stage": "ask",
+             "route": "referral_first", "messages": [{"date": "2026-11-06", "direction": "out", "text": "ask"}]}
+        st, why = self.fu.thread_state(o, {"id": "c", "name": "Ciara", "company": "Acme"}, D(2026, 11, 10))
+        self.assertEqual(st, "DUE NOW")
+        self.assertIn("apply now", why)
+
+    def test_one_click_needs_an_ok(self):
+        r = self.u.check(copy.deepcopy(PIPE), None)
+        self.assertIn("2.0.0-one-click", [i["id"] for i in r["ask"]])
+        self.assertIn("2.0.0-one-score", [i["id"] for i in r["do_now"]])

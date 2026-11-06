@@ -3,6 +3,18 @@
 
     python3 network.py match --file jobsearch/pipeline.json [--job <id>] [--top 5] [--write] [--today 2026-11-06]
     python3 network.py rank --file jobsearch/pipeline.json --job <id> [--manager "Head of Sales Development"] [--top 3]
+    python3 network.py route --file jobsearch/pipeline.json --job <id> [--today 2026-11-06]
+
+route: REFERRAL FIRST or APPLY NOW + REACH OUT for one job, with the dates.
+  REFERRAL FIRST  someone who knows the person or their work is at the company (tie_strength
+                  set, or knows_work), the job isn't closing within 5 days, and the person hasn't
+                  applied there in the last 6 months: ask today, apply after at most 2 working
+                  days whatever happens (the referral should go in before the application,
+                  since many systems credit whichever came first), one nudge, then stop.
+  APPLY NOW + REACH OUT  everything else: apply today, then the same day one message each
+                  to the 2-3 people best for the role (rank), one nudge after 5 working days,
+                  then stop. A referral after applying can still help as a word to the recruiter.
+  ALREADY APPLIED  ask the best-placed person for a word with the recruiter, not a referral.
 
 rank: who to contact for one job, from everyone known about it: the person's
 connections there and the people found for it (Google, the company site).
@@ -213,6 +225,76 @@ def rank(data, job_id, manager_titles=(), top=3, today=None):
     return out[:top]
 
 
+WARM = re.compile(r"strong|medium|close|friend|family|worked (?:with|together)|colleague|classmate|manager|know", re.I)
+
+
+def add_working_days(d, n):
+    while n > 0:
+        d += datetime.timedelta(days=1)
+        if d.weekday() < 5:
+            n -= 1
+    return d
+
+
+def knows_them(c):
+    """Someone who knows the person or their work (not just a first-degree connection)."""
+    if c.get("knows_work") is True:
+        return True
+    tie = str(c.get("tie_strength", "")).strip()
+    return bool(tie) and tie.lower() not in ("unknown", "weak", "none", "no") and bool(WARM.search(tie))
+
+
+def route(data, job_id, today=None):
+    today = today or datetime.date.today()
+    job = next((j for j in data.get("jobs", []) if j.get("id") == job_id), None)
+    if job is None:
+        raise ValueError("no job with id %r" % job_id)
+    company = job.get("company")
+    company_of = {j.get("id"): j.get("company") for j in data.get("jobs", [])}
+    apps = [a for a in data.get("applications", []) if a.get("job_id") == job_id
+            or same_company(company, company_of.get(a.get("job_id")) or a.get("company", ""))]
+    if any(a.get("job_id") == job_id and a.get("submitted") for a in apps):
+        return {"route": "ALREADY APPLIED", "why": "you've applied: ask the best-placed person for a word with the recruiter",
+                "ask_on": today.isoformat(), "apply_by": None, "nudge_on": add_working_days(today, 5).isoformat(),
+                "warm": []}
+    warm = []
+    for c in data.get("contacts", []) + data.get("network", []):
+        if isinstance(c, dict) and same_company(company, c.get("company")) and not c.get("do_not_contact") \
+                and knows_them(c):
+            nm = c.get("name")
+            if nm and nm not in warm:
+                warm.append(nm)
+    why = []
+    closes = None
+    try:
+        closes = datetime.date.fromisoformat(str(job.get("deadline"))[:10]) if job.get("deadline") else None
+    except ValueError:
+        pass
+    recent = []
+    for a in apps:
+        try:
+            when = datetime.date.fromisoformat(str(a.get("submitted"))[:10])
+        except (TypeError, ValueError):
+            continue
+        if (today - when).days <= 183:
+            recent.append(a)
+    if not warm:
+        why.append("nobody there knows you or your work yet")
+    if closes and (closes - today).days <= 5:
+        why.append("it closes %s, too soon to wait" % closes.isoformat())
+    if recent:
+        why.append("you applied to %s in the last 6 months, so a referral may not count" % company)
+    if warm and not why:
+        return {"route": "REFERRAL FIRST",
+                "why": "%s know%s you or your work: ask today, apply by the date below whatever happens"
+                       % (", ".join(warm[:3]), "s" if len(warm) == 1 else ""),
+                "ask_on": today.isoformat(), "apply_by": add_working_days(today, 2).isoformat(),
+                "nudge_on": add_working_days(today, 2).isoformat(), "warm": warm}
+    return {"route": "APPLY NOW + REACH OUT", "why": "; ".join(why) or "apply early",
+            "ask_on": today.isoformat(), "apply_by": today.isoformat(),
+            "nudge_on": add_working_days(today, 5).isoformat(), "warm": warm}
+
+
 def summary_line(m):
     if not m["total"]:
         return "People you know: none yet (search for two on the team)"
@@ -232,9 +314,19 @@ def main(argv=None):
     r.add_argument("--job", required=True)
     r.add_argument("--manager", action="append", default=[])
     r.add_argument("--top", type=int, default=3)
+    rt = sub.add_parser("route")
+    rt.add_argument("--job", required=True)
+    rt.add_argument("--today")
+    for q in (r,):
+        q.add_argument("--today")
     a = p.parse_args(argv)
     today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
     data = json.load(open(a.file, encoding="utf-8"))
+    if a.cmd == "route":
+        r = route(data, a.job, today)
+        print("%s: %s" % (r["route"], r["why"]))
+        print("ask %s | apply by %s | one nudge %s, then stop" % (r["ask_on"], r["apply_by"] or "-", r["nudge_on"]))
+        return 0
     if a.cmd == "rank":
         for r in rank(data, a.job, a.manager, a.top, today):
             print("%-26s %-40s %s | %s%s" % ((r["name"] or "")[:26], (r["role"] or "")[:40], r["why"], r["first_step"],

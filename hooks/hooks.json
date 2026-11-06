@@ -1,5 +1,5 @@
 {
-  "description": "Job Search Assistant safeguards: never send for the person, check the job list after every change, run the posting check on everything read. Works with python3, python or py (Windows); if none is found, sending stays blocked.",
+  "description": "Job Search Assistant safeguards: every send waits for the person's one-click yes (never in LinkedIn, Reddit or X), check the job list after every change, run the posting check on everything read. Works with python3, python or py (Windows); if none is found, sending stays blocked.",
   "hooks": {
     "PreToolUse": [
       {

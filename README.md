@@ -1,10 +1,11 @@
 # Job Search Assistant for Claude
 
-Turn Claude into a careful, personal job-search assistant: set it up in one
-60–90 minute sitting, no coding needed. Free and open source.
+Turn Claude into a careful, personal job-search assistant: set it up in
+45–60 minutes, in one sitting or a few, no coding needed. Free and open
+source.
 
-**Claude drafts. You send.** Nothing goes out until you press Send or Submit
-yourself.
+**Nothing goes out without your yes.** Claude shows you each application and
+each message; one click on Approve submits or sends that one item.
 
 **[Read the step-by-step guide](GUIDE.md)** · **[Download the guide as a PDF](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf)** · **[Download the skill pack](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip)**
 
@@ -21,9 +22,9 @@ to paste into any Claude chat, free plan included, no setup.
 >    **Discover** tab. New versions then arrive by themselves. The guide has
 >    pictures of every screen.
 > 4. Open [the guide](GUIDE.md) and follow Steps 2 to 6: two short chats about
->    you, then Claude builds and tests everything.
-> 5. From then on, read the alerts and approve what you like. You press Send
->    and Submit yourself.
+>    you (about 10 minutes each), then Claude builds and tests everything.
+> 5. From then on, read the alerts and tap Approve on what you like: Claude
+>    submits that application or sends that message.
 
 ## What it does
 
@@ -39,20 +40,23 @@ Once it's set up, Claude works on your job search every weekday:
   to you, and alerts you only about the best (at most 5 at a time).
 - **Prepares an application pack** for the top jobs: a CV tailored to the job,
   a cover letter in your own voice, draft answers to the application
-  questions, and people who could refer you. When you ask, it fills in the
-  application on the company's own website while you watch, then stops so
-  you can check it and press Submit.
+  questions, and the people to contact. It fills in the application on the
+  company's own website while you watch, shows you every answer, and submits
+  it when you tap Approve.
 - **Gets you referrals.** Across 38 million applications on Ashby, 40% of
   referred candidates reached an interview, against 3% of people who applied
   alone ([Ashby Talent Trends](https://www.ashbyhq.com/talent-trends-report/reports/referrals);
-  averages, not a promise). Claude finds people on the team through Google,
-  never by going onto LinkedIn, and drafts each step for you to send: a short
-  hello, a thank-you, the referral ask with the job link and an easy way to
-  say no, and one nudge before it stops. It warns you before you write to
-  someone it couldn't verify, or to a recruiter at a company that just
-  turned you down.
-- **Drafts messages** to hiring managers and possible referrers, follows up
-  politely, and stops at the first no.
+  averages, not a promise). Each job gets a route: **referral first** when
+  someone who knows you or your work is there (ask today, apply within 2
+  working days whatever happens), otherwise **apply now and reach out** the
+  same day to the hiring manager, the recruiter and the team. Claude finds
+  them through Google (including LinkedIn posts advertising the role) and
+  Handshake, never by acting on LinkedIn, finds their work email with
+  RocketReach, Apollo or Hunter if you connect one, and writes one message
+  and one nudge each. It warns you before you write to someone it couldn't
+  verify, or to a recruiter at a company that just turned you down.
+- **Sends messages on your one-click yes** to hiring managers, recruiters
+  and possible referrers, follows up once, and stops at the first no.
 - **Gets you ready for each interview and offer**: a one-page proof pack
   before each round (your three strongest proofs, three honest gaps, likely
   follow-up questions), a quick debrief afterwards that shapes the next
@@ -97,8 +101,8 @@ applications, so it works both routes.
 ### What it never does
 
 - **Never sends, submits or posts anything without your yes** for that exact
-  item. Emails are saved as drafts for you to send; you press Submit on every
-  application.
+  item: one click on Approve each time. In LinkedIn and Handshake you press
+  Send yourself, and automatic tasks only prepare.
 - **Never invents anything.** Only facts from your own documents, or that you
   confirm, go into your CV, letters and answers.
 - **Never types your passwords**, and never acts in LinkedIn, Reddit or X when
@@ -110,14 +114,15 @@ applications, so it works both routes.
 
 - A **Claude Pro or Max** plan, used on a computer (the website or the desktop
   app). Your phone works later, for alerts.
-- **60–90 minutes** in one sitting.
+- **45–60 minutes**, in one sitting or a few. Or [try it in 10 minutes](QUICKSTART.md) first.
 - **One folder of documents**: your CVs (old ones too), your LinkedIn data
   export, transcripts or course lists, certificates, links to your work, past
   cover letters, and 3–5 things you wrote yourself so Claude learns your style.
   Messy is fine. The [guide](GUIDE.md) lists everything, including how to get
   your LinkedIn export the day before.
 - Optional: **Gmail** connected to Claude, so it can read job alerts, notice
-  replies and save drafts for you.
+  replies and send the emails you approve; a contact-data tool (RocketReach,
+  Apollo, or Hunter through Orthogonal) for work emails.
 
 It works for any kind of job, not just tech or sales. The guide's examples
 are from Ireland; the setup asks where you are and adjusts.
@@ -136,11 +141,11 @@ paste into Claude and a checklist after each one. In short:
    with the button to press marked. *(About 10 minutes.)*
 2. **Chat 1: Claude reads your documents.** Add your folder to the project and paste the
    guide's first prompt. Claude drafts your profile, your evidence and your
-   writing style; you confirm or correct its guesses, mostly by clicking.
-   *(About 20 minutes.)*
+   writing style; you confirm only the key facts and numbers, and it asks
+   the rest later when it first matters. *(About 10 minutes.)*
 3. **Chat 2: your goals, scoring and plan.** Claude suggests the kinds of jobs
    to target, how to score them and how often to search; you approve the
-   plan. *(15–20 minutes.)*
+   plan. *(About 10 minutes.)*
 4. **Ask Claude to build it.** Paste the guide's build prompt. Claude writes
    the project's rules, your CVs, your LinkedIn profile text, the job list and
    the automatic tasks, then tests them. *(Claude works; you wait.)*
@@ -149,8 +154,7 @@ paste into Claude and a checklist after each one. In short:
    LinkedIn. *(10–15 minutes.)*
 6. **Spot-check and switch on.** Run the daily search once, open three of the
    jobs it found, and check one application pack. *(10–15 minutes.)*
-7. **Everyday use.** Read the alerts, approve what you like, press Send and
-   Submit yourself.
+7. **Everyday use.** Read the alerts and tap Approve on what you like.
 8. **Add extras later** from the guide's list, whenever you want them.
 
 Stuck? The guide's **If something goes wrong** section has a fix for the
@@ -174,9 +178,10 @@ usage.
 about you stay in your own Claude project. Nothing about you goes into this
 repository.
 
-**Will it apply for jobs for me?** No. It prepares everything and can fill in
-the company's own application form while you watch, but you check every
-application and press Submit yourself.
+**Will it apply for jobs for me?** Only with your yes for each one. It fills
+in the company's own application form while you watch, shows you every answer
+and declaration, and submits when you tap Approve. If the employer asks AI
+agents not to apply, you press Submit yourself.
 
 **Which job sites does it use?** Company careers sites first, plus LinkedIn,
 Indeed, Welcome to the Jungle, Handshake, Jack & Jill, specialist boards and
@@ -185,8 +190,9 @@ those it reads the job alert emails you set up, and you can choose during
 setup to let it read their job pages too. It never logs in to any of them for
 you.
 
-**Will it message people on LinkedIn by itself?** No. It drafts each message;
-you approve it, and you click Send, one person at a time.
+**Will it message people on LinkedIn by itself?** No. It pastes each approved
+message while you watch, and you click Send, one person at a time. Emails go
+from your Gmail when you tap Approve.
 
 **Can I change things later?** Yes. Tell Claude in plain words (for example
 *"stop showing me jobs that need German"*) and it updates your plan. Your
@@ -209,7 +215,7 @@ is installed, the skills use it where it helps.
 
 The skills include tested Python scripts that enforce the rules that must
 never slip (truth checks, stop rules, the posting check), read-only reviewer
-agents and hooks that block sending in Cowork and Claude Code, and evals.
+agents and hooks that ask before every send in Cowork and Claude Code, and evals.
 See **[TECHNICAL.md](TECHNICAL.md)** for the skill list, scripts, tests,
 Claude Code install and credits, and **[CHANGELOG.md](CHANGELOG.md)** for
 what changed in each version.

@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "1.10.0"
+PACK_VERSION = "2.0.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -143,7 +143,7 @@ MIGRATIONS = [
               "new field (what transfers, bridge roles, the quickest proof for each gap)",
      "needs": "",
      "steps": "Mention both in the report with how to start: 'Build my portfolio' and 'Plan a switch to <role>'. "
-              "Nothing else changes until Han asks."},
+              "Nothing else changes until the person asks."},
     {"id": "1.9.1-graduate-sites", "version": "1.9.1",
      "title": "Graduate job sites: Milkround, Graduate Recruitment Bureau, Higherin",
      "helps": "more graduate and entry-level jobs in the UK, plus student reviews of employers on Higherin",
@@ -152,6 +152,42 @@ MIGRATIONS = [
      "when": lambda d: True,
      "steps": "Give the saved searches per site from PREFERENCES_AND_SCORING.md's role families; once set up, add "
               "the three to MASTER_PLAN.md's email-alert sources."},
+    {"id": "2.0.0-one-click", "version": "2.0.0",
+     "title": "Apply and send with one click",
+     "helps": "Claude fills the application on the company's site while you watch, shows every answer and "
+              "declaration, and submits when you tap Approve; emails go from your Gmail the same way. In LinkedIn and "
+              "Handshake you still press Send, and automatic tasks still only prepare",
+     "needs": "your OK, once (a few seconds): it changes what Claude may do for you",
+     "steps": "Record in MASTER_PLAN.md (new version, CHANGELOG line): applications are submitted and emails sent "
+              "only after the person approves that one item; never where the employer asks AI agents not to apply, "
+              "never in automatic tasks. Declined: keep drafts and the person presses Submit and Send."},
+    {"id": "2.0.0-one-score", "version": "2.0.0",
+     "title": "One Fit score instead of two",
+     "helps": "one number per job (60% Career Value, 40% Attainability) and more good jobs reaching you: on a "
+              "15-job test list, 4 passed instead of 1",
+     "needs": "",
+     "steps": "Add \"fit\": {\"career_value\": 60, \"attainability\": 40} and thresholds alert_fit 60 and pack_fit "
+              "62 to PREFERENCES_AND_SCORING.md's JSON block (if the old thresholds weren't 70 and 40, alert_fit is "
+              "score.py's conversion of them); add fit to every scored job in the job list; say in the report which "
+              "jobs now pass, and that 'use my old thresholds' undoes it."},
+    {"id": "2.0.0-routes", "version": "2.0.0",
+     "title": "A route for every job: referral first, or apply now and reach out",
+     "helps": "no more waiting up to 5 days for referrals: a referral first only where someone who knows you or "
+              "your work is there (then 2 working days at most); otherwise apply today and message the hiring "
+              "manager, the recruiter and the team the same day; one message and one nudge each",
+     "needs": "",
+     "steps": "Run network.py route for every open job and save it as the job's route; in the report, ask which "
+              "connections know the person or their work (knows_work) only where it would change a route."},
+    {"id": "2.0.0-contact-data", "version": "2.0.0",
+     "title": "Work emails (and phone numbers, if you want them) for the people on each job",
+     "helps": "an email alongside each LinkedIn note: people who got both replied more often than to either alone "
+              "(recruiter data, 2025-26); Handshake's recruiter lists as another source of names",
+     "needs": "about 5 minutes: connect RocketReach or Apollo (Customize > Connectors), or Orthogonal for Hunter "
+              "(pay per search, about $0.01); choose whether to look up work phone numbers (often personal mobiles, "
+              "HIGH privacy risk) and whether Claude may read Handshake recruiter lists with you present",
+     "when": lambda d: True,
+     "steps": "Record the tool, phone numbers on or off, Handshake recruiter pages on or off, and the weekly lookup "
+              "limit (default 20) in MASTER_PLAN.md."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

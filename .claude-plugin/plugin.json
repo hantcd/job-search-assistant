@@ -1,8 +1,8 @@
 {
   "name": "job-search-assistant",
   "displayName": "Job Search Assistant",
-  "description": "17 Claude skills for a careful, personal job search: find and score jobs, true tailored CVs and letters, a portfolio site, career switches, outreach with privacy checks and stop rules, follow-ups, interviews and offers. Plus read-only reviewer agents and hooks that stop Claude sending anything.",
-  "version": "1.10.0",
+  "description": "17 Claude skills for a careful, personal job search: find and score jobs, true tailored CVs and letters, a portfolio site, career switches, a route per job (referral first or apply now), outreach with privacy checks and stop rules, follow-ups, interviews and offers. Claude submits and sends only on your one-click approval for each item. Plus read-only reviewer agents and hooks that ask before every send.",
+  "version": "2.0.0",
   "author": {
     "name": "Job Search Assistant authors"
   },
@@ -23,8 +23,8 @@
   "userConfig": {
     "block_sending": {
       "type": "boolean",
-      "title": "Block sending",
-      "description": "Stop Claude sending, replying, forwarding or posting from your mail, chat and social apps in every session while this plugin is on (drafts still work). Turn off only if you need Claude to send for other work.",
+      "title": "Ask before sending",
+      "description": "Ask you before Claude sends, replies, forwards or posts from your mail and chat apps in any session while this plugin is on (one click to approve), and never in LinkedIn, Reddit or X. Turn off only if you don't want to be asked for other work.",
       "default": true
     }
   },

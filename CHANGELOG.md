@@ -3,6 +3,43 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.0.0 (2026-11-06)
+Behaviour changes, each from the person's choices after a research pass on
+referral timing and contact routes:
+- **One click to apply or send.** job-apply fills the form while the person
+  watches, shows every answer and declaration in an approval card, and
+  submits on Approve (never where the employer asks AI agents not to apply,
+  never in automatic tasks, never at a login, CAPTCHA or payment). Emails go
+  from Gmail on Approve. The `no_send` hook now asks before every send (one
+  click) and refuses only in LinkedIn, Handshake, Reddit and X, where the
+  person clicks Send. The consent rules in every skill say so. An optional
+  update asks for the person's OK first.
+- **A route per job** (`network.py route`): REFERRAL FIRST only when someone
+  who knows the person or their work is there, the job isn't closing within
+  5 days and there's no application there in 6 months (ask today, apply
+  after at most 2 working days); otherwise APPLY NOW + REACH OUT the same
+  day; ALREADY APPLIED asks for a word with the recruiter. Referral messages
+  drop from five steps to the ask and one nudge (`followup.py` times the
+  nudge by route).
+- **Recruiters and the hiring team after applying**: an after-applying note
+  (`outreach.py check --stage applied`: says you applied, names the role, a
+  real result, no stock enthusiasm); names from LinkedIn posts that
+  advertised the role and recruiter searches (`outreach.py find --posts
+  --recruiters`, read on Google only) and Handshake's recruiter lists (with
+  the person present, opt-in); Handshake messages work like LinkedIn.
+- **Work emails and phone numbers**: RocketReach, Apollo or Hunter through
+  Orthogonal when connected, each with its source and a privacy label
+  (`emails.py privacy`: contact-database and work-phone MEDIUM, mobile HIGH
+  and only if the person turns phones on); never personal emails or home
+  details; Claude never calls or texts. Search and timing detail moved to
+  job-connector's `finding-people.md`.
+- **One Fit score** (`score.py`): 60% Career Value + 40% Attainability,
+  alerts at Fit 60 (old 70/40 thresholds convert to 60); `funnel.py
+  thresholds --fit`.
+- **Lighter setup**: chats 1 and 2 ask only the essentials (about 10
+  minutes each) and the rest when it first matters; setup is 45-60 minutes.
+- Fixed: an update note named a real person; it now says "the person".
+
 ## 1.10.0 (2026-11-06)
 - job-cv: `audit.py`, a quick job audit for any ad: a match score out of 100
   (must-haves count double, nice-to-haves half, "X or Y" needs one), the top

@@ -6,17 +6,21 @@
 
 Candidates come from common work-email patterns, and much more confidently from
 the pattern of an address you already know at the same company. Every result
-is a GUESS until you find it published on a public page. This tool never
-contacts a mail server to test an address, and never looks up personal email
-addresses, mobile numbers or home details.
+is a GUESS until you find it published on a public page or a connected tool
+(Hunter's verifier, through Orthogonal) marks it verified. This tool never
+contacts a mail server itself, and personal email addresses and home details
+are never looked up.
 
 Privacy labels (the default reasoning; Claude adjusts for the case and you decide):
   given                  you were given it                                   no label needed
   published-work-page    on the company site, a press release, a speaker page LOW
   company-pattern        the company's usual format applied to a public name   MEDIUM
-  lookup-tool            a tool such as Hunter.io run by you                   MEDIUM
-  data-broker            enrichment extensions or bought lists (Apollo, Lusha, Kaspr)  HIGH: not used
-  personal               personal email, mobile or home details               refused
+  lookup-tool            Hunter (email finder and verifier, via Orthogonal)    MEDIUM
+  contact-database       Apollo or RocketReach (a work email)                  MEDIUM
+  work-phone             an office or direct work line                         MEDIUM
+  mobile                 a mobile or personal number from any source           HIGH: only if you say so
+  data-broker            LinkedIn-scraping extensions or bought lists (Lusha, Kaspr)  HIGH: not used
+  personal               personal email or home details                        refused
 
 Pattern idea adapted from hunter-skill (MIT, Jake Schincariol).
 """
@@ -35,9 +39,12 @@ PRIVACY = {
     "given": ("GIVEN", "You gave this address."),
     "published-work-page": ("LOW", "Published by the person or employer for work contact; one relevant, one-to-one message fits that purpose."),
     "company-pattern": ("MEDIUM", "A guess from the company's format: work-related and one-to-one, but the person didn't publish it. Safer: LinkedIn, a mutual contact, or the company's general address."),
-    "lookup-tool": ("MEDIUM", "A third-party tool inferred it from public pages; check its source, keep it to one relevant message, and stop if asked."),
-    "data-broker": ("HIGH", "Enrichment tools that harvest contact data break LinkedIn's rules, and France's regulator fined one (Kaspr) EUR 240,000 in 2024. Not used."),
-    "personal": ("REFUSED", "Personal email, mobile or home details are never looked up."),
+    "lookup-tool": ("MEDIUM", "A third-party tool inferred it from public pages and lists them; check its source, keep it to one relevant message, and stop if asked."),
+    "contact-database": ("MEDIUM", "A work contact database: work-related and one-to-one, but the person didn't give it to you, and some of these databases were built partly from LinkedIn. One relevant message, say where you found it if asked, stop if asked. Safer: a published address or LinkedIn."),
+    "work-phone": ("MEDIUM", "A work line: fine for one short, relevant call you make yourself in working hours; email or LinkedIn first. Claude never calls or texts."),
+    "mobile": ("HIGH", "A mobile or personal number reaches someone outside work, and the person didn't give it to you. Used only if you decide to; never texted or called by Claude, never before an email or LinkedIn message."),
+    "data-broker": ("HIGH", "Browser extensions that harvest contact data from LinkedIn break LinkedIn's rules, and France's regulator fined one (Kaspr) EUR 240,000 in 2024. Not used."),
+    "personal": ("REFUSED", "Personal email addresses and home details are never looked up."),
 }
 
 
@@ -97,7 +104,7 @@ def main(argv=None):
     if a.cmd == "privacy":
         level, why = PRIVACY[a.method]
         print(json.dumps({"method": a.method, "risk": level, "reasoning": why}, indent=1))
-        return 3 if level in ("HIGH", "REFUSED") else 0
+        return 3 if level in ("HIGH", "REFUSED") else 0  # HIGH: the person decides; REFUSED: never
     try:
         rows, learned = guess(a.name, a.domain, a.known)
     except ValueError as e:

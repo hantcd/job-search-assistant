@@ -7,6 +7,8 @@
     python3 outreach.py approve --file draft.txt --reply "yes"
     python3 outreach.py check --channel linkedin --stage ask --file ask.txt   # the referral ask
     python3 outreach.py find --company "Acme" --team "data analytics" [--school "Trinity College Dublin"] [--city Dublin]
+    python3 outreach.py find --company "Acme" --team "data analytics" --role "Junior Data Analyst" --recruiters --posts
+    python3 outreach.py check --channel email --stage applied --file note.txt --subject "Applied: Junior Data Analyst / TCD / data" --role "Junior Data Analyst"
     python3 outreach.py manager --file ad.txt          # the hiring manager's title, from 'reports to ...' lines
 
 check: emails under 75 words, a subject naming the role, no attachment in a first
@@ -18,9 +20,16 @@ and letter are attached, the subject names the role (and the reference, with
 --ref), under 150 words, and no 'one question' rule. With
 --stage ask (the referral ask): the job link, an easy way to say no, and at
 most 3 'why I fit' lines. With --stage nudge: under 40 words, no new ask.
+With --stage applied (a note to the recruiter or hiring team after applying,
+by email, LinkedIn or Handshake): says the person applied and names the role,
+one real result with a number, under 100 words for email, and no stock
+enthusiasm ("sincerest enthusiasm", "incredible fit", "thank you in advance").
 
 find: Google searches for people on the team, built from the company, the team
-or job title and what the person shares with them (school, city). Each query
+or job title and what the person shares with them (school, city). With
+--recruiters, the company's recruiters for that team; with --posts (and
+--role), LinkedIn posts where someone at the company advertised the role:
+whoever posted it is usually the hiring manager or recruiter. Each query
 also comes as a Google link. Results are read on Google's own page only:
 Claude never opens or clicks anything on linkedin.com, and each name stays
 UNVERIFIED until the person opens the profile and checks they still work there.
@@ -61,6 +70,8 @@ FLATTERY = re.compile(r"\byour (?:recent )?(?:post|article|talk|podcast|video|ne
 EASY_OUT = re.compile(r"rather not|no problem|either way|no worries|totally understand|completely understand|"
                       r"no pressure|if (?:it's|that's) not possible|if you can't", re.I)
 URL = re.compile(r"https?://\S+")
+STOCK_KEEN = re.compile(r"sincerest enthusiasm|express my (?:sincere |sincerest )?(?:enthusiasm|interest)|incredible fit|"
+                        r"perfect fit|thank you in advance|very interested in the work|passionate about|dream (?:job|role)", re.I)
 
 
 def check(channel, text, subject="", role="", stage="", ref=""):
@@ -70,6 +81,26 @@ def check(channel, text, subject="", role="", stage="", ref=""):
         res.append((name, status, detail))
 
     words = len(re.findall(r"[A-Za-z0-9'’-]+", text))
+    if stage == "applied":
+        add("says you applied", "PASS" if re.search(r"\bappl(?:ied|ication)\b", text, re.I) else "FAIL",
+            "say you've applied (and the reference if there is one)")
+        rw = [w for w in re.findall(r"[A-Za-z]+", role) if len(w) > 2]
+        if rw:
+            hay = (subject + " " + text).lower()
+            add("role named", "PASS" if all(w.lower() in hay for w in rw) else "FAIL", role)
+        add("real result", "PASS" if re.search(r"\d", text) else "WARN", "one true result with a number, from EVIDENCE.md")
+        if channel == "email":
+            add("length", "PASS" if words < 100 else "WARN", "%d words (under 100)" % words)
+            add("subject", "PASS" if subject else "FAIL", subject or "e.g. 'Applied: <role> / <school> / <field>'")
+        else:
+            n = len(sentences(text))
+            add("length", "PASS" if 2 <= n <= 4 else "WARN", "%d sentences (2-4)" % n)
+        m = STOCK_KEEN.search(text)
+        add("own words", "WARN" if m else "PASS", ("stock phrase: %r; say something specific instead" % m.group(0)) if m else "none")
+        m = FLATTERY.search(text)
+        if m:
+            add("true?", "WARN", "mentions %r: check it's true before sending" % m.group(0))
+        return res
     if channel == "email" and stage == "application":
         add("length", "PASS" if words < 150 else "WARN", "%d words (under 150 for an application email)" % words)
         rw = [w for w in re.findall(r"[A-Za-z]+", role) if len(w) > 2]
@@ -88,7 +119,7 @@ def check(channel, text, subject="", role="", stage="", ref=""):
             add("subject", "PASS" if ok else "WARN", subject)
         att = re.search(r"\battach(ed|ment)?\b|\bplease find\b", text, re.I)
         add("no attachment", "WARN" if att else "PASS", "no CV attached in a first email" if att else "none")
-    elif channel == "linkedin":
+    elif channel in ("linkedin", "handshake"):
         n = len(sentences(text))
         add("length", "PASS" if 2 <= n <= 4 else "WARN", "%d sentences (2-4), %d characters" % (n, len(text)))
     elif channel == "note":
@@ -140,9 +171,12 @@ def manager_titles(ad):
     return out
 
 
-def find_queries(company, team, school="", city=""):
+def find_queries(company, team, school="", city="", role="", recruiters=False, posts=False):
     """Google searches for people on a team. Read on Google's page only; never open linkedin.com."""
     from urllib.parse import quote_plus
+
+    def item(why, q):
+        return {"shared": why, "query": q, "google": "https://www.google.com/search?hl=en&q=" + quote_plus(q)}
     base = 'site:linkedin.com/in "%s" "%s"' % (company, team)
     variants = [("school", school), ("city", city)] if (school or city) else [("team", "")]
     out = []
@@ -150,8 +184,15 @@ def find_queries(company, team, school="", city=""):
         if why != "team" and not extra:
             continue
         q = base + (' "%s"' % extra if extra else "")
-        out.append({"shared": why if extra else "none", "query": q,
-                    "google": "https://www.google.com/search?hl=en&q=" + quote_plus(q)})
+        out.append(item(why if extra else "none", q))
+    if recruiters:
+        out.append(item("recruiters", 'site:linkedin.com/in "%s" ("recruiter" OR "talent acquisition" OR "talent partner") "%s"'
+                        % (company, team)))
+    if posts:
+        what = role or team
+        out.append(item("posted the role", 'site:linkedin.com/posts "%s" "hiring" "%s"' % (company, what)))
+        out.append(item("posted the role", 'site:linkedin.com/posts "%s" ("join my team" OR "join our team") "%s"'
+                        % (company, what)))
     return out
 
 
@@ -212,11 +253,11 @@ def main(argv=None):
     p = argparse.ArgumentParser(description="Check, time and approve outreach drafts. Sends nothing.")
     sub = p.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check")
-    c.add_argument("--channel", choices=("email", "linkedin", "note"), required=True)
+    c.add_argument("--channel", choices=("email", "linkedin", "handshake", "note"), required=True)
     c.add_argument("--file", required=True)
     c.add_argument("--subject", default="")
     c.add_argument("--role", default="")
-    c.add_argument("--stage", choices=("note", "thanks", "chat", "ask", "nudge", "application"), default="")
+    c.add_argument("--stage", choices=("note", "thanks", "chat", "ask", "nudge", "application", "applied"), default="")
     c.add_argument("--ref", default="", help="the posting's reference number, for application emails")
     mg = sub.add_parser("manager")
     mg.add_argument("--file", required=True)
@@ -225,6 +266,9 @@ def main(argv=None):
     f.add_argument("--team", required=True, help="the team or job title")
     f.add_argument("--school", default="")
     f.add_argument("--city", default="")
+    f.add_argument("--role", default="", help="the job title, for --posts")
+    f.add_argument("--recruiters", action="store_true", help="also search for the team's recruiters")
+    f.add_argument("--posts", action="store_true", help="also search for LinkedIn posts advertising the role")
     s = sub.add_parser("slots")
     s.add_argument("--start", help="today's date, YYYY-MM-DD")
     s.add_argument("--senior", action="store_true", help="directors and above: wait 10 working days")
@@ -245,7 +289,7 @@ def main(argv=None):
                          indent=1))
         return 0
     if a.cmd == "find":
-        print(json.dumps(find_queries(a.company, a.team, a.school, a.city), indent=1))
+        print(json.dumps(find_queries(a.company, a.team, a.school, a.city, a.role, a.recruiters, a.posts), indent=1))
         print("Read the results on Google's page only. Never open or click anything on linkedin.com. "
               "Each name is UNVERIFIED until the person opens the profile.", file=sys.stderr)
         return 0

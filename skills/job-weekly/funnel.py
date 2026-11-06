@@ -2,7 +2,7 @@
 """What's working: funnels from the job list snapshot, with counts, small-number warnings and a diagnosis.
 
     python3 funnel.py report --file jobsearch/pipeline.json [--json]
-    python3 funnel.py thresholds --file jobsearch/pipeline.json --cv 70 --att 40
+    python3 funnel.py thresholds --file jobsearch/pipeline.json --fit 60
 
 thresholds: how the scored jobs sit against the alert thresholds. With 10+
 scored jobs and none alert-worthy, it suggests a recalibration for the person
@@ -132,21 +132,27 @@ def report(data):
     }
 
 
-def thresholds(data, cv, att):
-    scored = [j for j in data.get("jobs", []) if isinstance(j.get("career_value"), (int, float))
-              and isinstance(j.get("attainability"), (int, float))]
-    above = [j for j in scored if j["career_value"] >= cv and j["attainability"] >= att]
-    top = sorted(scored, key=lambda j: -j["career_value"])[:5]
+def fit_of(j, weights=(60, 40)):
+    if isinstance(j.get("fit"), (int, float)):
+        return j["fit"]
+    if isinstance(j.get("career_value"), (int, float)) and isinstance(j.get("attainability"), (int, float)):
+        return int(round((j["career_value"] * weights[0] + j["attainability"] * weights[1]) / 100.0))
+    return None
+
+
+def thresholds(data, fit_min=60, weights=(60, 40)):
+    scored = [(j, fit_of(j, weights)) for j in data.get("jobs", [])]
+    scored = [(j, f) for j, f in scored if f is not None]
+    above = [j for j, f in scored if f >= fit_min]
+    top = sorted(scored, key=lambda x: -x[1])[:5]
     out = {"scored": len(scored), "alert_worthy": len(above),
-           "top": [(j.get("company"), j.get("title"), j["career_value"], j["attainability"]) for j in top]}
+           "top": [(j.get("company"), j.get("title"), f) for j, f in top]}
     if len(scored) >= 10 and not above:
-        best = top[0]["career_value"]
-        cvs = sorted(j["career_value"] for j in scored)
-        p90 = cvs[int(0.9 * (len(cvs) - 1))]
-        out["suggest"] = ("No job has reached the alert thresholds in %d scored (best Career Value %s; 90th "
-                          "percentile %s; threshold %s). Optional: review what drags Career Value down (the "
-                          "weights, the targets, or the companies watched), or lower the threshold. Your call."
-                          % (len(scored), best, p90, cv))
+        fits = sorted(f for _, f in scored)
+        p90 = fits[int(0.9 * (len(fits) - 1))]
+        out["suggest"] = ("No job has reached the alert threshold in %d scored (best Fit %s; 90th percentile %s; "
+                          "threshold %s). Optional: review what drags Fit down (the weights, the targets, or the "
+                          "companies watched), or lower the threshold. Your call." % (len(scored), top[0][1], p90, fit_min))
     return out
 
 
@@ -157,11 +163,10 @@ def main(argv=None):
     r = sub.add_parser("report")
     r.add_argument("--json", action="store_true")
     t = sub.add_parser("thresholds")
-    t.add_argument("--cv", type=int, required=True)
-    t.add_argument("--att", type=int, required=True)
+    t.add_argument("--fit", type=int, default=60, help="the alert threshold for Fit")
     a = p.parse_args(argv)
     if a.cmd == "thresholds":
-        out = thresholds(json.load(open(a.file, encoding="utf-8")), a.cv, a.att)
+        out = thresholds(json.load(open(a.file, encoding="utf-8")), a.fit)
         print(json.dumps(out, indent=1, ensure_ascii=False))
         return 0
     rep = report(json.load(open(a.file, encoding="utf-8")))

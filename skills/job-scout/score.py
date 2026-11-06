@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Score jobs the same way every time: Career Value, Attainability, confidence and legitimacy.
+"""Score jobs the same way every time: one Fit score (from Career Value and Attainability), confidence and legitimacy.
 
 Claude reads each ad and rates every part of your scoring (0-5, with a reason
 and how well the ad supports it). This script does the arithmetic, so the same
@@ -18,7 +18,12 @@ ratings.json: a list of
    "attainability": {"<part>": {...}},
    "signals": {...}}            # optional, for the legitimacy rating (see legitimacy below)
 
-Rules: weights total 100 in each score; Career Value never goes down because a
+Fit: the one score the person sees, out of 100: by default 60% Career Value
+(how good the job is for them) and 40% Attainability (how likely they are to
+get it), set in prefs "fit". Alerts and packs use Fit; the two parts stay in
+the breakdown to explain it.
+
+Rules: weights total 100 in each part; Career Value never goes down because a
 job is hard (that's Attainability's job); missing evidence never counts as
 neutral, so an 'unknown' part scores at most 2 of 5; jobs under 48 hours old
 are flagged APPLY TODAY and rank first among similar scores (within 5 points).
@@ -38,7 +43,8 @@ EXAMPLE_PREFS = {
                                  "stability": 10, "prestige": 10}},
     "attainability": {"weights": {"must_haves_met": 40, "level_fit": 25, "eligibility": 15,
                                   "connection": 10, "competition": 10}},
-    "thresholds": {"alert_career_value": 70, "alert_attainability": 40, "pack_career_value": 75},
+    "fit": {"career_value": 60, "attainability": 40},
+    "thresholds": {"alert_fit": 60, "pack_fit": 62},
     "max_alerts": 5,
     "packs_per_alert": 2,
 }
@@ -64,7 +70,26 @@ def read_prefs(path):
             raise ScoreError("prefs need %s.weights" % key)
         if sum(w.values()) != 100:
             raise ScoreError("%s weights total %d, not 100" % (key, sum(w.values())))
+    f = prefs.setdefault("fit", {"career_value": 60, "attainability": 40})
+    if f.get("career_value", 0) + f.get("attainability", 0) != 100:
+        raise ScoreError("fit weights total %d, not 100" % (f.get("career_value", 0) + f.get("attainability", 0)))
+    t = prefs.setdefault("thresholds", {})
+    if "alert_fit" not in t:
+        t["alert_fit"] = convert_threshold(t, f)
+        t.setdefault("pack_fit", t["alert_fit"] + 2)
     return prefs
+
+
+def fit_of(cv, att, f):
+    return int(round((cv * f.get("career_value", 60) + att * f.get("attainability", 40)) / 100.0))
+
+
+def convert_threshold(t, f):
+    """Older plans set two thresholds; the default pair (70, 40) becomes Fit 60, others are combined."""
+    cv, att = t.get("alert_career_value", 70), t.get("alert_attainability", 40)
+    if (cv, att) == (70, 40):
+        return 60
+    return fit_of(cv, att, f)
 
 
 def part_score(weights, parts, label):
@@ -161,7 +186,8 @@ def score_all(jobs, prefs, today):
         att, att_b, n2 = part_score(watt, job.get("attainability", {}), "attainability")
         level, checks = confidence(wcv, watt, job)
         age = age_days(job.get("posted"), today)
-        row = {"id": job.get("id"), "career_value": cv, "attainability": att, "confidence": level,
+        row = {"id": job.get("id"), "fit": fit_of(cv, att, prefs.get("fit", {})),
+               "career_value": cv, "attainability": att, "confidence": level,
                "checks": checks, "apply_today": age is not None and 0 <= age < 2,
                "age_days": age, "score_breakdown": {"career_value": cv_b, "attainability": att_b},
                "notes": n1 + n2}
@@ -173,34 +199,40 @@ def score_all(jobs, prefs, today):
     return rank(out)
 
 
+def key(r):
+    return r.get("fit", r.get("career_value", 0))
+
+
 def rank(rows):
-    """Highest Career Value first; among scores within 5 points, fresher first."""
-    rows = sorted(rows, key=lambda r: -r["career_value"])
+    """Highest Fit first; among scores within 5 points, fresher first."""
+    rows = sorted(rows, key=lambda r: -key(r))
     ranked = []
     while rows:
-        top = rows[0]["career_value"]
-        band = [r for r in rows if top - r["career_value"] <= 5]
-        rows = [r for r in rows if top - r["career_value"] > 5]
-        band.sort(key=lambda r: (not r["apply_today"], r["age_days"] if r["age_days"] is not None else 9999,
-                                 -r["career_value"]))
+        top = key(rows[0])
+        band = [r for r in rows if top - key(r) <= 5]
+        rows = [r for r in rows if top - key(r) > 5]
+        band.sort(key=lambda r: (not r.get("apply_today"), r.get("age_days") if r.get("age_days") is not None else 9999,
+                                 -key(r)))
         ranked.extend(band)
     return ranked
 
 
 def alerts(scored, prefs):
     t = prefs.get("thresholds", {})
-    cv_min = t.get("alert_career_value", 70)
-    att_min = t.get("alert_attainability", 0)
-    keep = [r for r in scored if r["career_value"] >= cv_min and r["attainability"] >= att_min
+    f = prefs.get("fit", {"career_value": 60, "attainability": 40})
+    fit_min = t["alert_fit"] if "alert_fit" in t else convert_threshold(t, f)
+    for r in scored:
+        r.setdefault("fit", fit_of(r["career_value"], r["attainability"], f))
+    keep = [r for r in scored if r["fit"] >= fit_min
             and r.get("legitimacy") != "SUSPICIOUS" and not r.get("alerted")]
     keep = rank(keep)[: prefs.get("max_alerts", 5)]
-    pack_min = t.get("pack_career_value", cv_min)
-    packs = [r["id"] for r in keep if r["career_value"] >= pack_min][: prefs.get("packs_per_alert", 2)]
+    pack_min = t.get("pack_fit", fit_min + 2)
+    packs = [r["id"] for r in keep if r["fit"] >= pack_min][: prefs.get("packs_per_alert", 2)]
     return keep, packs
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description="Career Value, Attainability, confidence and legitimacy.")
+    p = argparse.ArgumentParser(description="Fit (from Career Value and Attainability), confidence and legitimacy.")
     sub = p.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("score")
     s.add_argument("ratings")

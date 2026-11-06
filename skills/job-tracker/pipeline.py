@@ -171,7 +171,7 @@ def validate(data):
             errors.append("%s: unknown status %r" % (w, j.get("status")))
         for f in ("posted", "first_found", "last_checked", "alerted", "applied"):
             check_date("%s.%s" % (w, f), j.get(f))
-        for f in ("career_value", "attainability"):
+        for f in ("fit", "career_value", "attainability"):
             v = j.get(f)
             if v not in (None, "") and not (isinstance(v, (int, float)) and 0 <= v <= 100):
                 errors.append("%s.%s must be 0-100, got %r" % (w, f, v))

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: Claude never sends, replies, forwards or posts for the person.
+"""PreToolUse hook: every send waits for the person's one-click yes.
 
-Blocks any MCP tool on a mail, chat or social server whose action is send,
-reply, forward or post (Gmail's send_message, reply and forward; Outlook's
-send_email; Slack's send_message...). Drafting tools (create_draft,
-update_draft) are untouched, so email still goes in as a draft the person
-sends. Calendar invitations to other people need the person's yes in the app.
+Any MCP tool on a mail or chat server whose action is send, reply, forward or
+post (Gmail's send_message, reply and forward; Outlook's send_email; Slack's
+send_message...) is put to the person first: the app shows the exact message
+and they approve or decline it, one click. In LinkedIn, Handshake, Reddit and X sending
+is refused outright: the person clicks Send there themselves. Drafting tools
+(create_draft, update_draft) are untouched. Calendar invitations to other
+people also need the person's yes in the app.
 
 Reads the hook payload on stdin and prints a decision as JSON. The plugin's
 `block_sending` setting (default on) turns it off: CLAUDE_PLUGIN_OPTION_BLOCK_SENDING=false.
@@ -18,14 +20,16 @@ import os
 import re
 import sys
 
-SERVERS = re.compile(r"mail|outlook|slack|teams|whatsapp|telegram|linkedin|reddit|twitter|^x$|discord", re.I)
+SERVERS = re.compile(r"mail|outlook|slack|teams|whatsapp|telegram|linkedin|handshake|reddit|twitter|^x$|discord", re.I)
+NEVER = re.compile(r"linkedin|handshake|reddit|twitter|^x$", re.I)
 SENDING = re.compile(r"^(send|reply|forward|post|publish|submit)(_|$)", re.I)
 CALENDAR = re.compile(r"calendar", re.I)
 INVITING = re.compile(r"^(create|update)_event$|^respond_to_event$", re.I)
 
-DENY = ("The Job Search Assistant never sends anything itself. Save it as a "
-        "draft (for email, create_draft) and tell the person it's ready for "
-        "them to check and send.")
+DENY = ("The Job Search Assistant never sends or posts in LinkedIn, Handshake, Reddit or X. "
+        "Paste the draft while the person watches, or give it to them, and they click Send.")
+APPROVE = ("Job Search Assistant: this sends a message from your account. Check the "
+           "recipient and the text, then approve to send it or decline to keep it as a draft.")
 ASK = "This sends a calendar invitation or reply to other people: check with the person first."
 
 
@@ -54,7 +58,7 @@ def decide(payload, env=os.environ):
     # Plugin-bundled servers are named plugin_<plugin>_<server>.
     name = re.sub(r"^plugin_[^_]+(?:-[^_]+)*_", "", server)
     if SERVERS.search(name) and SENDING.search(tool):
-        return "deny", DENY
+        return ("deny", DENY) if NEVER.search(name) else ("ask", APPROVE)
     if CALENDAR.search(name) and INVITING.search(tool):
         tool_input = payload.get("tool_input") or {}
         if tool.lower() == "respond_to_event" or has_guests(tool_input):
