@@ -3,6 +3,25 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.1.0 (2026-11-06)
+- job-cv `depth.py` and `experience-interview.md`: the experience interview.
+  `roles` scores every dated role in EVIDENCE.md and, with LinkedIn's
+  Positions.csv, lists positions missing from it; a current or recent role
+  (ended in the last 3 years) needs 4 facts, 2 with numbers, a result and
+  its scope, and GUESSED or UNVERIFIED lines don't count. `questions` plans
+  about 10 minutes, one question at a time, answered by dictation or voice
+  mode: Topgrading's role walk-through, Lou Adler's accomplishment probes,
+  Laszlo Bock's 'relative to Y', resume writers' questions, plus what each
+  role family's hiring managers look for (`experience_questions.json`), with
+  must-haves from the family's ads first. Old CVs, LinkedIn, Gmail and Drive
+  are read first. Runs at setup, when a CV's requirements map shows two or
+  more must-haves without evidence, and, if the person chooses, from the
+  morning session (`today.py --evidence`), outside the daily time; 'Not
+  now' waits 30 days (`depth.py mark`).
+- job-weekly `funnel.py targets --plan MASTER_PLAN.md`: reads the 'Weekly
+  targets:' line; defaults are now 1 coffee chat, 2 interviews and 5
+  applications a week, and the person changes them by saying so.
+
 ## 3.0.0 (2026-11-06)
 The goal: about 5 minutes a day, a calendar of chats and interviews, and the
 best odds of an offer.

@@ -1762,6 +1762,95 @@ class Release260(unittest.TestCase):
         self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)
 
 
+EVIDENCE_THIN = """# EVIDENCE.md (fictional)
+## Business Development Representative, Northlight Payments, Dublin (Mar 2025 - present)
+- Prospected payments merchants in Ireland. DOCUMENTED (LinkedIn)
+- Booked meetings for account executives. DOCUMENTED (LinkedIn)
+## Sales Associate, Brightwater Insurance, Dublin (Jun 2022 - Feb 2025)
+- Sold home insurance by phone to about 40 customers a week. CONFIRMED
+- Ranked 2nd of 14 on the team for policies sold in 2024. DOCUMENTED (review 2024)
+- Cut quote turnaround from 2 days to 4 hours with an Excel template. CONFIRMED
+- Trained 3 new starters on the sales script. CONFIRMED
+- Won 120 new customers in 2024. GUESSED
+## Barista, Bean There, Galway (2018 - 2020)
+- Served about 200 customers a shift. CONFIRMED
+## BSc Business, NUI Galway (2018 - 2022)
+- First-class honours. DOCUMENTED
+"""
+
+
+class Release310(unittest.TestCase):
+    """The spoken experience interview for thin roles, and customisable weekly targets (fictional data)."""
+    dp = load("job-cv", "depth")
+    td = load("job-followup", "today")
+    fn = load("job-weekly", "funnel")
+
+    def test_newest_role_only_on_linkedin_is_thin_and_offered_first(self):
+        r = self.dp.roles(EVIDENCE_THIN, D(2026, 11, 6))
+        self.assertEqual(r[0]["role"], "Business Development Representative, Northlight Payments, Dublin")
+        self.assertTrue(r[0]["newest"] and r[0]["offer"])
+        self.assertEqual(r[0]["status"], "THIN")
+        self.assertIn("detail beyond the LinkedIn entry", r[0]["missing"])
+        by = {x["role"].split(", ")[1]: x for x in r}
+        self.assertEqual(by["Brightwater Insurance"]["status"], "OK")  # the GUESSED line doesn't count, 4 others do
+        self.assertFalse(by["Bean There"]["offer"])  # an old thin role is listed, not offered
+        self.assertNotIn("NUI Galway", by)  # education isn't a role
+
+    def test_linkedin_position_missing_from_evidence(self):
+        li = [{"company": "Acme Ventures", "title": "Founder", "started": "Jan 2026", "finished": "",
+               "description": ""}, {"company": "Northlight Payments", "title": "BDR", "started": "Mar 2025",
+                                    "finished": "", "description": ""}]
+        r = self.dp.roles(EVIDENCE_THIN, D(2026, 11, 6), li)
+        missing = [x for x in r if x["status"] == "MISSING"]
+        self.assertEqual([x["role"] for x in missing], ["Founder, Acme Ventures"])  # Northlight is already there
+        self.assertTrue(missing[0]["offer"])
+
+    def test_questions_skip_what_evidence_covers_and_add_the_family(self):
+        q = self.dp.questions(EVIDENCE_THIN, "Northlight", ["Account Executive"], ["Salesforce"])
+        ids = [x["id"] for x in q["questions"]]
+        self.assertEqual(ids[0], "gap")
+        self.assertIn("sales", q["families"])
+        self.assertIn("family:sales", ids[:8])
+        self.assertLessEqual(len(ids), 12)
+        self.assertNotIn("left", ids)  # a current role: no 'why did you leave'
+        b = self.dp.questions(EVIDENCE_THIN, "Brightwater", [], [], cap=30)
+        bids = [x["id"] for x in b["questions"]]
+        self.assertNotIn("proof", bids)  # 'Ranked 2nd of 14' already proves it
+        self.assertNotIn("tools", bids)  # Excel is there
+        self.assertIn("left", bids)
+
+    def test_mark_declined_waits_30_days(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "EVIDENCE.md")
+            open(p, "w").write(EVIDENCE_THIN)
+            self.dp.mark(p, "Northlight", "declined", D(2026, 11, 6))
+            text = open(p).read()
+            self.assertIn("- Interview: declined 2026-11-06", text)
+            self.assertFalse(self.dp.roles(text, D(2026, 11, 20))[0]["offer"])
+            self.assertTrue([x for x in self.dp.roles(text, D(2026, 12, 10)) if x["offer"]])
+            self.dp.mark(p, "Northlight", "done", D(2026, 12, 10))
+            self.assertFalse([x for x in self.dp.roles(open(p).read(), D(2026, 12, 11)) if x["offer"]])
+
+    def test_morning_session_offers_the_interview_outside_the_budget(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "EVIDENCE.md")
+            open(p, "w").write(EVIDENCE_THIN)
+            x = self.td.extra(p, D(2026, 11, 6))
+            self.assertEqual(len(x), 1)
+            self.assertIn("Your newest role", x[0]["item"])
+            self.assertEqual(self.td.extra(os.path.join(d, "none.md"), D(2026, 11, 6)), [])
+
+    def test_targets_default_and_from_the_plan(self):
+        r = self.fn.weekly_plan({"jobs": [], "outreach": []}, D(2026, 11, 9))
+        self.assertEqual(r["targets"], {"chats": 1, "interviews": 2})
+        t = self.fn.plan_targets("## Pace\n- Weekly targets: 2 coffee chats, 3 interviews, 6 applications\n")
+        self.assertEqual(t, {"chats": 2, "interviews": 3, "capacity": 6})
+        self.assertEqual(self.fn.plan_targets("no targets here"), {"chats": None, "interviews": None,
+                                                                    "capacity": None})
+
+
 class Release300(unittest.TestCase):
     """Morning session, booking, acceptances, weekly targets, after-round steps (fictional data)."""
     td = load("job-followup", "today")

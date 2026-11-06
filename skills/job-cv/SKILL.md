@@ -15,6 +15,8 @@ person's evidence, the layout is checked by script, and nothing is invented.
 python3 "$SKILL_DIR/audit.py" ad.txt cv.pdf --role "Junior Data Analyst"          # quick job audit: match /100, top 5 missing, skim
 python3 "$SKILL_DIR/skim.py" cv.pdf --role "Junior Data Analyst" [--ad ad.txt]      # 10-second skim: red flags, yes/maybe/no
 python3 "$SKILL_DIR/keywords.py" ad.txt cv.tex [--bank keyword_bank.json]       # the ad's terms, in its own words
+python3 "$SKILL_DIR/depth.py" roles --evidence EVIDENCE.md [--linkedin Positions.csv] # thin or missing roles
+python3 "$SKILL_DIR/depth.py" questions --evidence EVIDENCE.md --role "Acme" --family "Account Executive" [--terms gaps.txt]
 python3 "$SKILL_DIR/truth_check.py" cv.tex --source EVIDENCE.md --source master_cv.md --allow "Acme Ltd" --corrections CORRECTIONS.md
 python3 "$SKILL_DIR/tex_check.py" escapes cv.tex                                   # unescaped % & # _ $
 python3 "$SKILL_DIR/tex_check.py" conversion original_cv.pdf base.tex              # nothing lost converting
@@ -83,6 +85,21 @@ When the bank or a CV needs facts only the person has, ask in rounds
   'ask when needed', and a guess they accept is CONFIRMED only once they've
   said it's true.
 - Stop when nothing is left silently assumed, and say what was settled.
+
+## The experience interview (thin roles, spoken)
+
+When a role has too little evidence, ask about it out loud instead of
+building CVs from old documents. `depth.py roles --evidence EVIDENCE.md
+[--linkedin Positions.csv]` lists every role: MISSING (on LinkedIn, not in the
+evidence), THIN (a current or recent role without 4 facts, 2 numbers, a
+result and its scope) or OK. The newest role always counts: it's what a
+recruiter reads first. Before asking, read the old CVs, LinkedIn, Gmail and
+Drive and the role families' ads, so only what can't be found is asked.
+`depth.py questions --role ... --family ...` plans it: what they were hired to
+do, scope, the proudest accomplishment and how they know it worked, plus what
+the family's hiring managers look for. One question at a time, answered by
+dictation or voice mode, about 10 minutes; the person chooses now or a
+reminder in the morning session. Full method: experience-interview.md.
 
 ## The strongest true version (every CV)
 
@@ -168,7 +185,10 @@ dates) rather than the CV.
 
 1. **Requirements map**: each requirement, the evidence covering it (with its
    label) and the gaps. For an 'ask when needed' detail, ask 1-2 quick
-   questions and save the answer to EVIDENCE.md and the bank.
+   questions and save the answer to EVIDENCE.md and the bank. Two or more
+   must-haves with no evidence: offer the experience interview (now or in
+   the morning session) for the role most likely to hold it, with those
+   must-haves as `--terms`.
 2. **Weights**: set the screening profile (above) and record it.
 3. **Build** from the nearest base CV: map each key requirement to its
    strongest entry and framing, covering each once; drop anything a

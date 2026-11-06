@@ -98,7 +98,9 @@ applications, so it works both routes.
   in one step.
 - **Your files**: in two short chats, Claude reads your CVs and documents and
   writes a few private files about you: your experience, your writing style
-  and your goals. The skills use these, so everything is personal to you.
+  and your goals. Where your documents say little about a role (often the
+  newest one), Claude interviews you about it for about 10 minutes, and you
+  answer out loud. The skills use these, so everything is personal to you.
 - **Automatic tasks**: Claude then runs scheduled searches on weekdays and
   sends you alerts, using your job list to remember what it has already seen.
 - **Built-in checks**: small programs inside the skills check the work, for

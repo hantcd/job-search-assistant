@@ -3,6 +3,11 @@
 
     python3 funnel.py report --file jobsearch/pipeline.json [--json]
     python3 funnel.py thresholds --file jobsearch/pipeline.json --fit 60
+    python3 funnel.py --file jobsearch/pipeline.json targets --plan MASTER_PLAN.md [--chats 1 --interviews 2 --capacity 5]
+
+targets: works back from the weekly targets (MASTER_PLAN.md's 'Weekly targets:'
+line; defaults 1 coffee chat, 2 interviews, 5 applications; flags override) to
+the chat asks, connection requests and applications this week needs.
 
 thresholds: how the scored jobs sit against the alert thresholds. With 10+
 scored jobs and none alert-worthy, it suggests a recalibration for the person
@@ -22,6 +27,7 @@ import argparse
 import datetime
 import json
 import os
+import re
 import statistics
 import sys
 
@@ -185,7 +191,27 @@ def own_rate(hits, total, prior):
     return (hits / float(total), "your numbers (%d of %d)" % (hits, total)) if total >= 10 else prior
 
 
-def weekly_plan(data, today, chats=3, interviews=2, apps_cap=5, invite_cap=80):
+TARGETS = re.compile(r"(\d+)\s*(?:coffee[- ])?chats?\b|(\d+)\s*interviews?\b|(\d+)\s*applications?\b", re.I)
+
+
+def plan_targets(text):
+    """Read the weekly targets from MASTER_PLAN.md: the line naming 'weekly target(s)', e.g.
+    'Weekly targets: 1 coffee chat, 2 interviews, 5 applications'. Missing numbers stay None."""
+    out = {"chats": None, "interviews": None, "capacity": None}
+    for line in (text or "").splitlines():
+        if re.search(r"weekly targets?|targets? (?:a|per) week", line, re.I):
+            for m in TARGETS.finditer(line):
+                if m.group(1):
+                    out["chats"] = int(m.group(1))
+                elif m.group(2):
+                    out["interviews"] = int(m.group(2))
+                elif m.group(3):
+                    out["capacity"] = int(m.group(3))
+            break
+    return out
+
+
+def weekly_plan(data, today, chats=1, interviews=2, apps_cap=5, invite_cap=80):
     """Work back from weekly targets (chats, interviews) to this week's volume, and say how far along it is."""
     invites = [o for o in data.get("outreach", []) if o.get("stage") in ("invite", "note") and o.get("messages")]
     asks = [o for o in data.get("outreach", []) if o.get("stage") == "chat" and o.get("messages")]
@@ -234,14 +260,19 @@ def main(argv=None):
     t = sub.add_parser("thresholds")
     t.add_argument("--fit", type=int, default=60, help="the alert threshold for Fit")
     wp = sub.add_parser("targets")
-    wp.add_argument("--chats", type=int, default=3)
-    wp.add_argument("--interviews", type=int, default=2)
-    wp.add_argument("--capacity", type=int, default=5)
+    wp.add_argument("--plan", help="MASTER_PLAN.md: reads its 'Weekly targets:' line (flags override it)")
+    wp.add_argument("--chats", type=int, help="coffee chats a week (default 1)")
+    wp.add_argument("--interviews", type=int, help="interviews a week (default 2)")
+    wp.add_argument("--capacity", type=int, help="applications a week the person can make (default 5)")
     wp.add_argument("--today")
     a = p.parse_args(argv)
     if a.cmd == "targets":
         today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
-        out = weekly_plan(json.load(open(a.file, encoding="utf-8")), today, a.chats, a.interviews, a.capacity)
+        t = plan_targets(open(a.plan, encoding="utf-8").read()) if a.plan and os.path.exists(a.plan) else {}
+        pick = lambda flag, key, default: flag if flag is not None else (t.get(key) if t.get(key) is not None
+                                                                        else default)
+        out = weekly_plan(json.load(open(a.file, encoding="utf-8")), today, pick(a.chats, "chats", 1),
+                          pick(a.interviews, "interviews", 2), pick(a.capacity, "capacity", 5))
         print(json.dumps(out, indent=1, ensure_ascii=False))
         return 0
     if a.cmd == "thresholds":

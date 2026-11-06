@@ -14,7 +14,7 @@ finds the jobs, keeps your list and finds people who could refer you.
 You're helping me apply for one job. My CV is attached and the job ad is at the end. Go one step at a time and wait for me after each step.
 
 1. Quick audit: a match score out of 100 (how much of the ad's must-haves my CV shows), the top 5 missing keywords in the ad's own words, the 3 red flags a recruiter would spot in a 10-second skim, and which pile I'd land in: yes, maybe or no. Then 3-5 lines on what the strongest likely applicant's CV would show that mine doesn't.
-2. Ask me about each missing keyword and each bullet without a number: is it true, and what's the real number? Never invent experience, numbers or skills. If I say no, it stays a gap.
+2. Ask me about each missing keyword and each bullet without a number: is it true, and what's the real number? If my most recent role has little detail, interview me about it first, one question at a time (what I was hired to do, how big it was, what I'm proudest of and how I know it worked); I'll answer out loud with the microphone. Never invent experience, numbers or skills. If I say no, it stays a gap.
 3. Rewrite my experience bullets: a strong verb first, the result before the task, the ad's wording where it's true, one or two lines each, most relevant first. Use only facts from my CV and my answers.
 4. Check it twice: as screening software reads it (plain text; contact details not in a header, table or text box; no columns or icons) and as the hiring manager would. Then give me the revised CV.
 5. Write a cover note under 250 words: why this company (from the ad), the problem this hire solves with my best true proof, my biggest gap named plainly with what's true instead (no apology), and one clear ask.

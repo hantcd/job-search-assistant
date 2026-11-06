@@ -11,7 +11,7 @@ chased. Every morning run and every "what's due?" uses the same list.
 `$SKILL_DIR` below means this skill's folder.
 
 ```bash
-python3 "$SKILL_DIR/today.py" --file jobsearch/pipeline.json [--budget 300]   # the 5-minute morning session
+python3 "$SKILL_DIR/today.py" --file jobsearch/pipeline.json [--budget 300] [--evidence EVIDENCE.md]   # the morning session
 python3 "$SKILL_DIR/followup.py" --file jobsearch/pipeline.json due --today 2026-10-20
 python3 "$SKILL_DIR/followup.py" --file jobsearch/pipeline.json can-follow-up siobhan-kelly-acme --today 2026-10-20
 ```
@@ -34,6 +34,11 @@ send the email, submit the application (job-apply), book (job-network's
 `booking.py`), and finish with the connection session for the people that
 fit. Nothing that isn't approved goes out; a skipped item comes back
 tomorrow once, then drops a place.
+
+With `--evidence`, a current or recent role that's thin on evidence is
+offered last, outside the daily time, as "when you have 10 minutes": job-cv's
+spoken experience interview. "Interview me" starts it; "Not now" marks it
+declined for 30 days (`depth.py mark`).
 
 ## Reads and writes
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The 5-minute morning session: everything that needs the person, ranked, cut to fit their time.
 
-    python3 today.py --file jobsearch/pipeline.json [--budget 300] [--today 2026-11-09] [--json]
+    python3 today.py --file jobsearch/pipeline.json [--budget 300] [--evidence EVIDENCE.md] [--today 2026-11-09] [--json]
 
 Gathers what only the person can do, from the job list:
   BOOK        a reply that says yes to a chat or asks for interview times
@@ -17,6 +17,11 @@ only what fits the person's daily time (default 5 minutes), each with a rough
 time for one tap or a quick check. The rest waits for tomorrow, and the list
 says what waited. Times are estimates for approving prepared items, not for
 writing anything.
+
+With --evidence, a current or recent role that's thin on evidence (job-cv's
+depth.py) is offered once a day as "when you have 10 minutes": a spoken
+interview about it. It sits outside the daily time, and stops once the person
+does it, or for 30 days if they say not now.
 """
 
 import argparse
@@ -92,15 +97,35 @@ def plan(data, today, budget=300):
     return {"today": keep, "minutes": round(used / 60.0, 1), "waits_for_tomorrow": later}
 
 
+def extra(evidence_path, today):
+    """The experience interview, offered outside the daily time when a recent role is thin."""
+    if not evidence_path or not os.path.exists(evidence_path):
+        return []
+    sys.path.insert(0, os.path.join(HERE, "..", "job-cv"))
+    import depth  # noqa: E402
+    with open(evidence_path, encoding="utf-8") as fh:
+        todo = [r for r in depth.roles(fh.read(), today) if r["offer"]]
+    if not todo:
+        return []
+    r = todo[0]
+    return [{"kind": "INTERVIEW ME", "minutes": 10,
+             "role": r["role"],
+             "item": "%s (%s) %s: a 10-minute spoken interview fixes it. Say 'Interview me' or 'Not now'."
+                     % ("Your newest role" if r["newest"] else "A recent role", ", ".join(r["role"].split(", ")[:2]),
+                        "isn't in your evidence" if r["status"] == "MISSING" else "is thin on evidence")}]
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="The ranked 5-minute morning session.")
     p.add_argument("--file", default="jobsearch/pipeline.json")
     p.add_argument("--budget", type=int, default=300, help="seconds the person gives it each day (default 300)")
+    p.add_argument("--evidence", help="EVIDENCE.md: offer the experience interview when a recent role is thin")
     p.add_argument("--today")
     p.add_argument("--json", action="store_true")
     a = p.parse_args(argv)
     today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
     r = plan(json.load(open(a.file, encoding="utf-8")), today, a.budget)
+    r["when_you_have_10_minutes"] = extra(a.evidence, today)
     if a.json:
         print(json.dumps(r, indent=1))
         return 0
@@ -109,6 +134,8 @@ def main(argv=None):
         print("%2d. %-9s %s" % (i, x["kind"], x["item"]))
     if r["waits_for_tomorrow"]:
         print("Waits for tomorrow: %d item(s)" % len(r["waits_for_tomorrow"]))
+    for x in r["when_you_have_10_minutes"]:
+        print("When you have 10 minutes: %s" % x["item"])
     return 0
 
 

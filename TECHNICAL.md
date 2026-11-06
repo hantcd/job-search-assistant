@@ -131,9 +131,11 @@ python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCO
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json plan --job acme-junior-data-analyst
-python3 skills/job-followup/today.py --file jobsearch/pipeline.json --budget 300
+python3 skills/job-followup/today.py --file jobsearch/pipeline.json --budget 300 --evidence EVIDENCE.md
+python3 skills/job-cv/depth.py roles --evidence EVIDENCE.md --linkedin Positions.csv
+python3 skills/job-cv/depth.py questions --evidence EVIDENCE.md --role "Acme" --family "Account Executive"
 python3 skills/job-network/booking.py slots --events busy.json --start 2026-11-09
-python3 skills/job-weekly/funnel.py --file jobsearch/pipeline.json targets --chats 3 --interviews 2
+python3 skills/job-weekly/funnel.py --file jobsearch/pipeline.json targets --plan MASTER_PLAN.md
 python3 skills/job-scout/hidden.py queries --industry fintech --place Dublin --country IE
 python3 skills/job-scout/hidden.py rank --file jobsearch/pipeline.json --industry fintech --place Dublin
 python3 skills/job-network/chat_prep.py check prep.md
@@ -329,6 +331,12 @@ newest.
   [backpropagation6/claude-linkedin-automation](https://github.com/backpropagation6/claude-linkedin-automation)
   (absence isn't proof) and [job-apply-ai](https://github.com/ShipItAndPray/job-apply-ai)
   (reading each form back from a screenshot before submitting, which the pack already did).
+- The experience interview, ideas only: Geoff Smart and Randy Street's *Who*
+  and Brad Smart's Topgrading (the walk through every role), Lou Adler's
+  most-significant-accomplishment probes, Laszlo Bock's "X relative to Y by
+  doing Z", resume writers' accomplishment questions (Lori Jazvac; PARWCC),
+  NACE Job Outlook 2025, McKinsey's resume advice, the Ladders' 2018
+  eye-tracking study and Stanford's 2016 speech-versus-typing study.
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 
