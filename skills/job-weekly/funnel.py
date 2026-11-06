@@ -39,6 +39,22 @@ def day(s):
         return None
 
 
+# Response rates by where people applied, from Huntr's tracked applications (US, self-reported
+# by its users, 2026, 600,000+): a public benchmark to compare with, not a promise.
+BENCHMARK = {"google jobs": 11.29, "governmentjobs": 8.67, "wellfound": 5.95, "glassdoor": 5.46, "handshake": 5.06,
+             "welcome to the jungle": 4.52, "indeed": 4.46, "linkedin": 3.10, "ziprecruiter": 2.82}
+
+
+def source_of(j):
+    s = str(j.get("source") or j.get("found_on") or "").lower()
+    for k in BENCHMARK:
+        if k in s:
+            return k
+    if "company" in s or "careers" in s or "feed" in s or "watched" in s or "hidden" in s:
+        return "company site"
+    return s or "unlabelled"
+
+
 def app_rows(data):
     apps = {a.get("job_id"): a for a in data.get("applications", [])}
     rows = []
@@ -54,6 +70,7 @@ def app_rows(data):
             "offer": st in OFFERED,
             "role_family": j.get("role_family") or "unlabelled",
             "route": j.get("route") or "unlabelled",
+            "found_on": source_of(j),
             "base_cv": a.get("base_cv") or "unlabelled",
             "applied_within_48h": ("yes" if posted and applied and (applied - posted).days <= 2 else
                                    "no" if posted and applied else "unknown"),
@@ -126,7 +143,8 @@ def report(data):
         "applications": {"total": len(apps), **{s: rate(sum(r[s] for r in apps), len(apps)) for s in A}},
         "outreach": {"total": len(outs), **{s: rate(sum(r[s] for r in outs), len(outs)) for s in O}},
         "median_days_to_first_reply": statistics.median(days) if days else None,
-        "by": {k: split(apps, k, A) for k in ("role_family", "route", "base_cv", "applied_within_48h")},
+        "by": {k: split(apps, k, A) for k in ("role_family", "route", "base_cv", "applied_within_48h", "found_on")},
+        "benchmark_response_rate_pct": BENCHMARK,
         "outreach_by": {k: split(outs, k, O) for k in ("channel", "send_time")},
         "diagnosis": diagnose(apps),
     }

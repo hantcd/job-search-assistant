@@ -1,7 +1,19 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "2.5.0",
+ "latest": "2.6.0",
  "versions": [
+  {
+   "version": "2.6.0",
+   "date": "2026-11-06",
+   "summary": "Growing companies most applicants miss, more Irish job boards and publicjobs.ie, Google Jobs, and results by where each job was found.",
+   "helps": [
+    "about 10 lesser-known growing companies a week, found, ranked and searched automatically",
+    "RecruitIreland, JobAlert.ie, JobsIreland.ie, Hays Ireland and publicjobs.ie alerts",
+    "Google Jobs searched on your computer each Monday",
+    "what's working, by where you found the job, beside a public benchmark"
+   ],
+   "install_minutes": 5
+  },
   {
    "version": "2.5.0",
    "date": "2026-11-06",

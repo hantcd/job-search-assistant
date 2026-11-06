@@ -105,8 +105,8 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      through their email job alerts; each job is then verified on the
      employer's own page. **Lios** (graduate schemes, internships, spring
      weeks) has no alert emails: the person pastes its matches (access.md).
-   - **Email job alerts** in Gmail (LinkedIn, Indeed, IrishJobs and others,
-     set up by the person) and community keyword alerts (for example F5Bot).
+   - **Email job alerts** in Gmail (LinkedIn, Indeed, IrishJobs and the rest in access.md) and keyword
+     alerts (F5Bot); the feeds of the `hidden` table's companies (`hidden.py`).
      Read the emails, never the person's accounts.
    - **Communities**: approved subreddits and forums (replies are job-reddit's), monthly hiring threads
      (such as Hacker News 'Who is hiring?') when they open, or a reminder to

@@ -17,6 +17,9 @@
 | freehire (freehire.me) | not used yet: tech jobs only; its terms for automated use haven't been checked | listed for later |
 | Jack & Jill | its match emails, read in Gmail; the person talks to Jack themselves | no automated access to its site or the person's account; replies are drafts |
 | IrishJobs and other job sites | email job alerts the person sets up; Claude reads the emails | their terms forbid scraping; Claude never uses the person's accounts |
+| Irish boards: IrishJobs.ie, Jobs.ie, RecruitIreland.com, JobAlert.ie, JobsIreland.ie (the state's service), Hays Ireland | email job alerts the person sets up on each; Claude reads the emails and checks each job on the employer's own page | the same: alerts only |
+| publicjobs.ie (civil and public service, HSE, local authorities, Garda) | its email job alerts, for role families that include the public sector | apply on publicjobs.ie itself: competitions have fixed closing dates and their own forms |
+| Google Jobs (Google's job search panel) | read on the person's computer in the built-in browser (the connection queue task's Monday searches) | it links to the employer's own page, which is where to apply; Huntr's 2026 data had the highest response rate for jobs found there |
 | LinkedIn job posts the person finds | the person pastes the post | as above |
 | Reddit, forums, monthly hiring threads | public pages through web fetch; if blocked, the person pastes the thread | read only; replies are drafted by job-reddit and posted by the person by hand |
 | X | weekly search links for the person to open and paste | no account use |

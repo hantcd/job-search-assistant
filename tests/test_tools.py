@@ -1721,3 +1721,42 @@ class Release250(unittest.TestCase):
         good = {"headline": "Data Analyst | SQL, Power BI | Claims dashboard used by 12 managers", "about": "x",
                 "skills": [], "positions": [{"title": "Intern", "description": "Built the weekly sales report."}]}
         self.assertNotIn("headline voice", {r[1] for r in self.pc.check_limits(good)})
+
+
+class Release260(unittest.TestCase):
+    """Hidden companies and where jobs were found (fictional data)."""
+    h = load("job-scout", "hidden")
+    fn = load("job-weekly", "funnel")
+
+    def test_queries_fill_in_and_filter_by_country(self):
+        q = self.h.queries("fintech", "Dublin", "IE", big=["Stripe"], year=2026)
+        names = {x["source"] for x in q}
+        self.assertIn("Deloitte Technology Fast 50 (Ireland)", names)
+        self.assertNotIn("Sunday Times 100", names)
+        self.assertTrue(any(x.get("search") == "alternatives to Stripe fintech" for x in q))
+        self.assertFalse(any("{" in (x.get("search") or "") for x in q))
+
+    def test_add_skips_watched_known_and_big(self):
+        d = {"watched": [{"company": "Stripe"}]}
+        t = D(2026, 11, 6)
+        self.assertEqual(self.h.add(d, "Stripe, Inc.", "news", "", "x", t)[0], "SKIPPED")
+        self.assertEqual(self.h.add(d, "Acme Payments Ltd", "Silicon Republic", "u", "Series A", t, "2026-09-14", 40,
+                                    "fintech", "Dublin")[0], "ADDED")
+        self.assertEqual(self.h.add(d, "Acme Payments", "news", "", "x", t)[0], "SKIPPED")
+        self.assertEqual(self.h.add(d, "Bigco", "news", "", "x", t, size=5000)[0], "SKIPPED")
+
+    def test_rank(self):
+        d = {}
+        t = D(2026, 11, 6)
+        self.h.add(d, "Acme Payments", "news", "", "Series A", t, "2026-09-14", 40, "fintech", "Dublin")
+        self.h.add(d, "Old Co", "list", "", "Fast 50", t, "2024-01-01", 800, "logistics", "Cork")
+        self.h.set_feed(d, "Acme Payments", "ashby", "acmepayments", 2)
+        top = self.h.rank(d, t, ["fintech"], ["Dublin"])
+        self.assertEqual(top[0]["company"], "Acme Payments")
+        self.assertEqual(top[0]["score"], 30 + 25 + 20 + 15 + 10)  # funded under 3 months ago
+        self.assertEqual(self.h.feeds("Acme Payments Ltd")[0]["token"], "acmepayments")
+
+    def test_found_on(self):
+        self.assertEqual(self.fn.source_of({"source": "LinkedIn alert email"}), "linkedin")
+        self.assertEqual(self.fn.source_of({"source": "watched company feed"}), "company site")
+        self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)

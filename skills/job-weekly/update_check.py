@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.5.0"
+PACK_VERSION = "2.6.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -227,6 +227,21 @@ MIGRATIONS = [
               "(about 1 minute)",
      "steps": "Create the scheduled task 'Daily connection queue (on your computer)' as job-connector's "
               "finding-people.md describes, weekdays before the working day, requiring the person's computer."},
+    {"id": "2.6.0-hidden-companies", "version": "2.6.0",
+     "title": "Growing companies most applicants miss",
+     "helps": "about 10 lesser-known growing companies a week (recent funding, Fast 50 and FT 1000 lists, start-up "
+              "directories, exhibitor lists, own-site postings), their open roles scored like any other job",
+     "needs": "",
+     "steps": "Add the hidden table to the job list; run job-weekly's 'Companies most people miss' in this week's "
+              "check."},
+    {"id": "2.6.0-irish-boards", "version": "2.6.0",
+     "title": "More Irish job boards and public-sector jobs",
+     "helps": "jobs from RecruitIreland, JobAlert.ie, JobsIreland.ie and Hays Ireland, and civil and public service "
+              "jobs from publicjobs.ie if any role family includes them",
+     "needs": "about 5 minutes: sign up on each site you want and set a daily email job alert to your Gmail (the "
+              "report gives the exact searches)",
+     "steps": "List the saved searches to create on each board from the role families' titles and places; the daily "
+              "search reads their alert emails from then on."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

@@ -99,5 +99,6 @@ time*, task*, sources_checked, new, updated, closed, errors, stopped_early (and 
 companies (company notes, plus limit_max, limit_window_days, limit_scope and
 resets when a company limits applications per person), events, offers, feedback, story_grid,
 keyword_bank, watched, network, signals, form_notes (site, quirk, handling, date: job-apply's form
-memory): lists of rows; see the skill that
+memory), hidden (job-scout's `hidden.py`: growing companies most applicants miss, with source,
+funding date, size, feed and status): lists of rows; see the skill that
 keeps each.

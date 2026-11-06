@@ -3,6 +3,24 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.6.0 (2026-11-06)
+- job-scout `hidden.py` and `hidden_sources.json`: growing companies most
+  applicants miss. Sources by country and cadence (funding news, Series A/B
+  rounds, Silicon Republic, Irish Tech News, Enterprise Ireland's start-up
+  directory, TechIreland's funding review, Deloitte's Fast 50 and EMEA Fast
+  500, the FT 1000, the Sunday Times 100, UKTN, Tech.eu and Sifted, VC
+  portfolios, Y Combinator, exhibitor and member lists, alternatives to the
+  big names, own-site postings); `add` skips watched, known and 1,000+ staff
+  companies; `feeds` guesses their public job feeds; `rank` scores recent
+  funding, size, place, industry and open roles. Kept in the job list's
+  `hidden` table; job-weekly adds about 10 a week and the daily search reads
+  their feeds.
+- Irish boards in access.md: RecruitIreland, JobAlert.ie, JobsIreland.ie,
+  Hays Ireland (alert emails) and publicjobs.ie (public sector); Google Jobs
+  read on the person's computer.
+- `funnel.py report`: results by where the job was found, beside Huntr's
+  2026 response rates by site (US, self-reported) as a benchmark.
+
 ## 2.5.0 (2026-11-06)
 - The daily connection queue: a scheduled task on the person's computer
   builds each weekday's queue up to `outreach.py invites`' budget from Google

@@ -41,18 +41,18 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
    there. A search source, not a settings change: nothing is added to the
    watched list without the person's yes (idea from Proficiently's network
    scan).
-2c. **Companies most people miss**: 10 growing companies a week in the role
-   families' fields that aren't household names, from: funding rounds in the
-   last 6 months (Silicon Republic, Tech.eu, TechIreland's funding review,
-   the business pages; a fresh round usually means hiring); Enterprise
-   Ireland's start-up directory; Deloitte's Technology Fast 50 (Ireland) and
-   EMEA Fast 500, the FT 1000 and the Sunday Times 100 for the UK; conference
-   exhibitor and sponsor lists and trade-association member directories;
-   competitors, suppliers and customers of the big names the person targets
-   ("alternatives to" lists, G2 categories); and roles posted only on a
-   company's own hiring system (the Monday ATS searches in the connection
-   queue task). Each company goes through job-scout's checks; its open roles
-   are scored as usual and its people join the connection queue. Why: per-job
+2c. **Companies most people miss** (job-scout's `hidden.py`, sources in
+   `hidden_sources.json`): run `hidden.py queries` for each role family's
+   industry and the person's places (weekly sources every week, monthly and
+   yearly ones when due: funding rounds in the last 6 months, Enterprise
+   Ireland's start-up directory, Deloitte's Fast 50 and Fast 500, the FT
+   1000, the Sunday Times 100, exhibitor and member lists, alternatives to
+   the big names the person targets, own-site postings from the Monday
+   searches); `hidden.py add` about 10 new companies (it skips watched, known
+   and 1,000+ staff ones), try `hidden.py feeds` for each and record what
+   works with `set-feed`; report the top 10 from `hidden.py rank`. The daily
+   search reads their feeds, so their roles are scored like any other, and
+   their people join the connection queue. Nothing to do for the person. Why: per-job
    applications aren't lower at small firms in Ashby's data (13M
    applications, firms of 1-1,500 staff), but there the hiring manager often
    reads applications, outreach reaches the person deciding, and roles posted
@@ -117,7 +117,10 @@ current.
 
 `funnel.py report`: replies, tests, interviews and offers by role family,
 base CV, screening profile, company type, route, timing and referral
-message; outreach replies, chats and referrals by channel and send time.
+message and where the job was found; outreach replies, chats and referrals
+by channel and send time. Where the job was found sits beside Huntr's 2026
+response rates by site (Google Jobs 11.3%, Wellfound 6.0%, Indeed 4.5%,
+LinkedIn 3.1%, ZipRecruiter 2.8%: US, self-reported) as a benchmark.
 Every rate shows its counts; groups under 10 are labelled 'too few to tell';
 say plainly when numbers are too small. Name the weakest stage (few replies:
 targeting or CV; replies but few interviews: pitch or fit; interviews but no
