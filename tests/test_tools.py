@@ -1535,3 +1535,51 @@ class Release200(unittest.TestCase):
         r = self.u.check(copy.deepcopy(PIPE), None)
         self.assertIn("2.0.0-one-click", [i["id"] for i in r["ask"]])
         self.assertIn("2.0.0-one-score", [i["id"] for i in r["do_now"]])
+
+
+class Release210(unittest.TestCase):
+    """Three touches with a comment, LinkedIn searches the person runs, chat prep (fictional data)."""
+    o = load("job-connector", "outreach")
+    fu = load("job-followup", "followup")
+    cp = load("job-network", "chat_prep")
+
+    def test_comment_check(self):
+        bad = {r[0]: r[1] for r in self.o.check("comment", "Great post!")}
+        self.assertEqual(bad["specific"], "FAIL")
+        ask = {r[0]: r[1] for r in self.o.check("comment", "Lovely to see the claims analytics team growing; would you refer me?")}
+        self.assertEqual(ask["no ask"], "FAIL")
+        good = self.o.check("comment", "The claims dashboards you describe are close to what I built at Corrib Bank; "
+                                       "great to see the team investing in analytics.")
+        self.assertFalse([r for r in good if r[1] != "PASS"], good)
+
+    def test_comment_is_not_a_follow_up(self):
+        c = {"id": "c", "name": "Siobhan"}
+        o = {"contact_id": "c", "status": "sent", "stage": "ask", "channel": "email",
+             "messages": [{"date": "2026-11-06", "direction": "out", "kind": "comment", "text": "c"}]}
+        self.assertEqual(self.fu.thread_state(o, c, D(2026, 11, 6))[0], "DUE NOW")  # send the message
+        o["messages"].append({"date": "2026-11-09", "direction": "out", "text": "message"})
+        self.assertEqual(self.fu.thread_state(o, c, D(2026, 11, 10))[0], "WAITING")  # not counted as nudged
+        self.assertEqual(self.fu.thread_state(o, c, D(2026, 11, 16))[0], "DUE NOW")  # the one nudge
+        o["messages"].append({"date": "2026-11-16", "direction": "out", "text": "nudge"})
+        self.assertEqual(self.fu.thread_state(o, c, D(2026, 11, 25))[0], "STOPPED")
+
+    def test_linkedin_links_are_for_the_person(self):
+        steps = self.o.linkedin_steps("account executive", "stripe", "trinity-college-dublin", "Dublin")
+        self.assertEqual([s["where"] for s in steps],
+                         ["your school's alumni tab", "the company's People tab", "a full people search"])
+        self.assertIn("%22account%20executive%22", steps[1]["link"])
+        self.assertIn("2nd-degree", steps[1]["then"])
+
+    def test_chat_prep(self):
+        good = ("## Research\nProfile: TCD economics, then Corrib Bank, now Acme.\n"
+                "News: https://example.com/acme-claims 2026-10-30\n"
+                "## Questions\n### Their story\n- How did you move from Corrib Bank to Acme's claims team?\n"
+                "### The industry\n- What tools does the claims analytics team use day to day?\n"
+                "- What's the team focused on this year?\n"
+                "### Things you can do\n- Is there a tool I could learn now that would help a new analyst?\n"
+                "## Close\nI applied for the Junior Data Analyst role: would you look at two of my core answers by email?\n")
+        res = self.cp.check(good)
+        self.assertFalse([r for r in res if r[0] != "PASS"], res)
+        bad = "## Questions\n### Their story\n- Tell me about yourself?\n- Could you refer me for the role?\n"
+        fails = {r[1] for r in self.cp.check(bad) if r[0] == "FAIL"}
+        self.assertTrue({"questions", "things you can do", "closing ask", "no job or referral ask"} <= fails)

@@ -130,6 +130,8 @@ python3 skills/job-scout/feeds.py questions GREENHOUSE_URL     # a Greenhouse jo
 python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCORING.md
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
+python3 skills/job-network/chat_prep.py check prep.md
+python3 skills/job-connector/outreach.py linkedin --keywords "data analytics" --company-slug acme --school-slug trinity-college-dublin
 python3 skills/job-cv/audit.py ad.txt cv.pdf --role "Junior Data Analyst"
 python3 skills/job-cv/skim.py cv.pdf --role "Junior Data Analyst" --ad ad.txt
 python3 skills/job-cv/keywords.py ad.txt cv.tex
@@ -301,6 +303,11 @@ newest.
   (Maverick Maltin): ideas for the quick job audit, the 10-second skim with
   a yes, maybe or no pile, the cover letter's gap paragraph and a short
   try-it message. Ideas only; none of its text is used.
+- [David DeGenova](https://davidatpgp.netlify.app) (Post Grad Project): the
+  three touches including a comment on the post about the job, the LinkedIn
+  searches the person runs (alumni tab, company People tab, 2nd-degree
+  intros) and the chat prep with its closing ask. Ideas only; none of his
+  text is used.
 - The 2-Hour Job Search (Steve Dalton) for the 3B7 follow-up rule, and the
   other experts and studies cited in the guide.
 

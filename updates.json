@@ -1,7 +1,19 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "2.0.0",
+ "latest": "2.1.0",
  "versions": [
+  {
+   "version": "2.1.0",
+   "date": "2026-11-06",
+   "summary": "Three touches per person (a comment on their post about the job, the message, one nudge), chat prep with a closing ask, LinkedIn searches you run, and Lios.",
+   "helps": [
+    "a short, specific comment on the post where someone advertised the job you applied for, posted by you, as the first of three touches",
+    "informational chats prepared from the person's path and the company's news, with 4-5 questions and a closing ask (including feedback on your core interview answers)",
+    "links for your alumni tab, the company's People tab and people searches, with the filters to click",
+    "Lios for graduate schemes, internships and spring weeks"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "2.0.0",
    "date": "2026-11-06",

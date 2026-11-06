@@ -9,6 +9,8 @@
     python3 outreach.py find --company "Acme" --team "data analytics" [--school "Trinity College Dublin"] [--city Dublin]
     python3 outreach.py find --company "Acme" --team "data analytics" --role "Junior Data Analyst" --recruiters --posts
     python3 outreach.py check --channel email --stage applied --file note.txt --subject "Applied: Junior Data Analyst / TCD / data" --role "Junior Data Analyst"
+    python3 outreach.py check --channel comment --file comment.txt      # a comment on their post about the job
+    python3 outreach.py linkedin --company-slug acme --school-slug trinity-college-dublin --keywords "data analytics" [--city Dublin]
     python3 outreach.py manager --file ad.txt          # the hiring manager's title, from 'reports to ...' lines
 
 check: emails under 75 words, a subject naming the role, no attachment in a first
@@ -24,6 +26,18 @@ With --stage applied (a note to the recruiter or hiring team after applying,
 by email, LinkedIn or Handshake): says the person applied and names the role,
 one real result with a number, under 100 words for email, and no stock
 enthusiasm ("sincerest enthusiasm", "incredible fit", "thank you in advance").
+
+With --channel comment (a comment on the post where someone advertised the
+job, which the person posts by hand): under 300 characters, says something
+specific about the post or the work, no link, no CV, no ask for a referral,
+and not a bare "Great post!" or "Congrats!".
+
+linkedin: links and filter steps for the searches only the person can run in
+their own LinkedIn (David DeGenova's finding-people method): their school's
+alumni tab, the company's People tab, and a people search, each with the
+keywords "in quotes" and the filters to click. Claude builds the links; the
+person opens them and either pastes the results or lets Claude read that one
+results page with them present.
 
 find: Google searches for people on the team, built from the company, the team
 or job title and what the person shares with them (school, city). With
@@ -70,6 +84,8 @@ FLATTERY = re.compile(r"\byour (?:recent )?(?:post|article|talk|podcast|video|ne
 EASY_OUT = re.compile(r"rather not|no problem|either way|no worries|totally understand|completely understand|"
                       r"no pressure|if (?:it's|that's) not possible|if you can't", re.I)
 URL = re.compile(r"https?://\S+")
+GENERIC_COMMENT = re.compile(r"^\W*(?:great|awesome|amazing|love this|congrats|congratulations|so exciting|nice)"
+                             r"(?: post| news| opportunity)?\W*$", re.I)
 STOCK_KEEN = re.compile(r"sincerest enthusiasm|express my (?:sincere |sincerest )?(?:enthusiasm|interest)|incredible fit|"
                         r"perfect fit|thank you in advance|very interested in the work|passionate about|dream (?:job|role)", re.I)
 
@@ -81,6 +97,17 @@ def check(channel, text, subject="", role="", stage="", ref=""):
         res.append((name, status, detail))
 
     words = len(re.findall(r"[A-Za-z0-9'’-]+", text))
+    if channel == "comment":
+        add("length", "PASS" if len(text) <= 300 else "WARN", "%d characters (under 300)" % len(text))
+        add("specific", "FAIL" if GENERIC_COMMENT.match(text.strip()) or words < 8 else "PASS",
+            "say something specific about the post or the work, not just 'Great post!'")
+        add("no link", "FAIL" if URL.search(text) else "PASS", "no links in a comment")
+        if re.search(r"\brefer(?:ral|ring)?\b|\bmy (?:cv|resume)\b|\bdm me\b|\bhire me\b", text, re.I):
+            add("no ask", "FAIL", "no referral ask, CV or 'hire me' in a public comment; the ask goes in the message")
+        m = STOCK_KEEN.search(text)
+        if m:
+            add("own words", "WARN", "stock phrase: %r" % m.group(0))
+        return res
     if stage == "applied":
         add("says you applied", "PASS" if re.search(r"\bappl(?:ied|ication)\b", text, re.I) else "FAIL",
             "say you've applied (and the reference if there is one)")
@@ -196,6 +223,29 @@ def find_queries(company, team, school="", city="", role="", recruiters=False, p
     return out
 
 
+def linkedin_steps(keywords, company_slug="", school_slug="", city=""):
+    """Links and filters for the searches the person runs in their own LinkedIn. Claude never opens them."""
+    from urllib.parse import quote
+    kw = keywords if keywords.startswith('"') else '"%s"' % keywords
+    out = []
+    if school_slug:
+        out.append({"where": "your school's alumni tab",
+                    "link": "https://www.linkedin.com/school/%s/people/?keywords=%s" % (school_slug, quote(kw)),
+                    "then": "filter by where they live%s, what they studied and where they work; try it without the "
+                            "quotes too" % (" (%s)" % city if city else "")})
+    if company_slug:
+        out.append({"where": "the company's People tab",
+                    "link": "https://www.linkedin.com/company/%s/people/?keywords=%s" % (company_slug, quote(kw)),
+                    "then": "filter by where they studied (your school and nearby ones), where they live%s and what they "
+                            "studied; last, 1st and 2nd-degree connections: anyone you know well there can introduce you"
+                            % (" (%s)" % city if city else "")})
+    out.append({"where": "a full people search",
+                "link": "https://www.linkedin.com/search/results/people/?keywords=%s" % quote(kw),
+                "then": "All filters: several schools, several locations, current and past companies; also try your "
+                        "sport, scholarship, hometown or student society in quotes"})
+    return out
+
+
 def working_days_after(d, n):
     while n > 0:
         d += datetime.timedelta(days=1)
@@ -253,7 +303,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description="Check, time and approve outreach drafts. Sends nothing.")
     sub = p.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check")
-    c.add_argument("--channel", choices=("email", "linkedin", "handshake", "note"), required=True)
+    c.add_argument("--channel", choices=("email", "linkedin", "handshake", "note", "comment"), required=True)
     c.add_argument("--file", required=True)
     c.add_argument("--subject", default="")
     c.add_argument("--role", default="")
@@ -269,6 +319,11 @@ def main(argv=None):
     f.add_argument("--role", default="", help="the job title, for --posts")
     f.add_argument("--recruiters", action="store_true", help="also search for the team's recruiters")
     f.add_argument("--posts", action="store_true", help="also search for LinkedIn posts advertising the role")
+    li = sub.add_parser("linkedin")
+    li.add_argument("--keywords", required=True)
+    li.add_argument("--company-slug", default="")
+    li.add_argument("--school-slug", default="")
+    li.add_argument("--city", default="")
     s = sub.add_parser("slots")
     s.add_argument("--start", help="today's date, YYYY-MM-DD")
     s.add_argument("--senior", action="store_true", help="directors and above: wait 10 working days")
@@ -287,6 +342,11 @@ def main(argv=None):
         print(json.dumps({"titles": titles, "next": "outreach.py find --team '<title>' for each" if titles else
                           "the ad doesn't say; search for the team's most senior person in the job's function"},
                          indent=1))
+        return 0
+    if a.cmd == "linkedin":
+        print(json.dumps(linkedin_steps(a.keywords, a.company_slug, a.school_slug, a.city), indent=1))
+        print("You run these in your own LinkedIn; Claude never opens them. Paste the results, or let Claude read "
+              "that one page with you there. Each name stays UNVERIFIED until you open the profile.", file=sys.stderr)
         return 0
     if a.cmd == "find":
         print(json.dumps(find_queries(a.company, a.team, a.school, a.city, a.role, a.recruiters, a.posts), indent=1))

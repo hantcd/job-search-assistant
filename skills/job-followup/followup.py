@@ -20,7 +20,10 @@ of disinterest ends it; at most 2 follow-ups; nothing after 21 days of silence
 (from their last reply, or the first message if they never replied); a pending
 LinkedIn invitation gets no follow-up; a stop request (do_not_contact) is
 honoured forever. An email and a LinkedIn request on the same day are one
-opening. A reply from them resets the count.
+opening. A reply from them resets the count. A comment on their LinkedIn post (a message
+row with kind 'comment', posted by the person) is a touch, not a message: it never
+counts as a follow-up, so a job's three touches are the comment, the message and
+one nudge.
 The referral ask (outreach stage 'ask', the route's one message): one short nudge,
 then stop. REFERRAL FIRST (route 'referral_first' on the outreach row): after 2
 working days with no referral, apply anyway and nudge once. APPLY NOW + REACH
@@ -77,8 +80,11 @@ def thread_state(o, contact, today):
             return "STOPPED", "%s said no or not now on %s: stop, and don't argue" % (name, m.get("date"))
     if msgs and msgs[-1].get("direction") == "in" and o.get("status") != "booked":
         return "YOUR TURN", "%s replied on %s: answer them" % (name, msgs[-1].get("date"))
-    outs = [m for m in msgs if m.get("direction") == "out"]
+    comments = [m for m in msgs if m.get("direction") == "out" and m.get("kind") == "comment"]
+    outs = [m for m in msgs if m.get("direction") == "out" and m.get("kind") != "comment"]
     if not outs:
+        if comments:
+            return "DUE NOW", "%s: you commented on their post; send the message (touch 2)" % name
         return "WAITING", "%s: nothing sent yet" % name
     last_in = day(ins[-1]["date"]) if ins else None
     after = [m for m in outs if not last_in or day(m["date"]) > last_in]

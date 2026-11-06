@@ -103,7 +103,8 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
      Bureau (grb.uk.com) and Higherin (formerly RateMyPlacement, also for
      internships and placements, with student reviews of employers). Read
      through their email job alerts; each job is then verified on the
-     employer's own page.
+     employer's own page. **Lios** (graduate schemes, internships, spring
+     weeks) has no alert emails: the person pastes its matches (access.md).
    - **Email job alerts** in Gmail (LinkedIn, Indeed, IrishJobs and others,
      set up by the person) and community keyword alerts (for example F5Bot).
      Read the emails, never the person's accounts.

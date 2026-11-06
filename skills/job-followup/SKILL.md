@@ -50,7 +50,8 @@ you' or 'Nothing needs you'.
 4. A pending LinkedIn invitation gets no follow-up.
 5. A request to stop is honoured forever: mark do_not_contact.
 6. A job's message (outreach stage `ask`, from job-connector's route) gets
-   one short nudge, then stops: after 2 working days on a REFERRAL FIRST job
+   one short nudge, then stops (a comment on their post before it is a
+   touch, never a follow-up): after 2 working days on a REFERRAL FIRST job
    (apply then too), after 5 on APPLY NOW + REACH OUT.
 
 A reply from them resets the count: it's a conversation now. `followup.py

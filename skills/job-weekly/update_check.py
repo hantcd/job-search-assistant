@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "2.0.0"
+PACK_VERSION = "2.1.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -188,6 +188,14 @@ MIGRATIONS = [
      "when": lambda d: True,
      "steps": "Record the tool, phone numbers on or off, Handshake recruiter pages on or off, and the weekly lookup "
               "limit (default 20) in MASTER_PLAN.md."},
+    {"id": "2.1.0-three-touches", "version": "2.1.0",
+     "title": "Three touches per person, chat prep, LinkedIn searches you run, Lios",
+     "helps": "a short comment on the post where someone advertised the job (you post it), then the message, then one "
+              "nudge; prep for informational chats that ends with a useful ask; links for the alumni and company "
+              "People searches only you can run; Lios as a graduate-scheme source",
+     "needs": "",
+     "steps": "Mention the four in the report with how to use them: 'Prep my chat with <name>', 'LinkedIn searches for "
+              "<company>', and pasting Lios's Monday matches. Nothing else changes."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

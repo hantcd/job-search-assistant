@@ -3,6 +3,27 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 2.1.0 (2026-11-06)
+Ideas from David DeGenova's job-search material (Post Grad Project:
+davidatpgp.netlify.app and his finding-people and conversation-prep
+cheat-sheets); none of his text is used.
+- Three touches per person, then stop: a comment on the post where someone
+  advertised the role (`outreach.py check --channel comment`: specific, under
+  300 characters, no link, CV or referral ask; the person posts it by hand),
+  the message, and one nudge. `followup.py` never counts a comment as a
+  follow-up.
+- `outreach.py linkedin`: links and filters for the searches only the person
+  can run (their alumni tab, the company's People tab ending on 1st and
+  2nd-degree connections, a people search); Claude never opens them.
+- job-network: chat prep (research, 4-5 questions under Their story, The
+  industry, Things you can do, and a closing ask, including feedback on core
+  interview answers), checked by `chat_prep.py`; job-interview drafts that
+  feedback email when someone agrees.
+- Sources: Lios (graduate schemes, internships, spring weeks: the person
+  pastes its matches; deadlines through its calendar sync) and Post Grad
+  Project's H-1B exempt employer directory for people who need US
+  sponsorship.
+
 ## 2.0.0 (2026-11-06)
 Behaviour changes, each from the person's choices after a research pass on
 referral timing and contact routes:

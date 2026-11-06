@@ -1,6 +1,6 @@
 ---
 name: job-network
-description: Finds events and speaker calls, prepares openers and follow-ups, sets up informational chats within the person's weekly allowance, and briefs referees. Use for events, chats, referees.
+description: Finds events and speaker calls, prepares openers and follow-ups, sets up and preps informational chats within the person's weekly allowance, and briefs referees. Use for events, chats, referees.
 ---
 
 # job-network
@@ -12,6 +12,7 @@ never ask for a job, and referees who know what to say.
 
 ```bash
 python3 "$SKILL_DIR/events.py" --file jobsearch/pipeline.json due --today 2026-10-20
+python3 "$SKILL_DIR/chat_prep.py" check prep.md      # before every informational chat
 ```
 
 ## Reads and writes
@@ -39,6 +40,28 @@ minutes that never asks for a job; questions aimed at the team's biggest
 challenge, upcoming projects or goals (which can feed a value validation
 project); a thank-you note. Opt-in: once a month, one person at a top watched
 company with no open roles. Messages follow job-connector's rules.
+
+**Preparing for a chat** (David DeGenova's conversation prep, Post Grad
+Project; ideas only), checked with `chat_prep.py check`:
+
+1. **Research**: their whole path from school to today (the person opens the
+   profile and pastes it, or Claude reads that one profile with them
+   present); the company's recent news (a web search, with links and dates);
+   what their role involves week to week.
+2. **4-5 specific questions** under three headings: *Their story* (how they
+   chose this path, how they landed their first role, why they moved); *The
+   industry* (entry routes, what the work involves, the tools the team uses,
+   the team's current focus); *Things you can do* (recruiting timelines,
+   skills or tools to learn now, programmes or roles to look at, anyone else
+   worth talking to). Nothing their profile already answers.
+3. **Close with one ask about next steps.** For a job the person has applied
+   to: what's important to know about the process; what to highlight; what
+   they look for in new hires; whether the person may come back with small
+   questions; and whether they'd look at a few core interview answers by
+   email or in a 10-minute call. A yes to that goes to job-interview.
+
+Never ask for a job or a referral in a first chat; the referral comes from
+job-connector's route once there's a real exchange.
 
 ## Referees
 

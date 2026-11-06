@@ -64,3 +64,32 @@ someone's public posts show when they're active, use that window. Record each
 send's slot; after 20+ sends, suggest a better starting window from the
 person's reply data, without over-reading small numbers. Follow-ups and stop
 rules: job-followup.
+
+## Searches only the person can run (LinkedIn)
+
+From David DeGenova's finding-people cheat-sheet (Post Grad Project; ideas
+only). `outreach.py linkedin --keywords "..." --company-slug ... --school-slug
+...` builds the links and the filters to click; the person opens them in their
+own LinkedIn. Claude never opens them, and never loops through results.
+
+1. **Their school's alumni tab**: a keyword or career path "in quotes" (try it
+   without the quotes too), filtered by where they live, what they studied and
+   where they work.
+2. **The company's People tab**, when applying to that company: filtered by
+   school (theirs and nearby ones), city, and what they studied; last, 1st and
+   2nd-degree connections. Anyone the person knows well who knows someone
+   there can introduce them.
+3. **A full people search**: All filters, several schools, several locations,
+   current and past companies; their sport, scholarship, hometown or student
+   society "in quotes" finds people with the same background.
+
+The person pastes the results, or lets Claude read that one results page with
+them present. Names go into contacts UNVERIFIED with found_how "LinkedIn
+search you ran", and `network.py rank` orders them with everyone else.
+
+## Which strangers answer most
+
+Moderately weak ties (alumni, past colleagues' colleagues, a few mutual
+connections) are the most useful strangers to ask: a LinkedIn experiment
+with 20 million people found they led to more job moves than strong ties or
+distant ones.

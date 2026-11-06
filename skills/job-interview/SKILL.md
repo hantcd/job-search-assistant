@@ -99,6 +99,11 @@ side by side, both built only from their evidence, with one line on what
 makes the difference. Idea from InterviewThread (Wei Yu) and
 interview-skills (jennifer88huang); none of their text is used.
 
+**A second opinion from inside**: if someone at the company agreed in a chat
+to look at a few answers (job-network's closing ask), draft a short email with
+2-3 of the person's core answers (from the proof pack's stories) and one
+specific question, sent on the person's approval, well before the interview.
+
 ## Mock interviews
 
 Set up in one round of questions: which round (recruiter screen, hiring

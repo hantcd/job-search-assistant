@@ -108,7 +108,10 @@ route, and the person approves each one.
 Google searches built by `outreach.py find`, read on Google's results page
 only (never open anything on linkedin.com), and the scheduled "Referral
 search (on your computer)" task that runs them in the desktop app's browser:
-see `finding-people.md` in this folder for the method and limits.
+see `finding-people.md` in this folder for the method and limits, the
+LinkedIn searches only the person can run (`outreach.py linkedin`: their
+alumni tab, the company's People tab ending on 1st and 2nd-degree
+connections, a people search), and which strangers answer most.
 
 ## Channel
 
@@ -170,15 +173,16 @@ referral wait is short, and the default is to apply.
   Specific, never stock enthusiasm ("sincerest enthusiasm", "incredible
   fit"). To anyone else the ask is small: a quick word with the recruiter or
   hiring manager, or 10 minutes on what the team looks for, never "refer me"
-  in a first message. One nudge after 5 working days, then stop. The person
-  can turn the recruiter note off per job ("just apply").
+  in a first message. The person can turn the recruiter note off ("just
+  apply").
+- **Three touches per person, then stop** (David DeGenova's "reaching out 2-3
+  times isn't weird"): (1) where they posted about the role (`find --posts`),
+  a short, specific comment on that post (`outreach.py check --channel
+  comment`), which the person posts by hand, since Claude never comments in
+  LinkedIn; (2) the message or email; (3) one nudge after 5 working days. A
+  comment never counts as a follow-up (job-followup).
 - **ALREADY APPLIED**: ask the best-placed person for a word with the
   recruiter.
-
-Moderately weak ties (alumni, past colleagues' colleagues, a few mutual
-connections) are the most useful strangers to ask: a LinkedIn experiment
-with 20 million people found they led to more job moves than strong ties or
-distant ones.
 
 Check every ask with `outreach.py check --stage ask` and every nudge with
 `--stage nudge`. Building a network without a job in mind (job-network) can
