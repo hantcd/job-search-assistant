@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "3.1.0"
+PACK_VERSION = "3.2.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -242,6 +242,18 @@ MIGRATIONS = [
               "report gives the exact searches)",
      "steps": "List the saved searches to create on each board from the role families' titles and places; the daily "
               "search reads their alert emails from then on."},
+    {"id": "3.2.0-daily-streak", "version": "3.2.0",
+     "title": "10-20 jobs in your 5 minutes, and a daily streak",
+     "helps": "each job's application and two hiring-team emails approved from one card, then LinkedIn requests and "
+              "a comment for the best jobs; a streak on the days and at the time you choose, with freezes, earn-back "
+              "and milestones, and at least one job ready every planned day",
+     "needs": "about 1 minute: which days and what time for your session (default weekdays 08:30), how many "
+              "applications a day (default 10), a streak goal if you want one, and whether you want a 19:00 reminder "
+              "when the streak is at risk",
+     "steps": "Record 'Session days: <days> at <time>', 'Applications a day: N' and 'Streak goal: N' in MASTER_PLAN.md; "
+              "move the prep task (the email tracker) to 30 minutes before the session time and add --plan "
+              "MASTER_PLAN.md to its today.py call; if wanted, create the evening reminder task (streak.py at-risk, "
+              "one line only when at risk)."},
     {"id": "3.1.0-experience-interview", "version": "3.1.0",
      "title": "A short spoken interview for roles your documents barely cover",
      "helps": "a recent role with little written down (often the newest one, on LinkedIn but on no CV) gets filled "

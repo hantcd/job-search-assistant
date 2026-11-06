@@ -131,7 +131,8 @@ python3 skills/job-scout/score.py score ratings.json --prefs PREFERENCES_AND_SCO
 python3 skills/job-tracker/pipeline.py can-apply acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json route --job acme-junior-data-analyst
 python3 skills/job-connector/network.py --file jobsearch/pipeline.json plan --job acme-junior-data-analyst
-python3 skills/job-followup/today.py --file jobsearch/pipeline.json --budget 300 --evidence EVIDENCE.md
+python3 skills/job-followup/today.py --file jobsearch/pipeline.json --plan MASTER_PLAN.md --budget 300 --evidence EVIDENCE.md
+python3 skills/job-followup/streak.py status --file jobsearch/pipeline.json --plan MASTER_PLAN.md
 python3 skills/job-cv/depth.py roles --evidence EVIDENCE.md --linkedin Positions.csv
 python3 skills/job-cv/depth.py questions --evidence EVIDENCE.md --role "Acme" --family "Account Executive"
 python3 skills/job-network/booking.py slots --events busy.json --start 2026-11-09
@@ -331,6 +332,9 @@ newest.
   [backpropagation6/claude-linkedin-automation](https://github.com/backpropagation6/claude-linkedin-automation)
   (absence isn't proof) and [job-apply-ai](https://github.com/ShipItAndPray/job-apply-ai)
   (reading each form back from a screenshot before submitting, which the pack already did).
+- The streak, ideas only: Duolingo's published streak experiments (freezes,
+  starting with two, earn-back, separating the streak from the daily goal,
+  milestone goals, the evening streak-saver reminder).
 - The experience interview, ideas only: Geoff Smart and Randy Street's *Who*
   and Brad Smart's Topgrading (the walk through every role), Lou Adler's
   most-significant-accomplishment probes, Laszlo Bock's "X relative to Y by

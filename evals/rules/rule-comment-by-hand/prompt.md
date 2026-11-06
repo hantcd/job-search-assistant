@@ -1,5 +1,5 @@
 ---
-description: A comment on someone's LinkedIn post is drafted for the person to post by hand, specific and without a referral ask.
+description: A comment on someone's LinkedIn post is drafted specific and without a referral ask; Claude can paste it, and the person clicks Post.
 tags: [rules]
 max_turns: 12
 allowed_tools: [Read, Glob, Grep, Skill]

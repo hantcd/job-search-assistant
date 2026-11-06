@@ -1762,6 +1762,99 @@ class Release260(unittest.TestCase):
         self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)
 
 
+class Release320(unittest.TestCase):
+    """10-20 jobs in 5 minutes, and the application streak (fictional data)."""
+    st = load("job-followup", "streak")
+    td = load("job-followup", "today")
+    PLAN = "## Pace\n- Session days: Mon, Tue, Wed, Thu, Fri at 09:15\n- Applications a day: 15\n"
+
+    @staticmethod
+    def applied(dates):
+        return {"jobs": [{"id": "a%d" % i, "applied": d.isoformat(), "status": "applied"}
+                         for i, d in enumerate(dates)]}
+
+    def weekdays(self, start, n):
+        out, d = [], start
+        while len(out) < n:
+            if d.weekday() < 5:
+                out.append(d)
+            d += datetime.timedelta(days=1)
+        return out
+
+    def test_plan_settings(self):
+        p = self.st.read_plan(self.PLAN + "- Streak goal: 21\n")
+        self.assertEqual((p["days"], p["time"], p["per_day"], p["goal"]), ([0, 1, 2, 3, 4], "09:15", 15, 21))
+        self.assertEqual(self.st.read_plan("Session days: every day at 19:00")["days"], list(range(7)))
+
+    def test_one_application_keeps_it_and_weekends_dont_break_it(self):
+        p = self.st.read_plan(self.PLAN)
+        days = self.weekdays(D(2026, 10, 19), 10)  # two working weeks
+        s = self.st.status(self.applied(days), p, D(2026, 11, 2))
+        self.assertEqual((s["streak"], s["today"], s["freezes"]), (10, "at risk", 2))
+        self.assertIn("One application keeps it going today", self.st.welcome(s))
+        s = self.st.status(self.applied(days + [D(2026, 11, 2)]), p, D(2026, 11, 2))
+        self.assertEqual((s["streak"], s["today"]), (11, "done"))
+
+    def test_freezes_then_earn_back(self):
+        p = self.st.read_plan(self.PLAN)
+        days = self.weekdays(D(2026, 10, 19), 11)  # to Mon 2 Nov; Tue, Wed, Thu missed
+        s = self.st.status(self.applied(days), p, D(2026, 11, 6))
+        self.assertEqual(s["freezes"], 0)  # two freezes covered Tue and Wed
+        self.assertEqual(s["earn_back"]["streak"], 11)
+        self.assertIn("Apply to 2 jobs today to win back your 11-day streak", self.st.welcome(s))
+        s = self.st.status(self.applied(days + [D(2026, 11, 6)] * 2), p, D(2026, 11, 6))
+        self.assertEqual(s["streak"], 12)
+        self.assertFalse(s["perfect"])
+
+    def test_milestone_and_week_bar(self):
+        p = self.st.read_plan(self.PLAN)
+        days = self.weekdays(D(2026, 10, 19), 7)
+        s = self.st.status(self.applied(days), p, days[-1])
+        self.assertTrue(s["milestone_today"] and s["perfect"])
+        self.assertIn("7 planned days in a row", self.st.welcome(s))
+        self.assertEqual(s["week"]["goal"], 75)
+
+    def test_fifteen_jobs_fit_in_five_minutes(self):
+        jobs, out, contacts = [], [], []
+        for i in range(15):
+            jid = "j%d" % i
+            jobs.append({"id": jid, "company": "Co%d" % i, "title": "AE", "status": "new", "fit": 80 - i,
+                         "apply_queue": {"added": "2026-11-08", "person_submits": i == 3}})
+            for k in range(2):
+                cid = "c%d_%d" % (i, k)
+                contacts.append({"id": cid, "name": "P%d.%d" % (i, k)})
+                out.append({"contact_id": cid, "job_id": jid, "channel": "email", "stage": "application",
+                            "status": "drafted", "messages": []})
+                out.append({"contact_id": cid, "job_id": jid, "channel": "linkedin", "stage": "invite",
+                            "status": "drafted", "messages": []})
+            out.append({"contact_id": "c%d_0" % i, "job_id": jid, "channel": "linkedin", "stage": "comment",
+                        "about_role": i % 3 == 0, "status": "drafted", "messages": []})
+        r = self.td.plan({"jobs": jobs, "outreach": out, "contacts": contacts}, D(2026, 11, 9), 300, 15)
+        kinds = [x["kind"] for x in r["today"]]
+        self.assertEqual(r["jobs"], 15)
+        self.assertLessEqual(sum(x["seconds"] for x in r["today"]), 300)
+        self.assertEqual(kinds.count("EMAIL"), 30)
+        self.assertEqual(kinds.count("SUBMIT"), 1)  # the employer that asks AI agents not to apply
+        self.assertLessEqual(kinds.count("LINKEDIN"), 16)
+        first_linkedin = kinds.index("LINKEDIN")
+        self.assertNotIn("APPLY", kinds[first_linkedin:])  # every application and email before the page steps
+        li = [x for x in r["today"] if x["kind"] == "LINKEDIN"]
+        self.assertTrue(li[0]["item"].startswith("Co0") and li[1]["item"].startswith("Co0"))  # best job, 2 people
+        comments = [x["item"] for x in r["today"] if x["kind"] == "COMMENT"]
+        self.assertTrue(all(c.startswith(("Co0", "Co3", "Co6", "Co9", "Co12")) for c in comments))
+
+    def test_streak_keeper_only_when_nothing_else(self):
+        keeper = {"id": "k", "company": "Keeper", "title": "SDR", "status": "new", "fit": 50,
+                  "apply_queue": {"streak_keeper": True}}
+        real = {"id": "r", "company": "Real", "title": "AE", "status": "new", "fit": 75,
+                "apply_queue": {"added": "2026-11-08"}}
+        r = self.td.plan({"jobs": [keeper]}, D(2026, 11, 9))
+        self.assertEqual(r["jobs"], 1)
+        self.assertIn("keeps your streak", r["today"][0]["item"])
+        r = self.td.plan({"jobs": [keeper, real]}, D(2026, 11, 9))
+        self.assertEqual([x["item"] for x in r["today"]], ["Real, AE"])
+
+
 EVIDENCE_THIN = """# EVIDENCE.md (fictional)
 ## Business Development Representative, Northlight Payments, Dublin (Mar 2025 - present)
 - Prospected payments merchants in Ireland. DOCUMENTED (LinkedIn)
@@ -1871,7 +1964,7 @@ class Release300(unittest.TestCase):
                  "messages": []} for i in range(40)]}
         r = self.td.plan(d, D(2026, 11, 9), 300)
         kinds = [x["kind"] for x in r["today"]]
-        self.assertEqual(kinds[:4], ["BOOK", "APPLY", "CHAT ASK", "APPLY"])
+        self.assertEqual(kinds[:4], ["BOOK", "CHAT ASK", "APPLY", "APPLY"])  # people waiting first, then the jobs
         self.assertEqual(kinds[-1], "CONNECT")
         self.assertLessEqual(sum(x["seconds"] for x in r["today"]), 300)
         self.assertTrue(r["waits_for_tomorrow"])  # not all 40 invites fit

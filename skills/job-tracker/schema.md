@@ -32,6 +32,7 @@ marked * are checked by `pipeline.py validate`.
 | notes | dated lines, e.g. `2026-10-16: open -> applied` |
 | fetch_attempts, first_unreachable, last_fetch_error | failed page loads (closed as unreachable after 3 tries over 48+ hours) |
 | closed_reason | e.g. unreachable |
+| apply_queue | on the apply list: {added, preview (every question and answer, files, declarations word for word), person_submits (the employer asks AI agents not to apply: the person presses Submit), streak_keeper (a real, open job below the usual Fit, kept ready so the streak can go on)} |
 
 ## applications
 job_id*, pack_made*, base_cv, entries_used, answers [{question, answer}] and
@@ -72,7 +73,8 @@ a network without a job in mind), route (referral_first or apply_now, from
 `network.py route`: sets when the one nudge is due), invite_pending (a
 LinkedIn invitation: no follow-up), suggested_other (a
 second person suggested after 3 working days), next_followup*, booked {when,
-minutes, where}.
+minutes, where}, about_role (a comment row: true when the post is about the
+role or its team; only those are offered).
 
 A draft is never in `messages`: messages hold only what really went out or
 came in.

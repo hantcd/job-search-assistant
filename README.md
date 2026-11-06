@@ -4,9 +4,10 @@ Turn Claude into a careful, personal job-search assistant: set it up in
 45–60 minutes, in one sitting or a few, no coding needed. Free and open
 source.
 
-**About 5 minutes a day.** Say *Go* each morning: Claude shows what needs
-you, ranked and cut to fit, and each item is one tap. Replies become calendar
-invites; the rest runs on its own.
+**About 5 minutes a day, 10-20 jobs.** Say *Go* at the time you chose: tick
+each job's application and emails to its hiring team in one card, then click
+Send on a few LinkedIn requests. Replies become calendar invites, and a daily
+streak keeps you going; the rest runs on its own.
 
 **Nothing goes out without your yes.** Claude shows you each application and
 each message; one click on Approve submits or sends that one item.

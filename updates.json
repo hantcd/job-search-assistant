@@ -1,7 +1,20 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "3.1.0",
+ "latest": "3.2.0",
  "versions": [
+  {
+   "version": "3.2.0",
+   "date": "2026-11-06",
+   "summary": "10-20 jobs in your 5 minutes: each job's application and two hiring-team emails approved from one card, then LinkedIn requests and a comment on the page, plus a daily streak with freezes and milestones.",
+   "helps": [
+    "tick up to 16 applications and emails in one card; Claude submits and sends afterwards",
+    "for the best jobs, connection requests to the same two people and a comment where they posted about the role",
+    "a streak on the days and at the time you choose, kept by one application, with freezes, earn-back and milestones",
+    "at least one job ready every planned day, and an optional evening reminder when the streak is at risk",
+    "making accounts on job sites is one click with Continue with Google or the browser's password"
+   ],
+   "install_minutes": 1
+  },
   {
    "version": "3.1.0",
    "date": "2026-11-06",

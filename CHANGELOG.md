@@ -3,6 +3,31 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.2.0 (2026-11-06)
+Maximum results in as few clicks as possible.
+- job-followup `today.py`: one bundle per queued job, best first, up to the
+  plan's 'Applications a day' (default 10). Pass 1 in the chat: the
+  application (its preview: every answer, file and declaration) and emails
+  to the two hiring-team people, up to 16 approvals in one card; Claude
+  submits and sends afterwards. Pass 2 on the page: connection requests (or
+  messages) to the same two people for the best jobs within the daily cap
+  (16, so about 8 jobs), a comment only where one of them posted about the
+  role (`about_role`), and Submit by the person where the employer asks AI
+  agents not to apply (Claude fills the fields and uploads the files). 15
+  jobs fit in about 5 minutes of the person's time.
+- job-followup `streak.py`: the application streak, on the person's planned
+  days and time ('Session days: Mon, Tue, Wed, Thu, Fri at 08:30'). One
+  application keeps it; 2 freezes to start, one earned per 10 days done,
+  at most 2; earn-back with 2 applications the next planned day; milestones
+  3, 7, 14, 30, 50, 100 or the person's goal; perfect streaks; the week's bar.
+  `at-risk` drives the optional evening reminder. After Duolingo's published
+  streak experiments.
+- job-apply: the prep run keeps at least one job ready every planned day (a
+  `streak_keeper` below the Fit threshold when nothing passes); job-site
+  accounts are encouraged: Continue with Google, or the browser's suggested
+  password, then the person clicks Create account.
+- LinkedIn comments: Claude pastes the comment, the person clicks Post.
+
 ## 3.1.0 (2026-11-06)
 - job-cv `depth.py` and `experience-interview.md`: the experience interview.
   `roles` scores every dated role in EVIDENCE.md and, with LinkedIn's
