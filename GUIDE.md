@@ -353,6 +353,7 @@ With job-tracker, create it where my plan says, with every table in its schema, 
 - Daily job search: job-scout, job-research for alert-worthy jobs, job-apply for packs within my weekly capacity, job-followup for what's due, and deadline reminders.
 - Watched companies: job-scout, watched companies only.
 - Events: job-network.
+- Referral search, on my computer (requires my computer; runs while the Claude desktop app is open): job-connector's people search for every new job, then who to contact, best for the role first.
 - Weekly check: job-weekly, with the Monday summary line.
 - Email tracker, if Gmail is connected: job-tracker's email tracker, then job-interview or job-offer when an invite or offer arrives.
 Each reads the job list first and states its finish line. Every alert and report opens with 'Needs you' (things to send, decisions, deadlines) or 'Nothing needs you'.
@@ -531,7 +532,7 @@ Timing: APPLY NOW + REACH OUT. The deadline is close, so apply this week and mes
 | Negotiating an offer | Say: "Help me set my lines and rehearse the call." You set what you'll ask for, what you'd accept on the spot and where you'd walk away; Claude plays the recruiter and pushes back. |
 | Check for updates | Say: "Check for updates." (The weekly check does this anyway.) |
 | Want to apply, but you're on your phone | Say: "Add the Twilio and Intercom jobs to my apply list." The next daily run prepares each one: the CV, the form's questions with draft answers, and referral notes to anyone you know there. Next time you're at your computer, say "Let's do my apply list": Claude fills each form while you watch, and you press Submit. |
-| Find hiring managers automatically | Approve the optional 'Referral search (on your computer)' update. While the Claude desktop app is open, it reads each ad for who the role reports to, then searches Google (never LinkedIn) for the likely hiring manager and two people on the team, for new jobs where you know nobody there. They're added to your list as unverified until you open their profile. |
+| Find hiring managers automatically | It's automatic once you approve the 'Referral search (on your computer)' task in Step 5. While the Claude desktop app is open, it reads each new job's ad for who the role reports to, then searches Google (never LinkedIn) for the likely hiring manager and two people on the team. Who to contact is ranked best for the role first; people you already know break ties. They're added to your list as unverified until you open their profile. |
 | Prepare for an event | *I'm going to the Dublin Tech Meetup on Thursday.* |
 | Prepare for a chat | *I'm chatting with Sarah from Acme tomorrow.* |
 | Polish a LinkedIn post | *Here's my draft for this week's LinkedIn post.* You post it yourself. |

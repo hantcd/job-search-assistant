@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "1.8.2"
+PACK_VERSION = "1.8.3"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -130,9 +130,9 @@ MIGRATIONS = [
               "job's people_you_know back to the job list, rescore each job whose 'connection' part said nobody was "
               "known (score.py), and list the jobs with the most people in the report."},
     {"id": "1.8.2-referral-search-task", "version": "1.8.2",
-     "title": "Find hiring managers and people on the team, on your computer",
-     "helps": "for jobs where you know nobody on the team, Claude finds the likely hiring manager and two people "
-              "through Google (never LinkedIn) and adds them to your list",
+     "title": "Find hiring managers and people on the team, automatically, on your computer",
+     "helps": "for every new job, Claude finds the likely hiring manager and two people on the team through Google "
+              "(never LinkedIn), and ranks who to contact: best for the role first, people you know as a tiebreak",
      "needs": "your OK for one scheduled task that runs on your computer while the Claude desktop app is open "
               "(about 1 minute)",
      "steps": "Create the scheduled task 'Referral search (on your computer)' as job-connector describes, "

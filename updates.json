@@ -1,7 +1,18 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "1.8.2",
+ "latest": "1.8.3",
  "versions": [
+  {
+   "version": "1.8.3",
+   "date": "2026-11-06",
+   "summary": "Who to contact, best for the role first: the hiring manager and the team are searched for every new job, and ranked ahead of connections in other departments.",
+   "helps": [
+    "every new job is searched for its hiring manager and team, not only jobs where you know nobody",
+    "who to contact is ranked by fit for the role first; people you know break ties",
+    "each person comes with the first step: message, connection request with a note, or an email"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "1.8.2",
    "date": "2026-11-06",

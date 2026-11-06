@@ -1310,3 +1310,35 @@ class Release182(unittest.TestCase):
         r = self.u.check(copy.deepcopy(PIPE), None)
         self.assertIn("1.8.2-people-you-know", [i["id"] for i in r["do_now"]])
         self.assertIn("1.8.2-referral-search-task", [i["id"] for i in r["ask"]])
+
+
+class Release183(unittest.TestCase):
+    """Best for the role first; people you know break ties (fictional people)."""
+    n = load("job-connector", "network")
+
+    def data(self):
+        return {"jobs": [{"id": "j", "company": "Acme Ltd", "title": "Business Development Representative",
+                          "status": "new"}],
+                "network": [{"name": "Eng Pal", "company": "Acme", "position": "Software Engineer"},
+                            {"name": "Sales Pal", "company": "Acme Ltd", "position": "Account Executive"}],
+                "contacts": [{"id": "x", "name": "Hiring Boss", "company": "Acme", "role": "Head of Sales Development, EMEA"},
+                             {"id": "y", "name": "Team Peer", "company": "Acme", "role": "Business Development Representative",
+                              "in_common": "school: Trinity College Dublin"},
+                             {"id": "z", "name": "Gone Person", "company": "Acme", "role": "Sales Manager",
+                              "do_not_contact": True}]}
+
+    def test_role_first(self):
+        r = self.n.rank(self.data(), "j", ["Head of Sales Development, EMEA"], 5)
+        self.assertEqual([x["name"] for x in r], ["Hiring Boss", "Team Peer", "Sales Pal", "Eng Pal"])
+        self.assertIn("email", r[0]["first_step"])
+        self.assertIn("message", r[2]["first_step"])
+
+    def test_connection_breaks_ties(self):
+        d = self.data()
+        d["contacts"][1]["in_common"] = ""
+        r = self.n.rank(d, "j", [], 5)
+        self.assertEqual(r[0]["name"], "Hiring Boss")  # senior on the team, by title
+        self.assertEqual([x["name"] for x in r[1:3]], ["Sales Pal", "Team Peer"])
+
+    def test_do_not_contact_left_out(self):
+        self.assertNotIn("Gone Person", [x["name"] for x in self.n.rank(self.data(), "j", [], 10)])

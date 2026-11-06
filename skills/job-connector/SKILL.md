@@ -93,22 +93,39 @@ company, the team or job title, and something the person shares with them
   profile and confirms they still work there (`employer_checked`); results go
   out of date.
 
-### Searching on the person's computer
+### Searching on the person's computer, automatically
 
 Claude's own web search doesn't find people (tested 2026-11-06: hiring-manager
 searches returned only job listings), and scheduled tasks in the cloud have
-no browser. So the people search runs as its own scheduled task that requires
-the person's computer ("Referral search (on your computer)", set up with the
-person's OK, in the Claude desktop app's built-in browser while the app is
-open). Each run, for new jobs since the last run where the person knows
-fewer than two people on the team, best scores first, at most 10 jobs: the
-hiring manager's title (`outreach.py manager`) and two team searches
-(`outreach.py find`), read on Google's results page only, at most 20
-searches a run with a pause between them. Results go into contacts as
-UNVERIFIED with what they share with the person; never open, click or follow
-anything on linkedin.com. A CAPTCHA or 'unusual traffic' page stops the run;
-the alert lists the links instead. If the computer is off, the run waits for
+no browser. So the people search is its own scheduled task that requires the
+person's computer, "Referral search (on your computer)", set up with the
+other automatic tasks and running in the Claude desktop app's built-in
+browser whenever the app is open. If the computer is off, the run waits for
 the next one and nothing is lost.
+
+Each run takes the new jobs that passed the gates and haven't been searched
+yet (`people_searched` empty), best scores first, at most 10, whether or not
+the person already knows someone there: the best person for the role often
+isn't in their network. For each: the hiring manager's title from the ad
+(`outreach.py manager`; otherwise the most senior title in the job's function
+there), then two team searches with what the person shares (school, city, a
+past employer, from PROFILE.md), all through `outreach.py find` and read on
+Google's results page only. At most 20 searches a run, a pause between them;
+never open, click or follow anything on linkedin.com; a CAPTCHA or 'unusual
+traffic' page stops the run and the report gives the links. Results go into
+contacts as UNVERIFIED with `found_how` and `in_common`, and the job gets
+`people_searched` with the date.
+
+**Who to contact first** (`network.py rank`): the best people for the role,
+whether or not the person knows them: the likely hiring manager, then senior
+people on the team, then the team, then a recruiter for that team. What they
+share with the person and an existing connection only break ties. So a hiring
+manager found on Google comes before a connection in another department, and
+a connection on the team comes before a stranger on the team. Each comes with
+its first step: a message if already connected, a connection request with a
+short note, or for the hiring manager an email plus a request without a note.
+The report lists the top three per job with why; drafts follow the referral
+path, and the person sends.
 
 To find a hiring manager, the person can also run LinkedIn's people search in
 their own browser; Claude may read that one results page with them present.

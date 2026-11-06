@@ -3,6 +3,16 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.8.3 (2026-11-06)
+- Who to contact, best for the role first (`network.py rank`): the likely
+  hiring manager, senior people on the team, the team, then a recruiter;
+  shared school, city or past employer and an existing connection only break
+  ties. Each person comes with the first step (message, connection request
+  with a note, or an email for the hiring manager).
+- The referral search on the person's computer now covers every new job,
+  not only jobs where they know nobody, and is set up with the other
+  automatic tasks.
+
 ## 1.8.2 (2026-11-06)
 Referrals, after a live check of the person's job list found 15 jobs, an
 empty contacts table, and connections at 9 of the 15 companies that had never

@@ -229,9 +229,12 @@ Before scoring (Attainability's 'connection' part depends on it), run
 job-connector's `network.py match --write` for each new job that passed the
 gates, and put its line in the alert and the run
 report for every job listed, alert-worthy or not: "People you know: 13 at
-MongoDB (4 on the team)". Jobs where the person knows fewer than two people
-on the team are left for the referral search on their computer
-(job-connector), if it's set up; otherwise the alert gives the Google links.
+MongoDB (4 on the team)". Every new job is also searched for the best people
+for the role (the hiring manager and the team) by the referral search on the
+person's computer (job-connector), and the alert's "Who to contact" lists the
+top three from `network.py rank`, people they know and people found together,
+best for the role first; until that task has run, the alert gives the Google
+links.
 
 ## An employer that asks AI agents not to apply
 
