@@ -18,8 +18,8 @@ def front(text):
 
 
 class Repo(unittest.TestCase):
-    def test_fifteen_skills(self):
-        self.assertEqual(len(SKILLS), 15)
+    def test_seventeen_skills(self):
+        self.assertEqual(len(SKILLS), 17)
 
     def test_frontmatter(self):
         for p in SKILLS:

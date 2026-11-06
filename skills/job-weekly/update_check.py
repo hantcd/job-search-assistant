@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "1.8.3"
+PACK_VERSION = "1.9.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -137,6 +137,13 @@ MIGRATIONS = [
               "(about 1 minute)",
      "steps": "Create the scheduled task 'Referral search (on your computer)' as job-connector describes, "
               "weekdays at a quiet hour, requiring the person's computer; it waits if the computer is off."},
+    {"id": "1.9.0-add-ons", "version": "1.9.0",
+     "title": "Two new add-ons: a portfolio website and a career-switch plan",
+     "helps": "a one-page portfolio of your real results to share with recruiters, and a plan for moving into a "
+              "new field (what transfers, bridge roles, the quickest proof for each gap)",
+     "needs": "",
+     "steps": "Mention both in the report with how to start: 'Build my portfolio' and 'Plan a switch to <role>'. "
+              "Nothing else changes until Han asks."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

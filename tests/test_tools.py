@@ -1342,3 +1342,48 @@ class Release183(unittest.TestCase):
 
     def test_do_not_contact_left_out(self):
         self.assertNotIn("Gone Person", [x["name"] for x in self.n.rank(self.data(), "j", [], 10)])
+
+
+class Release190(unittest.TestCase):
+    """Portfolio and career-switch add-ons (fictional data)."""
+    pc = load("job-portfolio", "portfolio_check")
+    sm = load("job-switch", "switch_map")
+    EV = "Built a claims dashboard used by 12 managers. Cut reporting from 6 hours to 40 minutes."
+
+    def page(self, body, head=True):
+        h = ('<title>Aoife Byrne, Data Analyst</title><meta name="viewport" content="width=device-width">'
+             '<meta name="description" content="Data analyst portfolio">') if head else ""
+        return "<html><head>%s</head><body>%s</body></html>" % (h, body)
+
+    def test_clean_page_passes(self):
+        res = self.pc.check(self.page('<section><h2>Case study</h2><p>A dashboard used by 12 managers.</p>'
+                                      '<img src="d.png" alt="The claims dashboard"></section>'), [self.EV])
+        self.assertEqual(res[-1][0], "PASS")
+
+    def test_invented_number_fails(self):
+        res = self.pc.check(self.page("<p>A dashboard used by 15 managers.</p>"), [self.EV])
+        self.assertTrue(any(r[1] == "number" and "15" in r[2] for r in res))
+
+    def test_private_and_tracking_fail(self):
+        res = self.pc.check(self.page('<p>Call 087 123 4567</p><script src="https://www.googletagmanager.com/gtm.js"></script>'
+                                      '<img src="me.jpg">'), [self.EV])
+        whats = {r[1] for r in res if r[0] == "FAIL"}
+        self.assertTrue({"private", "tracking", "alt text"} <= whats)
+        self.assertTrue(any(r[1] == "phone" for r in self.pc.check(self.page("<p>x</p>", head=False), [self.EV])))
+
+    def test_switch_map(self):
+        rows, cov = self.sm.map_switch({
+            "requirements": [{"need": "SQL", "must": True, "seen_in": 12}, {"need": "Power BI", "seen_in": 9},
+                             {"need": "Python scripting", "seen_in": 5}],
+            "evidence": ["Built a claims dashboard in SQL used by 12 managers",
+                         "Wrote a Python script that cut reporting from 6 hours to 40 minutes"]})
+        levels = {r["need"]: r["level"] for r in rows}
+        self.assertEqual(levels, {"SQL": "STRONG", "Power BI": "GAP", "Python scripting": "STRONG"})
+        self.assertTrue(all(r["evidence"] for r in rows if r["level"] != "GAP"))
+        self.assertTrue(0 < cov < 100)
+
+    def test_switch_story(self):
+        good = "I built a dashboard 12 managers used. I found I like the analysis most. Data roles do that every day."
+        self.assertEqual(self.sm.story_check(good, [self.EV])[-1][0], "PASS")
+        bad = "I led a team of 20. I want data."
+        self.assertTrue(any(r[0] == "FAIL" for r in self.sm.story_check(bad, [self.EV])))

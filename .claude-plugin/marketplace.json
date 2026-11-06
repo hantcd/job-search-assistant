@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "job-search-assistant",
-      "description": "15 skills: job tracker, scout, company research, CVs, cover letters, application packs, connector, follow-ups, LinkedIn, Reddit, interviews, offers, weekly check, networking and a chief of staff; read-only reviewer agents and hooks that stop Claude sending.",
+      "description": "17 skills: job tracker, scout, company research, CVs, cover letters, application packs, portfolio site, career switch, connector, follow-ups, LinkedIn, Reddit, interviews, offers, weekly check, networking and a chief of staff; read-only reviewer agents and hooks that stop Claude sending.",
       "source": "./",
       "category": "productivity"
     }

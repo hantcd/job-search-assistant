@@ -56,6 +56,10 @@ Once it's set up, Claude works on your job search every weekday:
   round, and for offers, the lines you won't cross and a rehearsal of the
   call. CVs can't quietly overclaim: 'led' where you 'contributed' is
   flagged.
+- **Add-ons when you need them**: a one-page portfolio website built from
+  your real results (checked so nothing is exaggerated or private), and a
+  career-switch plan: what transfers, the bridge roles that get you there,
+  and the quickest credible way to close each gap.
 - **Keeps itself up to date.** Once a week it checks this repository for a
   newer version. Anything that needs nothing from you happens automatically;
   anything that needs you is optional, with what it helps with and what it
@@ -154,7 +158,7 @@ common problems, each with the exact words to say to Claude.
 | file | what it's for |
 |---|---|
 | [GUIDE.pdf](https://github.com/hantcd/job-search-assistant/raw/main/GUIDE.pdf) | the step-by-step guide, to read offline or print |
-| [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip) | all 15 skills in one file: attach it in a Claude chat to install them (in Cowork, it also installs as a plugin) |
+| [job-search-assistant-all.zip](https://github.com/hantcd/job-search-assistant/raw/main/dist/job-search-assistant-all.zip) | all 17 skills in one file: attach it in a Claude chat to install them (in Cowork, it also installs as a plugin) |
 | [Single-skill zips](https://github.com/hantcd/job-search-assistant/tree/main/dist) | the same skills one at a time, to upload under **Customize > Skills** instead |
 
 ## Questions

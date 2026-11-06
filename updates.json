@@ -1,7 +1,18 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "1.8.3",
+ "latest": "1.9.0",
  "versions": [
+  {
+   "version": "1.9.0",
+   "date": "2026-11-06",
+   "summary": "Add-ons: a portfolio website from your evidence, a career-switch plan, and batch apply sessions.",
+   "helps": [
+    "a one-page portfolio site of real results, checked for truth and privacy, published where you choose",
+    "a career-switch plan: what transfers, bridge roles, the quickest credible proof for each gap, and your switch story",
+    "apply to your whole apply list in one sitting: Claude fills each form, you press Submit and say next"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "1.8.3",
    "date": "2026-11-06",

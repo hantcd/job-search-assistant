@@ -121,8 +121,12 @@ Greenhouse; `apply_form.py scan` in the session for others) with draft answers
 contacts at the company (job-connector, after `contact-check`), since the
 plan asks for referrals before applying. The next live session with a browser
 opens with `pipeline.py queue list`: "3 applications ready to fill". Then
-fill each form while the person watches; they press Submit, and the job
-leaves the list once it's applied.
+a **batch apply session**: fill each queued form in turn while the person
+watches (`apply_form.py fill`, one window at a time); they check it and press
+Submit, say "next", and Claude opens the next one. That's as automatic as
+applying gets here: Claude never presses Submit, because the person is the
+one applying, and auto-submitted applications are easy for employers to spot.
+The job leaves the list once it's applied.
 
 **An employer that asks AI agents not to apply**: `apply_form.py` prints the
 employer's line word for word. Tell the person before filling. Filling the

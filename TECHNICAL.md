@@ -4,16 +4,17 @@ For people who want to know how the skill pack works, run its scripts and tests,
 
 ## The skill pack
 
-Fifteen Claude skills that run a careful, personal job search: find and
+Seventeen Claude skills that run a careful, personal job search: find and
 score jobs, tailor true CVs and letters, reach the right people, follow up
-politely, and prepare for interviews and offers. Free, MIT.
+politely, prepare for interviews and offers, and, as add-ons, build a
+portfolio site and plan a career switch. Free, MIT.
 
 It's the engine behind the guide *Build Your Own Job-Search Assistant with
 Claude*. The guide's two short chats write your personal files (your evidence,
 your writing style, your goals and scoring); these skills read them. Nothing
 is sent or submitted without your yes.
 
-### The fifteen skills
+### The seventeen skills
 
 | skill | what it does |
 |---|---|
@@ -31,6 +32,8 @@ is sent or submitted without your yes.
 | `job-offer` | Pay year by year, market pay with sources, a contract read-through and a negotiation email |
 | `job-weekly` | The weekly check: what the search is missing, a monthly skills gap, and what's working once there's enough data |
 | `job-network` | Events and speaker calls, informational chats, and referee briefings |
+| `job-portfolio` (add-on) | A one-page portfolio site from your evidence: case studies with real results and proof, checked for truth and privacy, published where you choose |
+| `job-switch` (add-on) | A career-switch plan: your evidence mapped to the target role, bridge roles, the quickest credible proof for each gap, and a checked 'why I'm switching' story |
 | `job-chief` | Runs the whole search as one ongoing goal in Claude Code or Cowork: subagents for the work, a dated wiki of decisions and lessons, one improvement proposed each time |
 
 Every skill has the same shape: what it reads and writes, numbered steps, a
@@ -74,8 +77,8 @@ Create and edit files. Then either:
 - download this repository's skill zips (one per skill, in `dist/`) and upload
   each under Customize > Skills; or
 - attach `dist/job-search-assistant-all.zip` in a chat in your Job Search
-  Assistant project and say: *Install these 15 skills*. Claude offers a save
-  card for each; click Save on all 15.
+  Assistant project and say: *Install these 17 skills*. Claude offers a save
+  card for each; click Save on all 17.
 
 **In Cowork**, to get the agents and hooks as well: Customize > Plugins >
 Add > Upload plugin, and choose `dist/job-search-assistant-all.zip` (it's

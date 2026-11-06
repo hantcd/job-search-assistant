@@ -3,6 +3,24 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.9.0 (2026-11-06)
+The pack now covers the nine common uses of AI in a job search (find real
+jobs, positioning, CV and letter, applying, emailing hiring managers,
+referrals, a portfolio site, interview prep, switching careers):
+- New add-on skill, job-portfolio: a one-page portfolio site from
+  EVIDENCE.md (case studies with real results and proof), checked by
+  `portfolio_check.py` (numbers from the evidence, no private details, alt
+  text, readable on a phone, no tracking), published where the person chooses
+  with their yes.
+- New add-on skill, job-switch: `switch_map.py` maps each requirement of the
+  target role (from real ads) to the person's evidence (STRONG, PARTIAL,
+  GAP, each quoting its evidence), then bridge roles, a gap plan with the
+  quickest credible proof, a checked 'why I'm switching' story, a reframed
+  CV and chats with people who made the same switch.
+- Applying: the batch apply session fills each queued form in turn while the
+  person watches; they press Submit and say "next". Claude never submits.
+- 17 skills.
+
 ## 1.8.3 (2026-11-06)
 - Who to contact, best for the role first (`network.py rank`): the likely
   hiring manager, senior people on the team, the team, then a recruiter;

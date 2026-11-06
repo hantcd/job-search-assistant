@@ -2,7 +2,7 @@
 
 Oct 8, 2026 · @Han
 
-Follow 8 steps in one 60–90 minute sitting, with your documents ready. Afterwards, Claude finds jobs that suit you, checks each is real and open, scores it, keeps a list and alerts you only about the best, with a tailored CV, cover letter, application answers and referral contacts ready. It drafts emails and LinkedIn messages to hiring managers and people who could refer you, helps you get found on LinkedIn, and prepares you for interviews and offers. Referrals and direct contact open far more doors than cold applications, so it works both routes. It runs on a free, tested pack of 15 skills; your two chats make it yours.
+Follow 8 steps in one 60–90 minute sitting, with your documents ready. Afterwards, Claude finds jobs that suit you, checks each is real and open, scores it, keeps a list and alerts you only about the best, with a tailored CV, cover letter, application answers and referral contacts ready. It drafts emails and LinkedIn messages to hiring managers and people who could refer you, helps you get found on LinkedIn, and prepares you for interviews and offers. Referrals and direct contact open far more doors than cold applications, so it works both routes. It runs on a free, tested pack of 17 skills; your two chats make it yours.
 
 **Why referrals:** across 38 million applications on Ashby from 2021 to 2024, 40% of referred candidates reached an interview, against 3% of people who applied alone ([Ashby Talent Trends](https://www.ashbyhq.com/talent-trends-report/reports/referrals)). Those are averages, not a promise.
 
@@ -45,7 +45,7 @@ Each card shows roughly how long it takes. Notes marked *Other options* are opti
 | 3 Build and install | 4–5 | 15–20 min, plus 10–15 min of waiting | The assistant, your master CV and base CVs, your job list and its automatic tasks |
 | 4 Test and switch on | 6 | 10–15 min | Proof it works, and daily alerts switched on |
 | 5 Everyday use | 7 | A minute or two a day | Alerts, application packs and reminders |
-| 6 Extras | 8 | Later | More referral help; stand-out outreach (calls, video, advanced email); hiring signals; a results dashboard; wrapping up after an offer |
+| 6 Extras | 8 | Later | More referral help; stand-out outreach (calls, video, advanced email); hiring signals; a results dashboard; wrapping up after an offer; a portfolio website; a career-switch plan |
 
 The times assume your documents are ready. Claude drafts; you mostly click to confirm. Progress is saved after every step.
 
@@ -56,7 +56,7 @@ The times assume your documents are ready. Claude drafts; you mostly click to co
 | Project | A folder in Claude whose chats share the same files and instructions. |
 | Chat | One conversation. Start a new one when a step says so (the project page calls it a session); long chats use more of your allowance. |
 | Usage allowance | How much Claude you can use. It refills every 5 hours, with a weekly cap; automatic tasks count too. |
-| Skill | Saved instructions Claude follows for one job, such as "find and score jobs". This guide uses a pack of 15, named job-tracker, job-scout and so on. |
+| Skill | Saved instructions Claude follows for one job, such as "find and score jobs". This guide uses a pack of 17, named job-tracker, job-scout and so on. |
 | Automatic task | A job Claude runs on a schedule, such as weekday mornings, even with your computer off. Claude calls these scheduled tasks. |
 | Job list | A private page Claude keeps updated with every role it finds and what happened next. |
 | Role family | A group of similar jobs you'd apply for, chosen in Step 3. Each gets its own base CV. |
@@ -128,7 +128,7 @@ Can't add a marketplace? Download [job-search-assistant-all.zip](https://github.
 
 ![Customize, Plugins, + Add, Upload plugin](docs/images/04-plugins-upload.png)
 
-If neither works, use the **Skills** tab: click **+ Add**, choose **Upload skill**, and upload the 15 single-skill zips from the [skill pack's dist folder](https://github.com/hantcd/job-search-assistant/tree/main/dist) one at a time.
+If neither works, use the **Skills** tab: click **+ Add**, choose **Upload skill**, and upload the 17 single-skill zips from the [skill pack's dist folder](https://github.com/hantcd/job-search-assistant/tree/main/dist) one at a time.
 
 ![Customize, Skills, + Add, Upload skill](docs/images/05-skills-upload.png)
 
@@ -154,7 +154,7 @@ Using Cowork or Claude Code? Install the same zip as a plugin there (its README 
 
 - [ ] The Job Search Assistant project exists.
 - [ ] Create and edit files is switched on in Settings > Capabilities.
-- [ ] All 15 job-\* skills are installed and switched on under Customize (as one plugin under Plugins, or as 15 skills under Skills).
+- [ ] All 17 job-\* skills are installed and switched on under Customize (as one plugin under Plugins, or as 17 skills under Skills).
 
 ## Part 2 — Tell Claude about yourself
 
@@ -332,7 +332,7 @@ INPUTS
 MASTER_PLAN.md is the authority for every setting, schedule and threshold. Also use PROFILE.md, EVIDENCE.md, VOICE.md and PREFERENCES_AND_SCORING.md. The skills hold the method; my files hold everything personal, so never edit a skill: put any rule of mine in PROJECT_INSTRUCTIONS.md or MASTER_PLAN.md. Where my files are silent, list the gap; don't invent a rule. Ask me only if something blocks the build, as multiple-choice questions.
 
 0. CHECKS
-- All 15 skills are installed and switched on: job-tracker, job-scout, job-research, job-cv, job-cover, job-apply, job-connector, job-followup, job-linkedin, job-reddit, job-interview, job-offer, job-weekly, job-network, job-chief. If any is missing, tell me which and stop. Ask me once how I installed the pack (from GitHub, by uploading the zip, as separate skills) and record it with job-weekly's update_check.py route.
+- All 17 skills are installed and switched on: job-tracker, job-scout, job-research, job-cv, job-cover, job-apply, job-connector, job-followup, job-linkedin, job-reddit, job-interview, job-offer, job-weekly, job-network, job-chief, job-portfolio, job-switch. If any is missing, tell me which and stop. Ask me once how I installed the pack (from GitHub, by uploading the zip, as separate skills) and record it with job-weekly's update_check.py route.
 - PREFERENCES_AND_SCORING.md ends with the JSON scoring block job-scout reads (see its score.py example-prefs), matching my approved weights and thresholds. If not, add it and show me.
 
 1. PROJECT_INSTRUCTIONS.md (at most 120 lines)
@@ -571,6 +571,8 @@ Add one extra at a time, after a couple of weeks of alerts you trust. Wrapping u
 | Stand-out outreach | Advanced email and ways in beyond email and LinkedIn, each on only where it suits your role types: speculative emails to a named hiring manager at watched or local companies with no advert, up to a weekly number you set (one-to-one, no CV attached, asking for a short call in a time window); a contact map of 3–5 people per top company, worked through in turn; Hunter.io lookups and address checks, run by you; data-broker extensions (Apollo, Lusha, Kaspr) explained but never run, as they break LinkedIn's rules and France's regulator fined Kaspr; subject-line, opener and send-window tests once there are enough sends to tell; open tracking only if you accept the risk (France's regulator says tracking one person's opens needs their consent); 30-second phone scripts, a voicemail and answers to likely replies for small firms, agencies and sales roles (you call; Claude finds only the company's main number, never personal mobiles); 60–90 second video scripts for top jobs, always with a written email that stands alone; and your value validation project as a web page for that company. Every contact-finding method gets a privacy label and your decision, and everything is logged in the Outreach table. | You're targeting small or local firms, companies that don't advertise every vacancy, sales or client-facing roles, or top jobs where showing your work or presence helps |
 | Hiring signals | Spots companies likely to hire before they advertise, so you reach them first. Signals, each with its source and date: a funding round (first hires usually follow within 1–3 months); a new leader for the team you'd join (new leaders often reshape their team within 90 days); a new office, an expansion, or an IDA Ireland or Enterprise Ireland jobs announcement; a contract win or product launch; and a watched company's open roles rising week on week. Layoffs or a hiring freeze lower a company's priority. Sources: company newsrooms, local business news and Google Alerts into your Gmail if connected (Claude gives you the exact alerts); never your LinkedIn account. Weekly, Claude lists the 3–5 strongest signals for your role families, who to contact and why now, and drafts a short note that opens with the news: an informational chat request, or a speculative email if you've added Stand-out outreach. Contact details get the usual privacy check, and signals are logged with what came of them. | You're targeting startups, scale-ups or growing local firms, or few roles in your field are advertised |
 | Results dashboard | A visual page built from your job list and refreshed by the weekly check: your funnel from applications to replies, interviews and offers, and from outreach to replies, chats and referrals; the same rates split by role family, route (portal, agency, referral, direct contact), base CV, channel, send time and how soon after posting you applied; time to first reply; a flow diagram of the whole search; and this week's applications and conversations against your targets. Every rate shows its counts (for example 2 of 14), and groups too small to judge are labelled so. A one-line diagnosis names the weakest stage (few replies: targeting or CV; replies but few interviews: your pitch or fit; interviews but no offers: interview practice) and links to the weekly check's suggestions. Read-only: it never changes your scoring or CVs. | You've sent 20+ applications or messages and want to see what's working at a glance |
+| Portfolio website | A one-page site of your best work: 3–5 case studies (the problem, what you did, the result with its real number, the proof), your positioning line, your CV to download and a professional contact. Checked so every number comes from your evidence and nothing private (phone, address, date of birth) is on it, readable on a phone, no tracking. Published where you choose (a private Claude page you can share, GitHub Pages, or a site builder you already use), only with your yes. Say: "Build my portfolio." | Your work can be shown (design, data, product, marketing, engineering, or a sales value-validation project), or recruiters ask for examples |
+| Career switch | A plan for moving into a new field: each requirement from real ads mapped to your evidence (strong, partial or a gap, each with its source), 3–5 bridge roles that use what you've already proved, the quickest credible proof for each gap (a small project, a recognised course), a checked 'why I'm switching' story, a reframed CV, and chats with people who made the same move. Say: "Plan a switch to \[role\]." | You're moving into a different role or industry, or your target jobs keep scoring low on fit |
 | Wrapping up | Closes your search cleanly once you accept an offer. It waits until you've accepted in writing and the offer's conditions (references, background or right-to-work checks) have cleared, keeping a small pipeline until then. Then it drafts short, thankful withdrawals to every employer and agency still considering you, leaving the door open; notes telling everyone who referred you, met you for a chat or gave a reference how it ended; and, if you're employed, a resignation letter using the notice period in your contract. It closes out your job list, saves a backup and a one-page summary of what worked for next time, pauses (doesn't delete) the automatic tasks, and reminds you to turn off Open to Work and update LinkedIn when you start. For the new job: a 30-60-90 day plan from your interview notes and company research (early conversations with your manager about expectations and priorities, then a few early wins), and a monthly reminder to add achievements to a running log, ready for reviews and your next CV. | You've accepted an offer |
 
 **Do:** start a new chat in the project and copy one extra's name and 'What it does' text from the table. Paste:
