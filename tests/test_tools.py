@@ -1762,6 +1762,202 @@ class Release260(unittest.TestCase):
         self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)
 
 
+class Release350(unittest.TestCase):
+    """Reliability, learning, endings, approvals on the phone, interview logistics (fictional data)."""
+    hl = load("job-tracker", "health")
+    tr = load("job-scout", "triage")
+    ln = load("job-scout", "learn")
+    wu = load("job-tracker", "wrapup")
+    oc = load("job-connector", "outreach")
+    fu = load("job-followup", "followup")
+    pl = load("job-tracker", "pipeline")
+    an = load("job-apply", "answers")
+    st = load("job-followup", "streak")
+    bk = load("job-network", "booking")
+    fn = load("job-weekly", "funnel")
+    td = load("job-followup", "today")
+
+    def test_missed_runs_are_found_once_with_where_to_catch_up(self):
+        data = {"run_log": [{"time": "2026-11-05T08:05", "task": "Daily job search"},
+                            {"time": "2026-11-05T13:02", "task": "Daily job search"},
+                            {"time": "2026-11-05T08:10", "task": "Email tracker"}]}
+        exp = [self.hl.parse_expect("daily search=1-5@08:00,13:00"), self.hl.parse_expect("email tracker=1-5@08:00")]
+        r = self.hl.check(data, exp, datetime.datetime(2026, 11, 6, 10, 0))
+        self.assertEqual({(m["task"], m["catch_up_since"]) for m in r["missed"]},
+                         {("daily search", "2026-11-05T13:02"), ("email tracker", "2026-11-05T08:10")})
+        self.assertIn("catches up", r["alert"])
+        data["run_log"].append(r["log_row"])
+        self.assertIsNone(self.hl.check(data, exp, datetime.datetime(2026, 11, 6, 11, 0))["alert"])  # once a day
+
+    def test_free_triage_drops_plain_misfits_only(self):
+        rows = [{"title": "Account Executive", "company": "A", "location": "Dublin", "url": "u1"},
+                {"title": "Account Executive", "company": "A", "location": "Dublin", "url": "u2"},
+                {"title": "Senior Account Executive", "company": "B", "location": "Dublin", "url": "u3"},
+                {"title": "Chef", "company": "C", "location": "Dublin", "url": "u4"},
+                {"title": "Account Executive", "company": "D", "location": "Paris", "url": "u5"},
+                {"title": "BDR", "company": "E", "location": "Anywhere", "remote": True, "url": "u6"},
+                {"title": "Account Executive", "company": "F", "location": "Cork", "url": "seen"}]
+        out = self.tr.triage(rows, {"titles": ["account executive", "bdr"], "exclude_titles": ["senior"],
+                                    "locations": ["dublin", "cork", "remote"]}, {"seen"}, D(2026, 11, 6))
+        self.assertEqual([r["url"] for r in out["keep"]], ["u1", "u6"])
+        self.assertEqual(out["dropped"]["already on the job list"], 1)
+
+    def test_skip_reasons_become_one_tap_proposals(self):
+        jobs = [{"id": "j%d" % i, "title": "Graduate Analyst", "location": "Galway"} for i in range(3)]
+        fb = [{"kind": "skip", "job_id": "j%d" % i, "reason": "too junior", "date": "2026-11-0%d" % (i + 2)}
+              for i in range(3)] + [{"kind": "skip", "job_id": "j0", "reason": "wrong place", "date": "2026-11-02"}]
+        props = self.ln.skips({"jobs": jobs, "feedback": fb}, D(2026, 11, 10))
+        self.assertEqual([p["reason"] for p in props], ["too junior"])  # one 'wrong place' isn't a pattern
+        self.assertIn("'junior'", props[0]["ask"])
+
+    def test_patterns_flag_dead_groups_after_20(self):
+        jobs = [{"id": "a%d" % i, "applied": "2026-10-01", "status": "rejected", "found_on": "LinkedIn",
+                 "score_breakdown": {"learning": {"rating": 2}, "pay": {"rating": 3}}} for i in range(10)]
+        jobs += [{"id": "b%d" % i, "applied": "2026-10-01", "status": "interview" if i < 4 else "rejected",
+                  "found_on": "company site", "score_breakdown": {"learning": {"rating": 5 if i < 4 else 2},
+                                                                  "pay": {"rating": 3}}} for i in range(10)]
+        r = self.ln.patterns({"jobs": jobs})
+        self.assertIn("found on 'LinkedIn': 0 interviews from 10 applications", r["flags"])
+        self.assertIn("'learning'", r["suggest"])
+        self.assertIn("too few", self.ln.patterns({"jobs": jobs[:5]})["note"])
+
+    def test_linkedin_message_email_marks_the_thread(self):
+        data = {"contacts": [{"id": "s", "name": "Siobhan Kelly"}],
+                "outreach": [{"contact_id": "s", "channel": "linkedin", "stage": "note", "status": "sent",
+                              "messages": [{"date": "2026-11-01", "direction": "out"}]}]}
+        out = self.oc.linkedin_replies(data, ["Siobhan Kelly sent you a message", "Weekly digest"], D(2026, 11, 6))
+        self.assertTrue(out[0]["matched"])
+        self.assertEqual(data["outreach"][0]["status"], "replied")
+        self.assertEqual(len(out), 1)
+
+    def test_ghosted_after_six_weeks_and_reapply_after_six_months(self):
+        data = {"jobs": [{"id": "x", "company": "Acme", "title": "AE", "status": "applied", "applied": "2026-09-20"}],
+                "outreach": [], "contacts": []}
+        due, _ = self.fu.application_items(data, D(2026, 11, 6))
+        self.assertTrue(any(m.startswith("ghosted: Acme") for m in due))
+        data = {"jobs": [{"id": "old", "company": "Acme", "title": "AE", "status": "rejected", "applied": "2026-08-01"},
+                         {"id": "new", "company": "Acme", "title": "AE", "status": "new"}]}
+        verdict, why = self.pl.can_apply(data, "new", D(2026, 11, 6))
+        self.assertEqual(verdict, "BLOCK")
+        self.assertTrue(any("try again after" in w for w in why))
+        self.assertEqual(self.pl.can_apply(data, "new", D(2027, 3, 1))[0], "OK")
+
+    def test_got_the_job_wrapup_and_anonymising(self):
+        data = {"jobs": [{"id": "won", "company": "Acme", "title": "AE", "status": "offer", "applied": "2026-10-01"},
+                         {"id": "b", "company": "Beta", "title": "AE", "status": "interview", "applied": "2026-10-03",
+                          "referred_by": "Ciara"},
+                         {"id": "c", "company": "Gamma", "title": "AE", "status": "rejected", "applied": "2026-10-04"}],
+                "contacts": [{"id": "p1", "name": "Pat", "email": "pat@beta.com"}, {"id": "p2", "name": "Sam"}],
+                "outreach": [{"contact_id": "p1", "status": "replied", "messages": [{"date": "2026-10-10"}]}],
+                "network": [{"contact_id": "p2"}]}
+        plan = self.wu.plan(data, "won", D(2026, 12, 1))
+        self.assertEqual([w["company"] for w in plan["withdraw"]], ["Beta"])
+        self.assertEqual({t["name"] for t in plan["thank"]}, {"Pat", "Ciara"})
+        self.assertIn("3 applications", plan["celebrate"])
+        self.assertEqual(self.wu.anonymise(data, D(2026, 12, 1), everything=True), 1)  # Sam is in the network
+        self.assertEqual(data["contacts"][0]["name"], "(anonymised)")
+        self.assertNotIn("email", data["contacts"][0])
+
+    def test_answer_bank_saves_repeat_questions_but_never_eligibility(self):
+        bank = [{"question": "What is your notice period?", "answer": "One month", "reuse": True},
+                {"question": "Are you authorised to work in Ireland?", "answer": "Yes", "reuse": True}]
+        self.assertEqual(self.an.bank_answer("Notice period", bank)["answer"], "One month")
+        self.assertIsNone(self.an.bank_answer("Are you authorised to work in Ireland?", bank))
+
+    def test_streak_pause_and_tough_week(self):
+        p = self.st.read_plan("Session days: weekdays at 08:30\nStreak pause: 2026-11-09 to 2026-11-13\n")
+        jobs = {"jobs": [{"applied": (D(2026, 11, 2) + datetime.timedelta(days=i)).isoformat()} for i in range(5)]
+                + [{"rejected": "2026-11-05"}] * 3}
+        s = self.st.status(jobs, p, D(2026, 11, 11))
+        self.assertEqual(s["today"], "paused")
+        s = self.st.status(jobs, p, D(2026, 11, 16))
+        self.assertEqual((s["streak"], s["freezes"]), (5, 2))  # the paused week broke nothing and used no freeze
+        s = self.st.status(jobs, self.st.read_plan(""), D(2026, 11, 6))
+        self.assertIn("A tough week: 3 noes", self.st.welcome(s))
+
+    def test_reschedule_cancel_and_evening_reminder(self):
+        self.assertEqual(self.bk.intent("Something has come up, can we move our call to another day?")[0],
+                         "RESCHEDULE")
+        self.assertEqual(self.bk.intent("Unfortunately the role has been put on hold.")[0], "CANCEL")
+        r = self.bk.event("interview", "A", "Acme", "2026-11-12T10:00")["event"]["reminders"][0]
+        self.assertEqual(r["minutes"], 14 * 60)  # 20:00 the evening before
+
+    def test_north_star_and_quality_guard(self):
+        jobs = [{"id": "j%d" % i, "applied": "2026-10-%02d" % (i % 28 + 1), "status": "rejected", "fit": 70,
+                 "first_found": "2026-11-0%d" % (i % 5 + 2)} for i in range(31)]
+        data = {"jobs": jobs, "sessions": [{"date": "2026-11-05", "minutes": 4.5}, {"date": "2026-11-04",
+                                                                                    "minutes": 6}]}
+        ns = self.fn.north_star(data, D(2026, 11, 6))
+        self.assertEqual(ns["applications_to_interview"], "0 of 31")
+        self.assertEqual(ns["session_minutes_avg_7d"], 5.2)
+        r = self.fn.calibrate(data, D(2026, 11, 14), 62)
+        self.assertEqual(r["action"], "quality first")
+
+    def test_phone_approvals_round_trip(self):
+        data = {"jobs": [{"id": "j1", "company": "Acme", "title": "AE", "status": "new",
+                          "apply_queue": {"added": "2026-11-08", "preview": {"answers": 4}}}],
+                "outreach": [{"contact_id": "c", "job_id": "j1", "channel": "email", "status": "drafted"},
+                             {"contact_id": "c", "job_id": "j1", "channel": "linkedin", "stage": "invite",
+                              "status": "drafted"}], "contacts": [{"id": "c", "name": "Cara"}]}
+        r = self.td.plan(data, D(2026, 11, 9))
+        docs = self.td.approval_docs(r, data, D(2026, 11, 9))
+        self.assertEqual([d["kind"] for d in docs], ["APPLY", "EMAIL"])  # LinkedIn stays at the computer
+        self.assertEqual(docs[0]["preview"], {"answers": 4})
+        docs[0]["status"] = "approved"
+        docs[1].update(status="skipped", skip_reason="not this company", decided_at="2026-11-09T07:40")
+        dec = self.td.decisions(docs, D(2026, 11, 9))
+        self.assertEqual([x["kind"] for x in dec["carry_out"]], ["APPLY"])
+        self.assertEqual(dec["feedback_rows"][0]["reason"], "not this company")
+        self.assertEqual(len(self.td.decisions(docs, D(2026, 11, 14))["ask_again"]), 1)
+
+
+class Personas(unittest.TestCase):
+    """End to end, three fictional people from setup to their first session: a new graduate, someone out of
+    work, and someone in work exploring. Each runs the same scripts the skills run."""
+    dp = load("job-cv", "depth")
+    sc = load("job-scout", "score")
+    td = load("job-followup", "today")
+    st = load("job-followup", "streak")
+    bk = load("job-network", "booking")
+    tr = load("job-scout", "triage")
+
+    def persona(self, situation):
+        jobs = [{"id": "g1", "company": "Bigfour", "title": "Graduate Consultant", "status": "new",
+                 "career_value": 74, "attainability": 70, "apply_queue": {"added": "2026-11-08"}},
+                {"id": "g2", "company": "Smallco", "title": "Account Executive", "status": "new",
+                 "career_value": 66, "attainability": 80, "apply_queue": {"added": "2026-11-08"}}]
+        prefs = {"thresholds": {"alert_fit": 60, "pack_fit": 62}, "fit": {"career_value": 60, "attainability": 40}}
+        if situation == "in work":
+            prefs["current_job"] = {"career_value": 68, "margin": 5}
+        return {"jobs": jobs}, prefs
+
+    def test_new_graduate(self):
+        data, prefs = self.persona("new graduate")
+        keep, _ = self.sc.alerts([dict(j) for j in data["jobs"]], prefs)
+        self.assertEqual(len(keep), 2)  # both alert: no current job to beat
+        text = open(os.path.join(os.path.dirname(__file__), "..", "skills", "job-scout", "ways-in.md")).read()
+        self.assertIn("Consulting and the Big Four", text)
+        r = self.td.plan(data, D(2026, 11, 9))
+        self.assertEqual(r["jobs"], 2)
+
+    def test_out_of_work_with_nothing_good_still_has_a_streak_keeper(self):
+        data = {"jobs": [{"id": "k", "company": "Temp Ltd", "title": "Office Administrator", "status": "new",
+                          "apply_queue": {"streak_keeper": True}}]}
+        r = self.td.plan(data, D(2026, 11, 9))
+        self.assertEqual(r["jobs"], 1)
+        s = self.st.status(data, self.st.read_plan(""), D(2026, 11, 9))
+        self.assertIn("Day 1 starts with one application", self.st.welcome(s))
+
+    def test_in_work_exploring(self):
+        data, prefs = self.persona("in work")
+        keep, _ = self.sc.alerts([dict(j) for j in data["jobs"]], prefs)
+        self.assertEqual([j["id"] for j in keep], ["g1"])  # 66 doesn't beat a current 68 by 5
+        import zoneinfo
+        now = datetime.datetime(2026, 11, 6, 10, 0, tzinfo=zoneinfo.ZoneInfo("Europe/Dublin"))
+        slots = self.bk.free_slots([], D(2026, 11, 9), now=now, windows=self.bk.EMPLOYED_WINDOWS)
+        self.assertTrue(all(x.hour in (8, 12, 13, 17, 18) for x in slots))
+
+
 class Release340(unittest.TestCase):
     """Where the person starts from: in work and exploring, or not in work (fictional data)."""
     sc = load("job-scout", "score")
@@ -2091,3 +2287,22 @@ class Release300(unittest.TestCase):
         text = " ".join(due)
         for bit in ("referrer: tell Ciara", "value-add: Acme", "references: brief", "timing: tell Beta"):
             self.assertIn(bit, text)
+
+
+class CommandLines(unittest.TestCase):
+    """Every script's --help runs: a broken argument parser fails every command, not just one."""
+
+    def test_every_script_parses(self):
+        import glob
+        import subprocess
+        import sys
+        root = os.path.join(os.path.dirname(__file__), "..", "skills")
+        bad = []
+        for path in sorted(glob.glob(os.path.join(root, "*", "*.py"))):
+            text = open(path, encoding="utf-8").read()
+            if "argparse" not in text or "__main__" not in text:
+                continue
+            r = subprocess.run([sys.executable, path, "--help"], capture_output=True, text=True, timeout=60)
+            if r.returncode != 0:
+                bad.append("%s: %s" % (os.path.relpath(path, root), (r.stderr.strip().splitlines() or ["?"])[-1]))
+        self.assertEqual(bad, [])

@@ -302,6 +302,41 @@ def _name_key(n):
     return " ".join(re.findall(r"[a-z]+", n))
 
 
+MESSAGED = re.compile(r"^\s*(?:re:\s*)?(?:new message from\s+(?P<a>.+?)\s*$|(?P<b>.+?)\s+(?:sent you a (?:new )?"
+                      r"message|(?:has )?(?:sent you|replied to) (?:a |your )?(?:message|inmail)|messaged you|"
+                      r"replied to your comment|mentioned you in a comment))", re.I)
+
+
+def linkedin_replies(data, subjects, today):
+    """LinkedIn's notification emails ("Siobhan Kelly sent you a message") mark the thread as replied, so the
+    person's turn shows up in their session even though Claude never reads LinkedIn itself."""
+    contacts = {c.get("id"): c for c in data.get("contacts", [])}
+    by_name = {}
+    for o in data.get("outreach", []):
+        if o.get("channel") == "linkedin":
+            c = contacts.get(o.get("contact_id"), {})
+            by_name.setdefault(_name_key(c.get("name")), []).append(o)
+    out = []
+    for subj in subjects:
+        m = MESSAGED.match(subj or "")
+        if not m:
+            continue
+        who = (m.group("a") or m.group("b") or "").strip()
+        rows = by_name.get(_name_key(who), [])
+        if not rows:
+            out.append({"name": who, "matched": False, "item": "LinkedIn: %s messaged you (not in your job list)" % who})
+            continue
+        o = sorted(rows, key=lambda r: str(r.get("next_followup") or ""))[-1]
+        o["status"] = "replied"
+        o["last_reply"] = today.isoformat()
+        o["reply_seen_via"] = "linkedin notification email"
+        o.setdefault("messages", []).append({"date": today.isoformat(), "direction": "in",
+                                             "text": "(on LinkedIn: open the conversation to read it)"})
+        out.append({"name": who, "matched": True, "item": "LinkedIn: %s replied. Open the conversation, paste "
+                    "it here, and Claude drafts your answer" % who})
+    return out
+
+
 def accepted(data, subjects, today):
     contacts = {c.get("id"): c for c in data.get("contacts", [])}
     by_name = {}
@@ -404,6 +439,10 @@ def main(argv=None):
     f.add_argument("--role", default="", help="the job title, for --posts")
     f.add_argument("--recruiters", action="store_true", help="also search for the team's recruiters")
     f.add_argument("--posts", action="store_true", help="also search for LinkedIn posts advertising the role")
+    lr = sub.add_parser("linkedin-replies", help="LinkedIn 'sent you a message' emails mark threads as replied")
+    lr.add_argument("--file", default="jobsearch/pipeline.json")
+    lr.add_argument("--subjects", required=True, help="one email subject per line")
+    lr.add_argument("--today")
     ac = sub.add_parser("accepted")
     ac.add_argument("--file", default="jobsearch/pipeline.json")
     ac.add_argument("--subjects", required=True, help="one email subject per line")
@@ -434,6 +473,14 @@ def main(argv=None):
         print(json.dumps({"titles": titles, "next": "outreach.py find --team '<title>' for each" if titles else
                           "the ad doesn't say; search for the team's most senior person in the job's function"},
                          indent=1))
+        return 0
+    if a.cmd == "linkedin-replies":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        data = json.load(open(a.file, encoding="utf-8"))
+        out = linkedin_replies(data, open(a.subjects, encoding="utf-8").read().splitlines(), today)
+        with open(a.file, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=1, ensure_ascii=False)
+        print(json.dumps(out, indent=1, ensure_ascii=False))
         return 0
     if a.cmd == "accepted":
         today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()

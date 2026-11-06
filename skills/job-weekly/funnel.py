@@ -258,9 +258,44 @@ def weekly_plan(data, today, chats=1, interviews=2, apps_cap=5, invite_cap=80):
 
 
 FIT_FLOOR, FIT_CEILING, FIT_STEP = 50, 80, 5
+INTERVIEWED = ("screen", "interview", "offer", "accepted")
+
+
+def north_star(data, today):
+    """The numbers that say whether the system works: interviews a week (the goal), applications to interview
+    (quality), and minutes a day the person actually spends (the 5-minute promise), from the sessions table
+    ({date, minutes, approved, skipped}) the daily session writes."""
+    apps = [j for j in data.get("jobs", []) if day(j.get("applied"))]
+    hit = [j for j in apps if j.get("status") in INTERVIEWED or j.get("interviews")]
+    ivs = [day(iv.get("date")) for j in data.get("jobs", []) for iv in j.get("interviews") or [] if day(iv.get("date"))]
+    four = today - datetime.timedelta(days=28)
+    sess = [x for x in data.get("sessions", []) if day(x.get("date")) and (today - day(x["date"])).days < 7]
+    mins = [float(x.get("minutes") or 0) for x in sess]
+    avg = round(sum(mins) / len(mins), 1) if mins else None
+    return {"interviews_per_week_last_4": round(sum(1 for d in ivs if four < d <= today) / 4.0, 1),
+            "applications_to_interview": "%d of %d" % (len(hit), len(apps)),
+            "interview_rate": round(len(hit) / float(len(apps)), 3) if apps else None,
+            "benchmarks": "about 3% for cold applications, 40% for referred ones (Ashby 2021-24)",
+            "session_minutes_avg_7d": avg, "sessions_7d": len(sess),
+            "five_minute_promise": None if avg is None else ("kept" if avg <= 5.5 else
+                                                             "over: trim the daily number or the LinkedIn steps")}
 
 
 def calibrate(data, today, pack_fit, per_day=(5, 10), days=(0, 1, 2, 3, 4), last_change=None):
+    out = _calibrate(data, today, pack_fit, per_day, days, last_change)
+    # quality guard: with 30+ applications and fewer than 2% reaching interview, more volume won't help
+    apps = [j for j in data.get("jobs", []) if day(j.get("applied"))]
+    rate = (sum(1 for j in apps if j.get("status") in INTERVIEWED or j.get("interviews")) / float(len(apps))
+            if apps else None)
+    if out.get("action") == "lower" and len(apps) >= 30 and rate is not None and rate < 0.02:
+        out.update(action="quality first", to=pack_fit,
+                   reason="%d applications and %.0f%% reached interview: fewer, better ones beat more (keep the "
+                          "threshold; more referral-first jobs, tighter tailoring, the hiring-manager review on every "
+                          "pack)" % (len(apps), rate * 100))
+    return out
+
+
+def _calibrate(data, today, pack_fit, per_day=(5, 10), days=(0, 1, 2, 3, 4), last_change=None):
     """After the first week: if the jobs good enough for a pack keep coming in under the daily minimum (or over
     the maximum), move the pack threshold one step and say how to widen (or narrow) the search. A job found on
     a day off counts for the next planned day. 'Consistently' means 4 of the last 5 planned days."""
@@ -315,6 +350,8 @@ def main(argv=None):
     r.add_argument("--json", action="store_true")
     t = sub.add_parser("thresholds")
     t.add_argument("--fit", type=int, default=60, help="the alert threshold for Fit")
+    ns = sub.add_parser("north-star", help="interviews a week, applications to interview, minutes a day")
+    ns.add_argument("--today")
     cb = sub.add_parser("calibrate", help="after week 1: move the pack threshold if jobs stay under 5 or over 10 a day")
     cb.add_argument("--pack-fit", type=int, required=True, help="the current pack threshold")
     cb.add_argument("--plan", help="MASTER_PLAN.md: 'Applications a day: 5-10' and the session days")
@@ -327,6 +364,10 @@ def main(argv=None):
     wp.add_argument("--capacity", type=int, help="applications a week the person can make (default 5)")
     wp.add_argument("--today")
     a = p.parse_args(argv)
+    if a.cmd == "north-star":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        print(json.dumps(north_star(json.load(open(a.file, encoding="utf-8")), today), indent=1))
+        return 0
     if a.cmd == "calibrate":
         today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
         sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "job-followup"))

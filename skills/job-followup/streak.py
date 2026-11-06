@@ -9,6 +9,7 @@ MASTER_PLAN.md lines it reads (defaults in brackets):
   Applications a day: 5-10                              [5-10: at least 5, at most 10]
   Streak goal: 30                                       [7, then 14, 30, 50, 100]
   Streak start: 2026-11-09                              [the first day with an application]
+  Streak pause: 2026-12-20 to 2027-01-04                [none; one line per break: holidays, exams, illness]
 
 How it counts (lessons from Duolingo's published streak experiments):
 - A planned day counts when at least one application went in that day: the streak
@@ -45,7 +46,8 @@ def day(s):
 
 
 def read_plan(text):
-    out = {"days": [0, 1, 2, 3, 4], "time": "08:30", "per_day": 10, "per_day_min": 5, "goal": None, "start": None}
+    out = {"days": [0, 1, 2, 3, 4], "time": "08:30", "per_day": 10, "per_day_min": 5, "goal": None, "start": None,
+           "pauses": []}
     for line in (text or "").splitlines():
         low = line.lower()
         if re.search(r"session days?|apply(?:ing)? days?|streak days?", low):
@@ -66,6 +68,9 @@ def read_plan(text):
         m = re.search(r"streak goal:?\s*(\d+)", low)
         if m:
             out["goal"] = int(m.group(1))
+        m = re.search(r"streak pause:?\s*(\d{4}-\d\d-\d\d)\s*(?:-|–|to)\s*(\d{4}-\d\d-\d\d)", low)
+        if m:
+            out["pauses"].append((day(m.group(1)), day(m.group(2))))
         m = re.search(r"streak start:?\s*(\d{4}-\d\d-\d\d)", low)
         if m:
             out["start"] = day(m.group(1))
@@ -90,9 +95,14 @@ def next_milestone(n, goal=None):
     return (n // 100 + 1) * 100
 
 
+def paused(d, plan):
+    return any(a and b and a <= d <= b for a, b in plan.get("pauses", []))
+
+
 def status(data, plan, today):
     counts = applied_counts(data)
     planned = set(plan["days"])
+    is_planned = lambda x: x.weekday() in planned and not paused(x, plan)  # noqa: E731
     first = plan["start"] or (min(counts) if counts else today)
     streak, best, freezes, done_days, used_in_streak = 0, 0, FREEZE_START, 0, 0
     events = []
@@ -100,7 +110,7 @@ def status(data, plan, today):
     pending_earn_back = None  # (streak before the miss, the missed day)
     while d < today:
         n = counts.get(d, 0)
-        if d.weekday() in planned:
+        if is_planned(d):
             if pending_earn_back and n >= 2:
                 streak = pending_earn_back[0] + 1
                 events.append(("earned back", d))
@@ -129,7 +139,7 @@ def status(data, plan, today):
         best = max(best, streak)
         d += datetime.timedelta(days=1)
     today_n = counts.get(today, 0)
-    planned_today = today.weekday() in planned
+    planned_today = is_planned(today)
     earn_back = None
     if pending_earn_back:
         earn_back = {"missed": pending_earn_back[1].isoformat(), "streak": pending_earn_back[0],
@@ -146,6 +156,8 @@ def status(data, plan, today):
         state = "done"
     elif planned_today:
         state = "at risk" if (streak or earn_back) else "start"
+    elif paused(today, plan):
+        state = "paused"
     else:
         state = "rest day"
         if today_n and streak:
@@ -153,12 +165,16 @@ def status(data, plan, today):
     best = max(best, streak)
     monday = today - datetime.timedelta(days=today.weekday())
     week_apps = sum(n for x, n in counts.items() if monday <= x <= today)
-    week_goal = plan.get("per_day_min", plan["per_day"]) * len(planned)
+    week_goal = plan.get("per_day_min", plan["per_day"]) * sum(
+        1 for i in range(7) if is_planned(monday + datetime.timedelta(days=i)))
+    noes = sum(1 for j in data.get("jobs", []) if day(j.get("rejected")) and 0 <= (today - day(j["rejected"])).days < 7)
+    resume = next((b for a, b in plan.get("pauses", []) if a and b and a <= today <= b), None)
     return {"streak": streak, "best": best, "freezes": freezes, "perfect": used_in_streak == 0 and streak > 0,
             "today": state, "applied_today": today_n, "earn_back": earn_back,
             "next_milestone": next_milestone(streak, plan.get("goal")),
             "milestone_today": state == "done" and streak in MILESTONES + ([plan["goal"]] if plan.get("goal") else []),
-            "week": {"applications": week_apps, "goal": week_goal}, "last_events": [(k, x.isoformat())
+            "week": {"applications": week_apps, "goal": week_goal}, "rejections_7d": noes,
+            "paused_until": resume.isoformat() if resume else None, "last_events": [(k, x.isoformat())
                                                                                   for k, x in events[-3:]],
             "plan": {"days": [DAYS[i].title() for i in sorted(planned)], "time": plan["time"],
                      "per_day": plan["per_day"], "per_day_min": plan.get("per_day_min", plan["per_day"])}}
@@ -190,8 +206,14 @@ def welcome(s, ready=None):
         lines.append("%s%s. One application keeps it going today." % (flame, perfect))
     elif s["today"] == "start":
         lines.append("Day 1 starts with one application.")
+    elif s["today"] == "paused":
+        lines.append("%s, safe while you're away (paused until %s). No freezes used." % (flame, s["paused_until"]))
     else:
         lines.append("%s. Rest day: an application today is a bonus." % flame)
+    if s.get("rejections_7d", 0) >= 3 and s["today"] != "paused":
+        lines.append("A tough week: %d noes. That's part of every search (most applications never reach an "
+                     "interview, even good ones), and it says nothing about you. Today, one application or one chat "
+                     "ask counts." % s["rejections_7d"])
     used = [x for x in s["last_events"] if x[0] == "freeze used"]
     if used and s["today"] != "done":
         lines.append("A streak freeze covered %s. %d left." % (
@@ -199,8 +221,9 @@ def welcome(s, ready=None):
     if ready:
         lines.append(ready)
     w = s["week"]
-    lines.append("This week: [%s] %d of %d applications." % (bar(w["applications"], w["goal"]), w["applications"],
-                                                             w["goal"]))
+    if w["goal"]:
+            lines.append("This week: [%s] %d of %d applications." % (bar(w["applications"], w["goal"]),
+                                                                 w["applications"], w["goal"]))
     return "\n".join(lines)
 
 

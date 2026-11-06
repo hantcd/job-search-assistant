@@ -13,8 +13,8 @@ never ask for a job, and referees who know what to say.
 ```bash
 python3 "$SKILL_DIR/events.py" --file jobsearch/pipeline.json due --today 2026-10-20
 python3 "$SKILL_DIR/chat_prep.py" check prep.md      # before every informational chat
-python3 "$SKILL_DIR/booking.py" intent --file reply.txt   # BOOK, INTERVIEW, THEIR_LINK, NO or OTHER
-python3 "$SKILL_DIR/booking.py" slots --events busy.json --start 2026-11-09 --length 30
+python3 "$SKILL_DIR/booking.py" intent --file reply.txt   # BOOK, INTERVIEW, THEIR_LINK, RESCHEDULE, CANCEL, NO or OTHER
+python3 "$SKILL_DIR/booking.py" slots --events busy.json --start 2026-11-09 --length 30 [--employed]
 python3 "$SKILL_DIR/booking.py" event --kind chat --person "Siobhan Kelly" --company Acme --start 2026-11-10T11:00 --card card.md
 ```
 
@@ -74,12 +74,18 @@ arrives (email tracker, or one the person pastes from LinkedIn), classify it:
   `booking` so the morning session offers it as one tap.
 - THEIR_LINK: they sent a booking page; in the session, pick the first free
   slot there on the person's approval, with their name and email only.
+- RESCHEDULE: 3 new slots the same way; once one is confirmed, move the
+  calendar event and its prep block (on approval), and say thanks for the
+  heads-up. CANCEL (called off, or the role on hold): remove the event on
+  approval, a two-line gracious reply that leaves the door open, and a note
+  on the job.
 - NO: a short thank-you, mark the thread stopped.
 When they confirm a time, create the event on approval (`event`): a video
 call, the prep card in the description (chat: the questions and the closing
 ask; interview: job-interview's proof pack summary and what the round tests),
-reminders 30 and 10 minutes before, and a prep block (15 minutes before a
-chat; an hour the afternoon before an interview). Accept a calendar
+reminders 30 and 10 minutes before (and for an interview, one at 20:00 the
+evening before: the prep card, the route, what to bring), and a prep block
+(15 minutes before a chat; an hour the afternoon before an interview). Accept a calendar
 invitation the other side sends only on the person's approval. Record the
 booked date on the outreach row (`booked`) or the job's interviews.
 

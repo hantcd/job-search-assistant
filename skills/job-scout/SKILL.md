@@ -216,10 +216,10 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
    company type.
 8. **Research** alert-worthy jobs' companies with job-research (reuse notes
    under 3 months old).
-9. **Save** everything (job-tracker `add-job`, then `validate`).
-10. **Packs**: `score.py alerts` picks up to 5 jobs above the Fit threshold and the
-    top 1-2 for automatic packs, within the person's weekly capacity. Make
-    each pack with job-apply.
+9. **Save** everything (job-tracker `add-job`, then `validate`). `triage.py` runs first, before any
+   ad is read, and drops plain misfits for free; `learn.py` turns skips and outcomes into proposals.
+10. **Packs**: `score.py alerts` picks the jobs above the Fit threshold; packs for
+    up to the plan's 'Applications a day' (job-apply), at least one each planned day.
 11. **Alert**, or one line if nothing is new (format below). Deadline
     reminders 3 days and 1 day before closing.
 12. **Log the run**: sources checked, new, updated, closed, errors.

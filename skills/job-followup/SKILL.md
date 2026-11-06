@@ -39,6 +39,25 @@ minutes; the weekly check keeps 5-10 good ones coming):
 Everything was prepared by the prep run before the session, so nothing is
 written live. Nothing that isn't approved goes out.
 
+- **On the phone**: the prep run also writes the chat items to the job list
+  page's Today panel (`today.py --approvals-out`, then the approvals and today
+  collections), with the streak line on top. The person taps Approve or Skip
+  there, on any device; the page sends nothing. The next session reads the
+  page's decisions first (`today.py --decided`) and carries out what was
+  approved without asking again (an approval is good for 2 days), so "Go"
+  may need no taps at all. LinkedIn, comments and Submit-yourself stay at the
+  computer.
+- **Skipping takes one tap and a reason** (too junior, too senior, wrong
+  place, not my industry, pay too low, not this company, wrong kind of role,
+  other), saved to the feedback table. job-scout's `learn.py skips` turns a
+  reason given 3 times in 4 weeks into a yes/no question for the next session
+  ("Skip jobs with 'graduate' in the title from now on?").
+- **Minutes, measured**: each session writes one sessions row {date, minutes,
+  approved, skipped}; the weekly check reports the average against the 5-minute
+  promise and trims the day if it's over.
+- **The first win comes first**: in a person's first session, before any
+  setting is perfect, one real application or referral ask goes out.
+
 ## The streak
 
 A planned day counts when at least one application went in (one email alone
@@ -58,6 +77,15 @@ the next planned day win the streak back. Milestones at 3, 7, 14, 30, 50 and
   ends tonight. One application keeps it: say Go."
 - The person can change days, time, the daily number or the goal any time by
   saying so; Claude updates MASTER_PLAN.md and the prep task's time.
+- **Breaks**: "pause my streak from 20 December to 4 January" adds a 'Streak
+  pause:' line; paused days neither count nor break it, and use no freezes
+  (Habitica's rest-in-the-inn idea). Exams, holidays, illness: no questions asked.
+- **A tough week** (3+ rejections in 7 days): the welcome says so kindly, puts
+  it in proportion and makes today's win small (one application or one chat ask).
+- **An accountability partner** (opt-in, MASTER_PLAN.md 'Accountability
+  partner: name, email'): the Monday summary drafts one line for them (streak,
+  applications, chats, interviews; never company names unless the person says)
+  as a SEND item, one tap; nothing goes without the tap.
 
 With `--evidence`, a current or recent role that's thin on evidence is
 offered last, outside the daily time, as "when you have 10 minutes": job-cv's

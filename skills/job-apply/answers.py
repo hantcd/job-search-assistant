@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sort an application form's questions: what Claude may fill, and what only the person answers.
 
-    python3 answers.py form.json
+    python3 answers.py form.json [--bank jobsearch/pipeline.json]
     python3 answers.py lengths filled.json     # before stopping at Submit: anything the form will cut off?
 
 form.json: a list of questions, each a string or {"label": "...", "type": "text|select|checkbox|file", "required": true}.
@@ -19,6 +19,14 @@ Consent questions get a note: a marketing or talent-pool consent (sharing your
 details for advertising, newsletters, future roles) is not a condition of being
 considered, and 'required' means an option must be picked, not that it must be
 Yes. Recording consent for interviews is the person's choice.
+
+With --bank, the job list's answers_bank table ({question, answer, reuse: true, date})
+holds answers the person gave once and said to reuse (notice period, a salary-range
+answer, "how did you hear", work-pattern preferences, a standard 'why this field'):
+a YOU or DRAFT question that matches one becomes BANK, filled with the person's own
+answer and still shown in the preview, so the same question never costs a tap twice
+(from AIHawk's answer file). Eligibility, declarations, consent, health and diversity
+questions are never banked: they stay YOU every time.
 
 Prints a table and exits 1 if any required question is YOU (so the form can't be
 called finished until the person has answered it).
@@ -81,11 +89,35 @@ def classify(label):
     return "DRAFT"
 
 
+NEVER_BANK = re.compile(r"eligib|authori[sz]ed|sponsor|visa|citizenship|consent|declar|confirm|certify|agree|"
+                        r"gender|ethnic|disabilit|health|criminal|conviction|religio|orientation|age\b|birth",
+                        re.I)
+
+
+def bank_answer(label, bank):
+    if NEVER_BANK.search(label or ""):
+        return None
+    stop = {"what", "are", "your", "the", "you", "for", "this", "role", "job", "have", "with", "does", "did", "how",
+            "please", "state", "give", "our", "any", "would", "will", "can"}
+    words = set(re.findall(r"[a-z]{3,}", (label or "").lower())) - stop
+    best, score = None, 0
+    for row in bank or []:
+        if not row.get("reuse"):
+            continue
+        q = set(re.findall(r"[a-z]{3,}", str(row.get("question", "")).lower())) - stop
+        overlap = len(words & q) / float(len(q) or 1)
+        if overlap > score:
+            best, score = row, overlap
+    return best if score >= 0.6 else None
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="Which form questions Claude may fill and which are yours.")
     p.add_argument("form", help="form.json, or 'lengths' then filled.json")
     p.add_argument("filled", nargs="?")
+    p.add_argument("--bank", help="the job list (its answers_bank table)")
     a = p.parse_args(argv)
+    bank = json.load(open(a.bank, encoding="utf-8")).get("answers_bank", []) if a.bank else []
     if a.form == "lengths":
         bad = lengths(json.load(open(a.filled, encoding="utf-8")))
         for b in bad:
@@ -98,6 +130,10 @@ def main(argv=None):
         label = q if isinstance(q, str) else q.get("label", "")
         req = (not isinstance(q, str)) and bool(q.get("required"))
         kind = classify(label)
+        banked = bank_answer(label, bank) if kind in ("YOU", "DRAFT", "FILL") else None
+        if banked:
+            print("%-13s %s  [your saved answer: %s]" % ("BANK", label, banked.get("answer")))
+            continue
         if kind == "YOU" and req:
             blocked += 1
         n = note(label)

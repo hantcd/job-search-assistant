@@ -12,7 +12,7 @@ weekly capacity in MASTER_PLAN.md) and on request.
 `$SKILL_DIR` below means this skill's folder.
 
 ```bash
-python3 "$SKILL_DIR/answers.py" form.json             # which questions Claude may fill, and which are the person's
+python3 "$SKILL_DIR/answers.py" form.json --bank jobsearch/pipeline.json  # what Claude fills, what's the person's, saved answers
 python3 "$SKILL_DIR/answers.py" lengths filled.json   # answers the form would cut off
 python3 ../job-tracker/pipeline.py can-apply <job-id>   # caps, limits and mid-interview holds (job-tracker)
 python3 "$SKILL_DIR/apply_form.py" scan URL --out form.json   # the form's questions, for answers.py

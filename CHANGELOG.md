@@ -3,6 +3,38 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.5.0 (2026-11-06)
+- job-tracker `health.py`: missed runs (a usage limit or the computer off
+  leave no trace) found from the run log against the schedule; every task
+  catches up from its last good run (`since`); reported once a day.
+- job-scout `triage.py`: a free first pass (already listed, duplicates, title
+  outside the families or with an excluded word, wrong place, too old,
+  excluded company) before anything is read or scored; a budget guide in
+  TECHNICAL.md.
+- job-scout `learn.py`: one-tap skip reasons become yes/no proposals after 3
+  in 4 weeks; from 20 applications, interview rates by family, route, source,
+  Fit band and base CV, dead groups flagged, a tentative weight change.
+- job-connector `outreach.py linkedin-replies`: LinkedIn's "sent you a
+  message" emails mark the thread as replied.
+- job-followup: applications ghosted after 6 weeks; the session's Today panel
+  on the job list page (`today.py --approvals-out`, `--decided`; approvals
+  good for 2 days, LinkedIn and Submit-yourself stay at the computer); one-tap
+  skip reasons; minutes per session recorded; the first win in the first
+  session; an opt-in accountability partner line.
+- job-followup `streak.py`: 'Streak pause:' lines; a kind line after 3+
+  rejections in a week.
+- job-tracker: `can-apply` blocks the same role at the same company for 6
+  months after a no; `wrapup.py` for the end of the search and anonymising
+  old contact data on the person's yes.
+- job-apply `answers.py --bank`: answers given once are reused (never
+  eligibility, declarations or diversity questions).
+- job-network `booking.py`: RESCHEDULE and CANCEL; a reminder at 20:00 the
+  evening before an interview.
+- job-weekly `funnel.py north-star` (interviews a week, applications to
+  interview, minutes a day) and a quality guard in `calibrate`.
+- Tests for three fictional people end to end: a new graduate, someone out of
+  work, someone in work exploring.
+
 ## 3.4.0 (2026-11-06)
 From Sarah Baker Andrus's career-pivot prompts, Claude's "plan your career
 path" guide, Seth Godin's coaching-prompt advice, Techpresso's career-coach

@@ -20,6 +20,7 @@
 | Irish boards: IrishJobs.ie, Jobs.ie, RecruitIreland.com, JobAlert.ie, JobsIreland.ie (the state's service), Hays Ireland | email job alerts the person sets up on each; Claude reads the emails and checks each job on the employer's own page | the same: alerts only |
 | publicjobs.ie (civil and public service, HSE, local authorities, Garda) | its email job alerts, for role families that include the public sector | apply on publicjobs.ie itself: competitions have fixed closing dates and their own forms |
 | Google Jobs (Google's job search panel) | read on the person's computer in the built-in browser (the connection queue task's Monday searches) | it links to the employer's own page, which is where to apply; Huntr's 2026 data had the highest response rate for jobs found there |
+| JobSpy (open-source scraper, MIT) | optional, Claude Code on the person's computer only, for Indeed, Glassdoor, Google and regional boards the connectors don't cover; never its LinkedIn mode | the person turns it on knowing those sites' terms; results go through `triage.py`, the posting check and the company's own page like any other |
 | LinkedIn job posts the person finds | the person pastes the post | as above |
 | Reddit, forums, monthly hiring threads | public pages through web fetch; if blocked, the person pastes the thread | read only; replies are drafted by job-reddit and posted by the person by hand |
 | X | weekly search links for the person to open and paste | no account use |

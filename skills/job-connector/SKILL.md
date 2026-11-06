@@ -261,7 +261,7 @@ want a hello going to the recruiter who just rejected you", unless they do).
    note (or Message), paste the approved text, and stop; the person clicks
    Send. A **connection session** does this for the day's queue, one profile
    at a time, within `outreach.py invites`; acceptances come back as chat
-   asks (`outreach.py accepted`; `finding-people.md`). Claude's tab only.
+   asks (`outreach.py accepted`; LinkedIn's "sent you a message" emails: `outreach.py linkedin-replies`). Claude's tab only.
 4. Record the send (date and slot) on the outreach row.
 
 When someone agrees to a chat: check the person's calendar (if connected) for

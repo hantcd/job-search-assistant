@@ -134,6 +134,11 @@ python3 skills/job-connector/network.py --file jobsearch/pipeline.json plan --jo
 python3 skills/job-followup/today.py --file jobsearch/pipeline.json --plan MASTER_PLAN.md --budget 300 --evidence EVIDENCE.md
 python3 skills/job-followup/streak.py status --file jobsearch/pipeline.json --plan MASTER_PLAN.md
 python3 skills/job-cv/depth.py roles --evidence EVIDENCE.md --linkedin Positions.csv
+python3 skills/job-tracker/health.py check --file jobsearch/pipeline.json --expect "daily search=1-5@08:00,13:00"
+python3 skills/job-scout/triage.py --rows found.json --pipeline jobsearch/pipeline.json --prefs PREFERENCES_AND_SCORING.md
+python3 skills/job-scout/learn.py skips --file jobsearch/pipeline.json
+python3 skills/job-weekly/funnel.py --file jobsearch/pipeline.json north-star
+python3 skills/job-tracker/wrapup.py plan --file jobsearch/pipeline.json --job JOB_ID
 python3 skills/job-cv/depth.py questions --evidence EVIDENCE.md --role "Acme" --family "Account Executive"
 python3 skills/job-network/booking.py slots --events busy.json --start 2026-11-09
 python3 skills/job-weekly/funnel.py --file jobsearch/pipeline.json targets --plan MASTER_PLAN.md
@@ -255,6 +260,18 @@ newest.
   can't promise an interview, an offer or a number. Information, not legal or
   financial advice.
 
+## Staying within your plan's usage
+
+Automatic runs share the person's Claude plan. When a run hits the usage limit
+it doesn't start, and `health.py` makes the next one catch up. To use less:
+Sonnet for every task but the weekly check; `triage.py` before anything is
+read (duplicates, wrong titles, wrong places, old ads cost nothing); short
+research notes except for the top 3 jobs; 5-10 applications a day, not more;
+one daily search instead of two if limits keep being hit; the watched
+companies every 8 hours instead of 4; events checked 3 times a week. The
+weekly report shows how many runs were missed, so the schedule can be trimmed
+before it costs a morning.
+
 ## Credits
 
 - [hunter-skill](https://github.com/Jakeschincariol/hunter-skill) (MIT, Jake
@@ -336,6 +353,12 @@ newest.
   Careers) career-pivot prompts, Claude's "Plan your career path" use case,
   Seth Godin's coaching prompt, Techpresso's career-coach prompts and Rich
   Westhorpe's account of Claude as a career coach.
+- Reliability, learning and endings, ideas only: career-ops (santifer; MIT):
+  free first-pass triage, reply-watch, rejection patterns, the budget guide;
+  ai-job-search (Mads Lorentzen; MIT): recalibrating from outcomes; JobSync
+  (Gsync; MIT): measured time per activity; AIHawk (feder-cr): its reusable
+  answer file (not its mass LinkedIn applying); Habitica (HabitRPG): pausing
+  a streak for a break.
 - The streak, ideas only: Duolingo's published streak experiments (freezes,
   starting with two, earn-back, separating the streak from the daily goal,
   milestone goals, the evening streak-saver reminder).

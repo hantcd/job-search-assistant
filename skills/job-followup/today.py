@@ -21,6 +21,11 @@ time; Claude's filling and submitting happen afterwards. If no job is queued,
 the streak-keeper (a real, open job below the usual Fit) is offered so the streak
 can go on. With --plan, the result opens with the streak (streak.py).
 
+--approvals-out writes the chat-approvable items (applications, emails, replies) as rows
+for the job list page's Today panel, so the person can tick them on a phone; --decided
+reads those rows back in the session: what to carry out now without asking again (an
+approval is good for 2 days), and the skip reasons for job-scout's learn.py.
+
 With --evidence, a current or recent role that's thin on evidence (job-cv's
 depth.py) is offered once a day as "when you have 10 minutes": a spoken
 interview about it. It sits outside the daily time, and stops once the person
@@ -194,16 +199,52 @@ def extra(evidence_path, today):
                         "isn't in your evidence" if r["status"] == "MISSING" else "is thin on evidence")}]
 
 
+def approval_docs(r, data, today):
+    """Today's items as rows for the job list page's approvals collection, so the person can approve or skip on
+    any device; the next session carries out what's approved without asking again."""
+    jobs = {j.get("id"): j for j in data.get("jobs", [])}
+    out = []
+    for i, x in enumerate(r["today"], 1):
+        if x["kind"] in ("CONNECT", "LINKEDIN", "COMMENT", "SUBMIT"):
+            continue  # done on the page at the computer, with the person clicking Send, Post or Submit
+        preview = (jobs.get(x.get("job_id"), {}).get("apply_queue") or {}).get("preview") if x["kind"] == "APPLY" \
+            else None
+        out.append({"id": "%s-%02d" % (today.isoformat(), i), "date": today.isoformat(), "order": i,
+                    "kind": x["kind"], "item": x["item"], "job_id": x.get("job_id"), "preview": preview,
+                    "status": "waiting"})
+    return out
+
+
+def decisions(rows, today):
+    """What the person decided on the page: items to carry out now, and skip reasons for job-scout's learn.py.
+    An approval is good for 2 days; older ones come back to be asked again."""
+    go, skipped, expired = [], [], []
+    for a in rows:
+        d = day(a.get("date"))
+        if a.get("status") == "approved":
+            (go if d and (today - d).days <= 2 else expired).append(a)
+        elif a.get("status") == "skipped":
+            skipped.append({"kind": "skip", "job_id": a.get("job_id"), "reason": a.get("skip_reason"),
+                            "date": str(a.get("decided_at") or today)[:10], "item": a.get("item")})
+    return {"carry_out": go, "feedback_rows": skipped, "ask_again": expired}
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="The ranked 5-minute morning session.")
     p.add_argument("--file", default="jobsearch/pipeline.json")
     p.add_argument("--budget", type=int, default=300, help="seconds the person gives it each day (default 300)")
     p.add_argument("--evidence", help="EVIDENCE.md: offer the experience interview when a recent role is thin")
     p.add_argument("--plan", help="MASTER_PLAN.md: applications a day and the streak (streak.py)")
+    p.add_argument("--approvals-out", help="write today's items as approval rows for the job list page")
+    p.add_argument("--decided", help="the page's approvals rows (JSON): what to carry out, and skip reasons")
     p.add_argument("--today")
     p.add_argument("--json", action="store_true")
     a = p.parse_args(argv)
     today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+    if a.decided:
+        with open(a.decided, encoding="utf-8") as fh:
+            print(json.dumps(decisions(json.load(fh), today), indent=1, ensure_ascii=False))
+        return 0
     with open(a.file, encoding="utf-8") as fh:
         data = json.load(fh)
     settings = None
@@ -213,6 +254,9 @@ def main(argv=None):
             settings = streak.read_plan(fh.read())
     r = plan(data, today, a.budget, settings["per_day"] if settings else 10)
     r["when_you_have_10_minutes"] = extra(a.evidence, today)
+    if a.approvals_out:
+        with open(a.approvals_out, "w", encoding="utf-8") as fh:
+            json.dump(approval_docs(r, data, today), fh, indent=1, ensure_ascii=False)
     if settings:
         s = streak.status(data, settings, today)
         ready = ("Your %d job%s ready: about %s minutes, %d taps in the chat and %d clicks on the page. Say Go."

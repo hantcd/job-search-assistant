@@ -20,6 +20,10 @@ python3 "$SKILL_DIR/pipeline.py" --file jobsearch/pipeline.json summary --today 
 python3 "$SKILL_DIR/pipeline.py" --file jobsearch/pipeline.json stale --today 2026-10-19
 python3 "$SKILL_DIR/pipeline.py" --file jobsearch/pipeline.json export --what jobs --out jobs.csv
 python3 "$SKILL_DIR/pipeline.py" --file jobsearch/pipeline.json can-apply acme-junior-data-analyst --today 2026-10-16
+python3 "$SKILL_DIR/health.py" check --file jobsearch/pipeline.json --expect "daily search=1-5@08:00,13:00"  # missed runs
+python3 "$SKILL_DIR/health.py" since --file jobsearch/pipeline.json --task "daily search"  # catch up from here
+python3 "$SKILL_DIR/wrapup.py" plan --file jobsearch/pipeline.json --job acme-junior-data-analyst  # got the job
+python3 "$SKILL_DIR/wrapup.py" anonymise --file jobsearch/pipeline.json --older-than 365 --yes
 ```
 
 ## Reads and writes
@@ -40,6 +44,24 @@ snapshot in the same shape, wherever the list lives:
   read and write through the Google Drive connector.
 - **A local file** (Claude Code, or the desktop app with a folder): use
   `jobsearch/pipeline.json` itself.
+
+**The page's Today panel** (the page kind, built at setup or added by the 3.5
+update), first on the page and made for a phone:
+- The `today` row's welcome on top: the streak, what's ready, the week's bar.
+- One card per `approvals` row with status waiting, in order: the kind
+  (Application, Email, Reply), the item, and, for an application, the preview
+  folded under "See every answer" (each question and answer, the files, every
+  declaration word for word), so nothing is approved unseen.
+- Two large buttons per card, Approve and Skip. Skip opens one-tap reasons
+  (too junior, too senior, wrong place, not my industry, pay too low, not this
+  company, wrong kind of role, other). Each tap writes status, skip_reason
+  and decided_at to that row and nothing else, and an "Approve all shown"
+  button at the end does the same for every card left.
+- A line under the cards: "LinkedIn steps and Submit-yourself wait for your
+  computer." The page sends nothing; the next session carries the decisions
+  out (job-followup).
+If the page can't hold a database, the panel is left out and approvals stay
+in the chat card.
 
 Before any automatic run does anything else, it reads the job list. If the
 list can't be reached, the run stops, logs it and alerts the person; it never
@@ -87,7 +109,33 @@ the email_log table, judged from the full message, never the subject or
 preview alone. Each message is recorded once by its id, so the same email is
 never processed twice. A clear match (an invite or rejection naming the role)
 updates the job list; anything unclear, or an email that matches more than one
-application, waits in a list for the person to approve.
+application, waits in a list for the person to approve. LinkedIn's own
+notification emails ("X sent you a message", "X accepted your invitation") mark
+those threads too (job-connector), since Claude never reads LinkedIn itself.
+
+## Keeping the runs reliable
+
+A run that hits a usage limit, or whose computer is off, never starts and
+leaves no trace. So every automatic task starts with `health.py since` for its
+own name and covers everything since its last good run, not just since its
+scheduled time, and the first run of the day runs `health.py check`: missed
+runs are reported once ("2 runs missed yesterday; caught up now"), never again
+that day. To use less of the plan: job-scout's `triage.py` drops plain misfits
+before anything is read; research notes are short except for the top 3; packs
+stop at the day's maximum; Sonnet runs everything that isn't complicated.
+
+## When the person gets the job
+
+`wrapup.py plan` lays out the end in one approval card: a gracious withdrawal
+for every other live application, a thank-you to everyone who helped (where the
+person landed), the scheduled tasks paused (not deleted), the streak ended at
+its final count, the LinkedIn steps, what to keep (achievement bank, CVs, story
+grid, network) and one line of celebration with the numbers. After 30 days,
+on the person's yes, `wrapup.py anonymise --all --yes` removes the names,
+emails, phone numbers and profile links of people outside their network.
+While searching, the weekly check offers the same for contacts untouched for
+12 months. To delete everything, the person deletes the job list page and the
+project files themselves.
 
 ## Steps
 

@@ -8,7 +8,11 @@
         [--length 30] [--zone Europe/Dublin] [--card card.md]
 
 intent: BOOK (they're happy to talk: offer times), INTERVIEW (a recruiter asks for
-availability), THEIR_LINK (they sent a booking link: pick a slot there, on approval),
+availability), THEIR_LINK (they sent a booking link: in the session, once the person
+picks a time, Claude books that slot on the link's page, on approval), RESCHEDULE (they
+need to move it: 3 new times, and the calendar event moves once one is confirmed),
+CANCEL (called off or the role is on hold: the event is removed on approval, a short
+gracious reply, and the job's notes updated),
 NO (a no or not now: stop, thank them), OTHER (read it and answer).
 
 slots: up to 3 free times on different weekdays, inside working hours (09:00-17:30,
@@ -45,11 +49,21 @@ INTERVIEW = re.compile(r"\b(?:schedule (?:a|an|your) (?:call|interview|screen|ch
 LINK = re.compile(r"https?://(?:www\.)?(?:calendly\.com|cal\.com|savvycal\.com|calendar\.app\.google|"
                   r"outlook\.office(?:365)?\.com/(?:owa/)?(?:calendar|bookwithme|book)|[\w.-]*chilipiper\.com|"
                   r"[\w.-]*goodtime\.io|[\w.-]*greenhouse\.io/[\w/-]*schedul|meetings\.hubspot\.com)\S*", re.I)
+RESCHEDULE = re.compile(r"\b(?:reschedul\w*|move (?:our|the|your) (?:call|chat|meeting|interview)|push (?:it|our|the) "
+                        r"(?:back|out)|another (?:time|day)|can we (?:move|change|shift)|something (?:has )?come up|"
+                        r"no longer (?:able to make|works?)|need to change the time)\b", re.I)
+CANCEL = re.compile(r"\b(?:cancel\w*|call off|won'?t be able to (?:meet|chat|make it)|have to pull out|"
+                    r"(?:role|position) (?:has been|is) (?:filled|closed|put on hold)|on hold)\b", re.I)
 NO = re.compile(r"\b(?:not (?:able|in a position|hiring)|can'?t help|no longer|unfortunately|not the right time|"
                 r"too busy|please don'?t|unsubscribe|not interested|decided (?:not|to move forward with other))\b", re.I)
 
 
 def intent(text):
+    if CANCEL.search(text or "") and not RESCHEDULE.search(text or ""):
+        return "CANCEL", ""
+    if RESCHEDULE.search(text or ""):
+        m = LINK.search(text or "")
+        return "RESCHEDULE", (m.group(0) if m else "")
     m = LINK.search(text or "")
     if m:
         return "THEIR_LINK", m.group(0)
@@ -124,9 +138,13 @@ def event(kind, person, company, start, length=30, zone="Europe/Dublin", card=""
     s = _dt(start, tz)
     e = s + datetime.timedelta(minutes=length)
     title = ("Coffee chat: %s (%s)" if kind == "chat" else "Interview: %s (%s)") % (person, company)
+    reminders = [{"method": "popup", "minutes": 30}, {"method": "popup", "minutes": 10}]
+    if kind != "chat":
+        eve = (s - datetime.timedelta(days=1)).replace(hour=20, minute=0)
+        reminders.insert(0, {"method": "popup", "minutes": int((s - eve).total_seconds() // 60),
+                             "note": "the evening before: the prep card, the route, what to wear and bring"})
     main = {"summary": title, "start": s.isoformat(), "end": e.isoformat(), "time_zone": zone,
-            "video_call": True, "description": card.strip(),
-            "reminders": [{"method": "popup", "minutes": 30}, {"method": "popup", "minutes": 10}]}
+            "video_call": True, "description": card.strip(), "reminders": reminders}
     if kind == "chat":
         ps = s - datetime.timedelta(minutes=15)
         prep = {"summary": "Prep: %s" % title, "start": ps.isoformat(), "end": s.isoformat(), "time_zone": zone,

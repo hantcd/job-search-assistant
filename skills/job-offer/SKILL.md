@@ -15,6 +15,10 @@ their own words, and check each against the counter-offer: fixed, partly or
 not at all. Money rarely fixes the other reasons. Information only; the
 person decides.
 
+**The person accepted**: job-tracker's `wrapup.py plan` closes the search
+kindly (withdrawals, thank-yous, tasks paused, the streak ended, LinkedIn,
+celebration, and the contact data anonymised on their yes).
+
 `$SKILL_DIR` below means this skill's folder.
 
 ```bash

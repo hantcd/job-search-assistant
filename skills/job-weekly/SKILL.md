@@ -79,6 +79,16 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
    I lowered the pack threshold from 62 to 57 and added 3 title variants. Say
    'undo' to put it back."). One change a week; nothing else is changed
    without the person's yes.
+2e. **Learning and the honest numbers**: `funnel.py north-star` (interviews a
+   week, applications to interview with the benchmarks, minutes a day against
+   the 5-minute promise), job-scout's `learn.py skips` (proposals from skip
+   reasons, asked as yes/no in the next session) and, from 20 applications,
+   `learn.py patterns` (interview rate by family, route, source, Fit band and
+   base CV; dead groups flagged; a tentative weight change). When the rate
+   stays under 2% after 30 applications, calibrate says "quality first": no
+   lower threshold, but more referral-first jobs and tighter tailoring
+   (career-ops's author: 68 applications, 12 interview processes, 1 offer).
+   Also offer `wrapup.py anonymise --older-than 365` for old contacts.
 3. **The Monday summary line**: conversations and replies, not just
    applications (job-tracker `summary`).
 4. **Usage**: a rough note of the automatic tasks' share of the allowance.

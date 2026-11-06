@@ -6,8 +6,9 @@ source.
 
 **About 5 minutes a day, 10-20 jobs.** Say *Go* at the time you chose: tick
 each job's application and emails to its hiring team in one card, then click
-Send on a few LinkedIn requests. Replies become calendar invites, and a daily
-streak keeps you going; the rest runs on its own.
+Send on a few LinkedIn requests, or tap Approve on your phone. Replies become
+calendar invites, a daily streak keeps you going, missed runs catch up by
+themselves, and the search learns from what you skip; the rest runs on its own.
 
 **Nothing goes out without your yes.** Claude shows you each application and
 each message; one click on Approve submits or sends that one item.

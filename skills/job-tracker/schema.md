@@ -104,5 +104,12 @@ companies (company notes, plus limit_max, limit_window_days, limit_scope and
 resets when a company limits applications per person), events, offers, feedback, story_grid,
 keyword_bank, watched, network, signals, form_notes (site, quirk, handling, date: job-apply's form
 memory), hidden (job-scout's `hidden.py`: growing companies most applicants miss, with source,
-funding date, size, feed and status): lists of rows; see the skill that
-keeps each.
+funding date, size, feed and status), approvals (today's items for the job list page's Today
+panel: {id, date, order, kind, item, job_id, preview, status: waiting, approved or skipped,
+skip_reason, decided_at}; job-followup), today (one row "now": {welcome, date}, the streak
+line the page shows), sessions ({date, minutes, approved, skipped}: the 5-minute promise,
+measured), answers_bank ({question, answer, reuse, date}: answers the person gave once to
+reuse; never eligibility, declarations or diversity questions; job-apply): lists of rows;
+see the skill that keeps each. feedback rows also hold one-tap skips: {kind: "skip",
+job_id, reason, date} (job-scout's `learn.py`). jobs may carry ghosted (a date: closed
+after 6 weeks of silence) and industry; contacts may carry anonymised (a date).

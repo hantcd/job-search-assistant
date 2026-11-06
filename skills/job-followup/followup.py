@@ -129,6 +129,9 @@ def thread_state(o, contact, today):
     return "WAITING", "%s: last follow-up due 5 working days after the first (%d so far)" % (name, wd)
 
 
+GHOST_DAYS = 42  # six weeks of silence after applying: it's over, and following up further only costs time
+
+
 def application_items(data, today):
     due, waiting = [], []
     for j in data.get("jobs", []):
@@ -171,7 +174,13 @@ def application_items(data, today):
                 due.append("follow-up: %s, 3 days since their reply or test with nothing since (to %s)" % (label, to))
         elif applied:
             age = (today - applied).days
-            if age >= 28:
+            if j.get("ghosted"):
+                continue
+            if age >= GHOST_DAYS:
+                due.append("ghosted: %s, %d days with no news: close it (job-tracker move ... closed, reason "
+                           "ghosted) and stop following up; the same role there can be tried again after 6 months"
+                           % (label, age))
+            elif age >= 28:
                 due.append("stale: %s, no news for %d days (mark it 'stale'; keep it unless they close it)" % (label, age))
             elif age >= 7 and not last_fu:
                 due.append("follow-up: %s, 7 days after applying with no reply (to %s)" % (label, to))

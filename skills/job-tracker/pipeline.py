@@ -56,7 +56,7 @@ TEAM_WINDOW = 14
 REJECTION_WINDOW = 180  # days a rejection at a company is worth a warning before writing to its recruiters
 TABLES = ("jobs", "applications", "contacts", "outreach", "run_log", "email_log")
 # Free-form tables the skills also keep (checked only for being lists):
-OTHER_TABLES = ("hidden", "form_notes", "companies", "events", "offers", "feedback", "story_grid",
+OTHER_TABLES = ("hidden", "form_notes", "approvals", "today", "sessions", "answers_bank", "companies", "events", "offers", "feedback", "story_grid",
                 "keyword_bank", "watched", "network", "signals", "reddit", "linkedin_ids",
                 "question_bank", "updates")
 
@@ -505,6 +505,9 @@ def known_limits(data):
     return out
 
 
+REAPPLY_DAYS = 183  # the same role at the same company: six months, the usual wait employers state
+
+
 def can_apply(data, job_id, today, cap=LIFETIME_CAP):
     """Before any application: (verdict, reasons). verdict is OK, ASK (needs the person's yes) or BLOCK."""
     job = next((j for j in data["jobs"] if j.get("id") == job_id), None)
@@ -521,6 +524,12 @@ def can_apply(data, job_id, today, cap=LIFETIME_CAP):
                      % (len(applied), job.get("company"), cap))
     if any(day_or_none(j.get("applied")) == today for j in applied):
         block.append("already applied to %s today: one role per company per day" % job.get("company"))
+    for j in same:
+        if norm(j.get("title")) == norm(job.get("title")) and day_or_none(j.get("applied")):
+            gap = (today - day_or_none(j.get("applied"))).days
+            if gap < REAPPLY_DAYS and j.get("status") in ("rejected", "closed", "withdrawn"):
+                block.append("applied to this same role at %s %d days ago (%s); try again after %d days, or a "
+                             "different role there" % (job.get("company"), gap, j.get("status"), REAPPLY_DAYS))
     live = [j for j in same if j.get("status") in ("screen", "interview", "offer")]
     if live:
         ask.append("mid-process at %s (%s): a new application there needs the person's yes"

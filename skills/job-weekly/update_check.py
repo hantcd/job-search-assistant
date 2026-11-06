@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "3.4.0"
+PACK_VERSION = "3.5.0"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -242,6 +242,19 @@ MIGRATIONS = [
               "report gives the exact searches)",
      "steps": "List the saved searches to create on each board from the role families' titles and places; the daily "
               "search reads their alert emails from then on."},
+    {"id": "3.5.0-reliable-and-learning", "version": "3.5.0",
+     "title": "Runs that catch up, approvals on your phone, and a search that learns",
+     "helps": "missed runs (usage limit, computer off) are caught up and reported once; tap Approve or Skip on "
+              "the job list page from your phone; skip reasons and outcomes tune the search; LinkedIn replies show "
+              "up; ghosted applications close themselves; interviews can be moved or cancelled; a pause for "
+              "holidays; a kind word after a tough week; a clean, thankful ending when you get the job",
+     "needs": "nothing",
+     "steps": "Add to every automatic task's start: 'health.py since <task>, and cover everything since then'; to "
+              "the first run of the day: health.py check with the plan's schedule, reported once; to the prep run: "
+              "today.py --approvals-out, written to the job list page's approvals and today collections; to the "
+              "email tracker: outreach.py linkedin-replies on LinkedIn message emails; to the weekly check: funnel.py "
+              "north-star and learn.py skips/patterns. Add the Today panel to the job list page if it was built "
+              "before 3.5 (job-tracker)."},
     {"id": "3.4.0-situation", "version": "3.4.0",
      "title": "Advice that fits where you're starting from",
      "helps": "in work and exploring: a confidential search, chat and interview times outside work hours, and alerts "
