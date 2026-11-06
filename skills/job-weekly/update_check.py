@@ -39,7 +39,7 @@ import re
 import sys
 import urllib.request
 
-PACK_VERSION = "1.8.1"
+PACK_VERSION = "1.8.2"
 REPO = "hantcd/job-search-assistant"
 MANIFEST_URL = "https://raw.githubusercontent.com/%s/main/updates.json" % REPO
 ROUTES = ("github-auto", "upload", "skills", "claude-code")
@@ -122,6 +122,21 @@ MIGRATIONS = [
      "needs": "about 2 minutes: Settings > Capabilities > Allowed websites (Manage) > Add a website, once for "
               "each of boards-api.greenhouse.io, api.lever.co, api.eu.lever.co and api.ashbyhq.com",
      "steps": "Once added, run one feeds.py fetch to confirm the sandbox reaches them, and say so."},
+    {"id": "1.8.2-people-you-know", "version": "1.8.2",
+     "title": "People you know at every job's company",
+     "helps": "every job on your list shows who you already know there, ranked for a referral",
+     "needs": "",
+     "steps": "Run job-connector's network.py match --write for every open job, write the new contacts and each "
+              "job's people_you_know back to the job list, rescore each job whose 'connection' part said nobody was "
+              "known (score.py), and list the jobs with the most people in the report."},
+    {"id": "1.8.2-referral-search-task", "version": "1.8.2",
+     "title": "Find hiring managers and people on the team, on your computer",
+     "helps": "for jobs where you know nobody on the team, Claude finds the likely hiring manager and two people "
+              "through Google (never LinkedIn) and adds them to your list",
+     "needs": "your OK for one scheduled task that runs on your computer while the Claude desktop app is open "
+              "(about 1 minute)",
+     "steps": "Create the scheduled task 'Referral search (on your computer)' as job-connector describes, "
+              "weekdays at a quiet hour, requiring the person's computer; it waits if the computer is off."},
     {"id": "1.8.0-auto-install", "version": "1.8.0",
      "title": "Get future versions automatically",
      "helps": "new versions of the pack arrive by themselves, with no downloads",

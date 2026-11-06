@@ -7,6 +7,7 @@
     python3 outreach.py approve --file draft.txt --reply "yes"
     python3 outreach.py check --channel linkedin --stage ask --file ask.txt   # the referral ask
     python3 outreach.py find --company "Acme" --team "data analytics" [--school "Trinity College Dublin"] [--city Dublin]
+    python3 outreach.py manager --file ad.txt          # the hiring manager's title, from 'reports to ...' lines
 
 check: emails under 75 words, a subject naming the role, no attachment in a first
 email, one clear question; LinkedIn messages 2-4 sentences; connection notes at
@@ -117,6 +118,28 @@ def check(channel, text, subject="", role="", stage="", ref=""):
     return res
 
 
+TITLE = r"((?:[A-Z][\w&/+'-]*|of|and|&|for|the)(?:,? (?:[A-Z][\w&/+'-]*|of|and|&|for|the|EMEA|UK&I))*)"
+MANAGER_PATTERNS = [
+    re.compile(r"\b(?i:report(?:s|ing)?) (?:directly |in |straight )?(?:in)?to (?:the |our |a |an )?" + TITLE),
+    re.compile(r"\b(?i:hiring manager)(?: is|:)? (?:the |our )?" + TITLE),
+    re.compile(r"\b(?i:work|working|partner) (?:closely |directly )?with (?:the |our )?" + TITLE),
+    re.compile(r"\b(?i:led|managed) by (?:the |our |a )?" + TITLE),
+]
+TITLE_WORD = re.compile(r"\b(?:Head|Manager|Director|Lead|VP|Vice President|Chief|Founder|CEO|CRO|COO|CTO|"
+                        r"Leader|Supervisor|Team Lead)\b")
+
+
+def manager_titles(ad):
+    """Titles the ad says the role reports to or works under: the hiring manager to look for."""
+    out = []
+    for rx in MANAGER_PATTERNS:
+        for m in rx.finditer(ad or ""):
+            t = re.sub(r"(?:,? (?:and|the|for|of|&))+$", "", m.group(1)).strip(" ,.")
+            if TITLE_WORD.search(t) and 3 <= len(t) <= 70 and t not in out:
+                out.append(t)
+    return out
+
+
 def find_queries(company, team, school="", city=""):
     """Google searches for people on a team. Read on Google's page only; never open linkedin.com."""
     from urllib.parse import quote_plus
@@ -195,6 +218,8 @@ def main(argv=None):
     c.add_argument("--role", default="")
     c.add_argument("--stage", choices=("note", "thanks", "chat", "ask", "nudge", "application"), default="")
     c.add_argument("--ref", default="", help="the posting's reference number, for application emails")
+    mg = sub.add_parser("manager")
+    mg.add_argument("--file", required=True)
     f = sub.add_parser("find")
     f.add_argument("--company", required=True)
     f.add_argument("--team", required=True, help="the team or job title")
@@ -213,6 +238,12 @@ def main(argv=None):
         for name, st, detail in res:
             print("%-4s  %-14s %s" % (st, name, detail))
         return 1 if any(st == "FAIL" for _, st, _ in res) else 0
+    if a.cmd == "manager":
+        titles = manager_titles(open(a.file, encoding="utf-8").read())
+        print(json.dumps({"titles": titles, "next": "outreach.py find --team '<title>' for each" if titles else
+                          "the ad doesn't say; search for the team's most senior person in the job's function"},
+                         indent=1))
+        return 0
     if a.cmd == "find":
         print(json.dumps(find_queries(a.company, a.team, a.school, a.city), indent=1))
         print("Read the results on Google's page only. Never open or click anything on linkedin.com. "

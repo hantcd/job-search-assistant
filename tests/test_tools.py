@@ -1242,3 +1242,71 @@ class Release181(unittest.TestCase):
         r = self.u.check(copy.deepcopy(PIPE), None)
         item = next(i for i in r["ask"] if i["id"] == "1.8.1-allowed-sites")
         self.assertIn("boards-api.greenhouse.io", item["needs"])
+
+
+class Release182(unittest.TestCase):
+    """Referrals for every job (fictional people only)."""
+    n = load("job-connector", "network")
+    o = load("job-connector", "outreach")
+    p = load("job-tracker", "pipeline")
+    u = load("job-weekly", "update_check")
+
+    def data(self):
+        d = copy.deepcopy(PIPE)
+        d["network"] = [
+            {"name": "Ciara Doyle", "company": "Acme Ltd", "position": "Analytics Manager", "connected_on": "2026-01-10",
+             "tie_strength": "UNKNOWN"},
+            {"name": "Tom Byrne", "company": "ACME", "position": "Data Analyst", "connected_on": "2020-05-01",
+             "tie_strength": "known"},
+            {"name": "Ana Silva", "company": "Acme Ltd", "position": "Office Manager", "connected_on": "2024-03-01"},
+            {"name": "Jo Ryan", "company": "Acme Ltd", "position": "Talent Partner", "connected_on": "2025-03-01"},
+            {"name": "Not Acme", "company": "Acmeology Labs", "position": "Data Analyst", "connected_on": "2025-03-01"},
+        ]
+        return d
+
+    def test_ranks_team_and_managers_first(self):
+        res = self.n.match(self.data(), D(2026, 11, 6), "acme-junior-data-analyst")
+        r = res["acme-junior-data-analyst"]
+        self.assertEqual(r["total"], 4)  # 'Acmeology Labs' isn't Acme
+        self.assertEqual([t["name"] for t in r["top"][:2]], ["Ciara Doyle", "Tom Byrne"])
+        self.assertIn("hiring manager", r["top"][0]["why"])
+        self.assertEqual(r["same_function"], 2)
+
+    def test_write_adds_unverified_contacts_once(self):
+        d = self.data()
+        res = self.n.match(d, D(2026, 11, 6), "acme-junior-data-analyst", top=3)
+        self.assertEqual(self.n.write(d, res, D(2026, 11, 6)), 3)
+        self.assertEqual(self.n.write(d, res, D(2026, 11, 6)), 0)
+        added = [c for c in d["contacts"] if c["id"] == "ciara-doyle-acme-ltd"][0]
+        self.assertEqual(added["employer_checked"], "")
+        job = [j for j in d["jobs"] if j["id"] == "acme-junior-data-analyst"][0]
+        self.assertEqual(job["people_you_know"]["total"], 4)
+        errs, _ = self.p.validate(d)
+        self.assertEqual(errs, [])
+        v, why = self.p.contact_check(d, "ciara-doyle-acme-ltd", D(2026, 11, 6))
+        self.assertTrue(any("UNVERIFIED" in r for r in why))
+
+    def test_go_to_market_counts_as_the_team(self):
+        d = self.data()
+        d["jobs"][0]["title"] = "Business Development Representative"
+        d["network"].append({"name": "Sam Lee", "company": "Acme Ltd", "position": "Customer Success Lead"})
+        r = self.n.match(d, D(2026, 11, 6), d["jobs"][0]["id"])[d["jobs"][0]["id"]]
+        self.assertEqual(r["top"][0]["name"], "Sam Lee")
+        self.assertIn("go-to-market", r["top"][0]["why"])
+
+    def test_no_one_known(self):
+        d = self.data()
+        d["network"] = []
+        r = self.n.match(d, D(2026, 11, 6), "acme-junior-data-analyst")["acme-junior-data-analyst"]
+        self.assertIn("none yet", self.n.summary_line(r))
+
+    def test_manager_title_from_ad(self):
+        ad = ("You will report directly to the Head of Sales Development, EMEA and work closely with our Account "
+              "Executives. Reporting to the BDR Manager. You will report your progress weekly.")
+        self.assertEqual(self.o.manager_titles(ad), ["Head of Sales Development, EMEA", "BDR Manager"])
+        self.assertEqual(self.o.manager_titles("A great team in Dublin."), [])
+
+    def test_update_items(self):
+        r = self.u.check(copy.deepcopy(PIPE), None)
+        self.assertIn("1.8.2-people-you-know", [i["id"] for i in r["do_now"]])
+        self.assertIn("1.8.2-referral-search-task", [i["id"] for i in r["ask"]])

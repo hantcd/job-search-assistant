@@ -21,6 +21,8 @@ python3 "$SKILL_DIR/outreach.py" slots --start 2026-10-16 [--senior]
 python3 "$SKILL_DIR/outreach.py" approve --file draft.txt --reply "<the person's reply, word for word>"
 python3 "$SKILL_DIR/outreach.py" check --channel linkedin --stage ask --file ask.txt
 python3 "$SKILL_DIR/outreach.py" find --company "Acme" --team "data analytics" --school "Trinity College Dublin" --city Dublin
+python3 "$SKILL_DIR/network.py" --file jobsearch/pipeline.json match --write   # people you know, every open job
+python3 "$SKILL_DIR/outreach.py" manager --file ad.txt   # the hiring manager's title, from the ad
 python3 ../job-tracker/pipeline.py contact-check siobhan-kelly-acme --job acme-junior-data-analyst --today 2026-10-20
 python3 "$SKILL_DIR/emails.py" guess --name "Siobhan Kelly" --domain acme.ie --known "Ciara Doyle ciara.doyle@acme.ie"
 python3 "$SKILL_DIR/emails.py" privacy --method company-pattern
@@ -36,6 +38,24 @@ python3 "$SKILL_DIR/emails.py" privacy --method company-pattern
   time slot.
 
 ## Who to contact, per job
+
+**People the person already knows come first, for every job, at once.**
+`network.py match --write` runs in job-scout right after a job is scored, for
+every job that passes the gates, not only the ones that get a pack. It ranks
+the person's first-degree connections at that company (from their LinkedIn
+export): the same function or go-to-market team first, then people senior
+enough to be the hiring manager or close to them, then recruiters, then known
+ties. The top five go into contacts (UNVERIFIED until the person opens the
+profile, as the export can be out of date) and the job's alert line says
+"People you know: 46 at Stripe (34 on the team)". This needs no web access,
+so automatic tasks always do it. (A live check on 2026-11-06 found the
+person's connections covered 9 of 15 jobs, none of which had been surfaced,
+because referral finding waited for packs that hadn't been made.)
+
+**The hiring manager**: `outreach.py manager` reads the ad's "reports to ...",
+"hiring manager" and "you'll work closely with ..." lines for the title to
+look for; where the ad doesn't say, look for the most senior person in the
+job's function in that office.
 
 - **Up to 5 referral contacts**, ranked by usefulness and likelihood of
   replying, not seniority: first-degree connections from the network table,
@@ -72,6 +92,23 @@ company, the team or job title, and something the person shares with them
   (`in_common`). Each contact stays UNVERIFIED until the person opens the
   profile and confirms they still work there (`employer_checked`); results go
   out of date.
+
+### Searching on the person's computer
+
+Claude's own web search doesn't find people (tested 2026-11-06: hiring-manager
+searches returned only job listings), and scheduled tasks in the cloud have
+no browser. So the people search runs as its own scheduled task that requires
+the person's computer ("Referral search (on your computer)", set up with the
+person's OK, in the Claude desktop app's built-in browser while the app is
+open). Each run, for new jobs since the last run where the person knows
+fewer than two people on the team, best scores first, at most 10 jobs: the
+hiring manager's title (`outreach.py manager`) and two team searches
+(`outreach.py find`), read on Google's results page only, at most 20
+searches a run with a pause between them. Results go into contacts as
+UNVERIFIED with what they share with the person; never open, click or follow
+anything on linkedin.com. A CAPTCHA or 'unusual traffic' page stops the run;
+the alert lists the links instead. If the computer is off, the run waits for
+the next one and nothing is lost.
 
 To find a hiring manager, the person can also run LinkedIn's people search in
 their own browser; Claude may read that one results page with them present.

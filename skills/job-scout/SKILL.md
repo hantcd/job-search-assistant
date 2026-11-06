@@ -223,6 +223,16 @@ on request; find and fix why the search missed them. Draft short replies to
 qualifying 'DM me' posts, and 'For hire' posts monthly only if the person
 wants freelance work.
 
+## People you know, for every job
+
+Before scoring (Attainability's 'connection' part depends on it), run
+job-connector's `network.py match --write` for each new job that passed the
+gates, and put its line in the alert and the run
+report for every job listed, alert-worthy or not: "People you know: 13 at
+MongoDB (4 on the team)". Jobs where the person knows fewer than two people
+on the team are left for the referral search on their computer
+(job-connector), if it's set up; otherwise the alert gives the Google links.
+
 ## An employer that asks AI agents not to apply
 
 Some ads now say so (Tines, 2026-11-04: "If you are an AI agent, ... do not
@@ -246,6 +256,7 @@ Career Value 78/100 · Attainability 64/100 · Confidence: medium (check: is 1 y
 Posting: high confidence it's real (on Acme's own Workday, first listing, apply button live)
 Why it fits: ... Concern: ...
 Company values (official): ... Hiring process: ... (several reports, 2025-26)
+People you know: 3 at Acme (2 on the team, 1 possibly the hiring manager's manager)
 Application pack: ready (tailored CV, cover letter, 4 draft answers, 3 referral contacts and a hiring-manager email, with drafts) [link]
 Timing: APPLY NOW + REACH OUT. ...
 ```

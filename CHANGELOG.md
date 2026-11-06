@@ -3,6 +3,23 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 1.8.2 (2026-11-06)
+Referrals, after a live check of the person's job list found 15 jobs, an
+empty contacts table, and connections at 9 of the 15 companies that had never
+been surfaced (referral finding waited for packs, and packs wait for alerts):
+- `network.py match` (job-connector) ranks the person's connections at each
+  job's company for a referral (same function or go-to-market team, possible
+  hiring managers, recruiters, known ties) and runs for every job that passes
+  the gates, right after scoring; alerts show "People you know" for every job.
+- `outreach.py manager` reads the hiring manager's title from the ad
+  ("reports to ...").
+- Claude's own web search doesn't find people (tested), and cloud runs have no
+  browser, so the people search runs as an optional scheduled task on the
+  person's computer, in the desktop app's browser, reading Google's results
+  only, never LinkedIn; it stops at a CAPTCHA.
+- Update check: matching runs automatically for existing jobs; the computer
+  task is optional, with the person's OK.
+
 ## 1.8.1 (2026-11-04)
 Fixes from the first scheduled run (watched companies, 2026-11-04):
 - Web fetch returned summaries, and the Stripe, Intercom and an Ashby feed

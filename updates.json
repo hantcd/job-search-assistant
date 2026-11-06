@@ -1,7 +1,18 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "1.8.1",
+ "latest": "1.8.2",
  "versions": [
+  {
+   "version": "1.8.2",
+   "date": "2026-11-06",
+   "summary": "Referrals for every job: people you know are matched at once, the hiring manager's title is read from the ad, and an optional search on your computer finds people on the team.",
+   "helps": [
+    "every job shows who you already know at that company, ranked for a referral, packs or not",
+    "the hiring manager's title is read from the ad",
+    "an optional task on your computer finds the hiring manager and people on the team through Google"
+   ],
+   "install_minutes": 2
+  },
   {
    "version": "1.8.1",
    "date": "2026-11-04",
