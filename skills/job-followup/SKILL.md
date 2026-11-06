@@ -22,10 +22,10 @@ python3 "$SKILL_DIR/followup.py" --file jobsearch/pipeline.json can-follow-up si
 
 The person's whole daily job, on the days and at the time they chose
 (MASTER_PLAN.md: 'Session days: Mon, Tue, Wed, Thu, Fri at 08:30',
-'Applications a day: 10'). It opens with the streak line (`streak.py`), then
+'Applications a day: 5-10'). It opens with the streak line (`streak.py`), then
 `today.py`: people waiting first (times to offer, replies, thank-yous, chat
-asks), then the jobs, best first, up to the day's number (10-20 jobs fit in 5
-minutes):
+asks), then the jobs, best first, up to the day's maximum (10-20 jobs fit in 5
+minutes; the weekly check keeps 5-10 good ones coming):
 1. **In the chat**: post each job's preview (answers, files, declarations),
    then one approval card of up to 16 items (AskUserQuestion: 4 questions x 4
    options, multiSelect): each job's application and its two hiring-team

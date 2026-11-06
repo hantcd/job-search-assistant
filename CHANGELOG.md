@@ -3,6 +3,18 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.3.0 (2026-11-06)
+- 'Applications a day' is a range, default 5-10 (`streak.py` reads '5-10';
+  the week's bar aims at the minimum, the session stops at the maximum).
+- job-weekly `funnel.py calibrate`: from the end of the first week, when
+  pack-worthy jobs come in under the minimum on 4 of the last 5 planned days,
+  the pack threshold drops 5 points (floor 50) and the search widens; over the
+  maximum, it rises 5 (ceiling 80). One change a week, reported in one line,
+  undone on request; on by default ('Auto-calibration: on'), as asked.
+- Models: Sonnet for every automatic task by default; Opus only for
+  complicated work Sonnet may struggle with, work it has struggled with, or
+  re-checking a task it got wrong.
+
 ## 3.2.0 (2026-11-06)
 Maximum results in as few clicks as possible.
 - job-followup `today.py`: one bundle per queued job, best first, up to the

@@ -5,6 +5,12 @@
     python3 funnel.py thresholds --file jobsearch/pipeline.json --fit 60
     python3 funnel.py --file jobsearch/pipeline.json targets --plan MASTER_PLAN.md [--chats 1 --interviews 2 --capacity 5]
 
+calibrate: after the first week, if jobs good enough for a pack come in under
+'Applications a day' (default 5-10) on 4 of the last 5 planned days, lower the
+pack threshold 5 points (floor 50) and widen the search; over it, raise 5
+(ceiling 80). One change a week; the person asked for this to happen by
+itself, and each change is reported and can be undone by saying so.
+
 targets: works back from the weekly targets (MASTER_PLAN.md's 'Weekly targets:'
 line; defaults 1 coffee chat, 2 interviews, 5 applications; flags override) to
 the chat asks, connection requests and applications this week needs.
@@ -251,6 +257,56 @@ def weekly_plan(data, today, chats=1, interviews=2, apps_cap=5, invite_cap=80):
             "advice": advice}
 
 
+FIT_FLOOR, FIT_CEILING, FIT_STEP = 50, 80, 5
+
+
+def calibrate(data, today, pack_fit, per_day=(5, 10), days=(0, 1, 2, 3, 4), last_change=None):
+    """After the first week: if the jobs good enough for a pack keep coming in under the daily minimum (or over
+    the maximum), move the pack threshold one step and say how to widen (or narrow) the search. A job found on
+    a day off counts for the next planned day. 'Consistently' means 4 of the last 5 planned days."""
+    lo, hi = per_day
+    found = [day(j.get("first_found")) for j in data.get("jobs", []) if (j.get("fit") or 0) >= pack_fit]
+    found = [d for d in found if d]
+    applied = sorted(d for d in (day(j.get("applied")) for j in data.get("jobs", [])) if d)
+    start = applied[0] if applied else None
+    if not start or (today - start).days < 7:
+        return {"action": "too early", "reason": "needs a week of sessions first", "pack_fit": pack_fit}
+    if last_change and (today - last_change).days < 7:
+        return {"action": "wait", "reason": "changed on %s; one change a week" % last_change, "pack_fit": pack_fit}
+    planned, d = [], today - datetime.timedelta(days=1)
+    while len(planned) < 5 and d >= start:
+        if d.weekday() in days:
+            planned.append(d)
+        d -= datetime.timedelta(days=1)
+    counts = []
+    for i, p in enumerate(planned):
+        prev = planned[i + 1] if i + 1 < len(planned) else p - datetime.timedelta(days=7)
+        counts.append(sum(1 for f in found if prev < f <= p))
+    low = sum(1 for c in counts if c < lo)
+    high = sum(1 for c in counts if c > hi)
+    out = {"days": [(p.isoformat(), c) for p, c in zip(planned, counts)], "pack_fit": pack_fit,
+           "range": [lo, hi]}
+    if len(counts) >= 4 and low >= 4 and pack_fit > FIT_FLOOR:
+        out.update(action="lower", to=max(FIT_FLOOR, pack_fit - FIT_STEP),
+                   reason="%d of the last %d planned days had fewer than %d jobs good enough for a pack" % (
+                       low, len(counts), lo),
+                   search=["add the title variants and companies the weekly check found missing",
+                           "add the next 10 lesser-known growing companies (job-scout hidden.py rank)",
+                           "add any job site in the role families' country not yet searched",
+                           "widen the location (commutable towns, remote within the country) if the plan allows"])
+    elif len(counts) >= 4 and low >= 4:
+        out.update(action="widen search", reason="fewer than %d a day and the threshold is already at its floor "
+                   "(%d)" % (lo, FIT_FLOOR), search=["the same widening steps; consider another role family"])
+    elif len(counts) >= 4 and high >= 4 and pack_fit < FIT_CEILING:
+        out.update(action="raise", to=min(FIT_CEILING, pack_fit + FIT_STEP),
+                   reason="%d of the last %d planned days had more than %d jobs good enough for a pack" % (
+                       high, len(counts), hi),
+                   search=["keep every source; the higher bar keeps the best %d a day" % hi])
+    else:
+        out.update(action="none", reason="within %d-%d a day" % (lo, hi))
+    return out
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description="Funnels with counts and a diagnosis.")
     p.add_argument("--file", default=os.path.join("jobsearch", "pipeline.json"))
@@ -259,6 +315,11 @@ def main(argv=None):
     r.add_argument("--json", action="store_true")
     t = sub.add_parser("thresholds")
     t.add_argument("--fit", type=int, default=60, help="the alert threshold for Fit")
+    cb = sub.add_parser("calibrate", help="after week 1: move the pack threshold if jobs stay under 5 or over 10 a day")
+    cb.add_argument("--pack-fit", type=int, required=True, help="the current pack threshold")
+    cb.add_argument("--plan", help="MASTER_PLAN.md: 'Applications a day: 5-10' and the session days")
+    cb.add_argument("--last-change", help="date of the last automatic change")
+    cb.add_argument("--today")
     wp = sub.add_parser("targets")
     wp.add_argument("--plan", help="MASTER_PLAN.md: reads its 'Weekly targets:' line (flags override it)")
     wp.add_argument("--chats", type=int, help="coffee chats a week (default 1)")
@@ -266,6 +327,16 @@ def main(argv=None):
     wp.add_argument("--capacity", type=int, help="applications a week the person can make (default 5)")
     wp.add_argument("--today")
     a = p.parse_args(argv)
+    if a.cmd == "calibrate":
+        today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "job-followup"))
+        import streak  # noqa: E402
+        st = streak.read_plan(open(a.plan, encoding="utf-8").read() if a.plan and os.path.exists(a.plan) else "")
+        out = calibrate(json.load(open(a.file, encoding="utf-8")), today, a.pack_fit,
+                        (st["per_day_min"], st["per_day"]), st["days"],
+                        datetime.date.fromisoformat(a.last_change) if a.last_change else None)
+        print(json.dumps(out, indent=1, ensure_ascii=False))
+        return 0
     if a.cmd == "targets":
         today = datetime.date.fromisoformat(a.today) if a.today else datetime.date.today()
         t = plan_targets(open(a.plan, encoding="utf-8").read()) if a.plan and os.path.exists(a.plan) else {}

@@ -67,6 +67,18 @@ python3 "$SKILL_DIR/update_check.py" --file jobsearch/pipeline.json done <id>
    applications, firms of 1-1,500 staff), but there the hiring manager often
    reads applications, outreach reaches the person deciding, and roles posted
    only on their own page get fewer applicants than a big-name listing.
+2d. **Keeping 5-10 good jobs a day** (`funnel.py calibrate --pack-fit N
+   --plan MASTER_PLAN.md --last-change DATE`), from the end of the first week
+   of sessions, when MASTER_PLAN.md has 'Auto-calibration: on' (the default
+   since 3.3; the person asked for it): if jobs good enough for a pack come in
+   under the daily minimum on 4 of the last 5 planned days, lower the pack
+   threshold 5 points (never below 50) and widen the search with the steps it
+   lists; over the maximum, raise it 5 (never above 80). Apply it to
+   PREFERENCES_AND_SCORING.md, log it in CHANGELOG.md with the reason, and
+   open the report with one line ("Fewer than 5 good jobs a day this week, so
+   I lowered the pack threshold from 62 to 57 and added 3 title variants. Say
+   'undo' to put it back."). One change a week; nothing else is changed
+   without the person's yes.
 3. **The Monday summary line**: conversations and replies, not just
    applications (job-tracker `summary`).
 4. **Usage**: a rough note of the automatic tasks' share of the allowance.

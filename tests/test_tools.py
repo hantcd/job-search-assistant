@@ -1762,6 +1762,46 @@ class Release260(unittest.TestCase):
         self.assertEqual(self.fn.BENCHMARK["google jobs"], 11.29)
 
 
+class Release330(unittest.TestCase):
+    """5-10 applications a day, and the weekly self-calibration (fictional data)."""
+    st = load("job-followup", "streak")
+    fn = load("job-weekly", "funnel")
+
+    def jobs(self, per_day, start=D(2026, 11, 2), n_days=12, fit=70):
+        out, d, i = [], start, 0
+        for k in range(n_days):
+            if d.weekday() < 5:
+                for _ in range(per_day):
+                    out.append({"id": "j%d" % i, "first_found": d.isoformat(), "fit": fit})
+                    i += 1
+            d += datetime.timedelta(days=1)
+        out.append({"id": "first", "applied": start.isoformat(), "status": "applied", "fit": 70})
+        return {"jobs": out}
+
+    def test_range_in_plan(self):
+        p = self.st.read_plan("- Applications a day: 5-10\n")
+        self.assertEqual((p["per_day_min"], p["per_day"]), (5, 10))
+        self.assertEqual(self.st.read_plan("")["per_day"], 10)
+        s = self.st.status({"jobs": []}, p, D(2026, 11, 9))
+        self.assertEqual(s["week"]["goal"], 25)  # the week's bar aims at the minimum
+
+    def test_too_early_then_lower_raise_or_none(self):
+        today = D(2026, 11, 14)
+        self.assertEqual(self.fn.calibrate(self.jobs(2, start=D(2026, 11, 10)), today, 62)["action"], "too early")
+        r = self.fn.calibrate(self.jobs(2), today, 62)
+        self.assertEqual((r["action"], r["to"]), ("lower", 57))
+        self.assertTrue(r["search"])
+        r = self.fn.calibrate(self.jobs(14), today, 62)
+        self.assertEqual((r["action"], r["to"]), ("raise", 67))
+        self.assertEqual(self.fn.calibrate(self.jobs(7), today, 62)["action"], "none")
+        self.assertEqual(self.fn.calibrate(self.jobs(2), today, 50)["action"], "widen search")  # at the floor
+        self.assertEqual(self.fn.calibrate(self.jobs(2), today, 62, last_change=D(2026, 11, 10))["action"], "wait")
+
+    def test_jobs_below_the_threshold_dont_count(self):
+        r = self.fn.calibrate(self.jobs(14, fit=55), D(2026, 11, 14), 62)
+        self.assertEqual(r["action"], "lower")
+
+
 class Release320(unittest.TestCase):
     """10-20 jobs in 5 minutes, and the application streak (fictional data)."""
     st = load("job-followup", "streak")

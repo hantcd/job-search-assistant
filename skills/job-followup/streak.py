@@ -6,7 +6,7 @@
 
 MASTER_PLAN.md lines it reads (defaults in brackets):
   Session days: Mon, Tue, Wed, Thu, Fri at 08:30      [weekdays at 08:30]
-  Applications a day: 10                                [10]
+  Applications a day: 5-10                              [5-10: at least 5, at most 10]
   Streak goal: 30                                       [7, then 14, 30, 50, 100]
   Streak start: 2026-11-09                              [the first day with an application]
 
@@ -45,7 +45,7 @@ def day(s):
 
 
 def read_plan(text):
-    out = {"days": [0, 1, 2, 3, 4], "time": "08:30", "per_day": 10, "goal": None, "start": None}
+    out = {"days": [0, 1, 2, 3, 4], "time": "08:30", "per_day": 10, "per_day_min": 5, "goal": None, "start": None}
     for line in (text or "").splitlines():
         low = line.lower()
         if re.search(r"session days?|apply(?:ing)? days?|streak days?", low):
@@ -59,9 +59,10 @@ def read_plan(text):
             m = re.search(r"\b(\d{1,2})[:.](\d\d)\b", low)
             if m:
                 out["time"] = "%02d:%s" % (int(m.group(1)), m.group(2))
-        m = re.search(r"applications? (?:a|per) day:?\s*(\d+)", low)
+        m = re.search(r"applications? (?:a|per) day:?\s*(\d+)(?:\s*(?:-|–|to)\s*(\d+))?", low)
         if m:
-            out["per_day"] = int(m.group(1))
+            lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
+            out["per_day_min"], out["per_day"] = min(lo, hi), max(lo, hi)
         m = re.search(r"streak goal:?\s*(\d+)", low)
         if m:
             out["goal"] = int(m.group(1))
@@ -152,7 +153,7 @@ def status(data, plan, today):
     best = max(best, streak)
     monday = today - datetime.timedelta(days=today.weekday())
     week_apps = sum(n for x, n in counts.items() if monday <= x <= today)
-    week_goal = plan["per_day"] * len(planned)
+    week_goal = plan.get("per_day_min", plan["per_day"]) * len(planned)
     return {"streak": streak, "best": best, "freezes": freezes, "perfect": used_in_streak == 0 and streak > 0,
             "today": state, "applied_today": today_n, "earn_back": earn_back,
             "next_milestone": next_milestone(streak, plan.get("goal")),
@@ -160,7 +161,7 @@ def status(data, plan, today):
             "week": {"applications": week_apps, "goal": week_goal}, "last_events": [(k, x.isoformat())
                                                                                   for k, x in events[-3:]],
             "plan": {"days": [DAYS[i].title() for i in sorted(planned)], "time": plan["time"],
-                     "per_day": plan["per_day"]}}
+                     "per_day": plan["per_day"], "per_day_min": plan.get("per_day_min", plan["per_day"])}}
 
 
 def bar(n, goal, width=10):
