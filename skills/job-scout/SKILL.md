@@ -193,9 +193,9 @@ python3 "$SKILL_DIR/score.py" example-prefs    # the JSON block PREFERENCES_AND_
    **Languages**: a language the role requires that the person doesn't speak is
    a fail; a higher level than theirs ("fluent", "native", "C1") is a flag for
    them to decide; "a plus" is nice to have; the language the ad is written in
-   isn't a requirement. **Years**: apply at about 60% of what's asked (2.5 years
-   against "4-5": in; 40-60%: a stretch, kept and shown on the readiness card).
-   A hard mismatch no fact could fix (under 40% of the years, no sponsorship
+   isn't a requirement. **Years, skills, education**: a guide; about half of what's asked is
+   enough (internships, part-time work, coursework count), a level above or a little below is
+   fine. A hard mismatch no fact could fix (under a third of the years, no sponsorship
    when needed, citizenship, clearance, a language they don't speak) is a skip with one line in the log, quoting the ad's exact words; a
    missing detail the person could supply is a question. Apply dealbreakers and
    eligibility (pass or fail, with the reason); **dedupe** with job-tracker (same reference

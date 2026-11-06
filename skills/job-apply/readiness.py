@@ -9,9 +9,13 @@ reqmap.json is job-cv's requirements map for this job, one row per requirement:
                      "on_cv": true, "fix": "...", "fix_kind": "ready" | "needs you" | "later"}],
    "add_ons": [{"text": "a portfolio link", "fix": "...", "fix_kind": "ready"}]}
 
-Red: a must-have with no evidence, or years at 40-60% of what's asked.
-Orange: a must-have with only partial evidence; a nice-to-have with none; years at
-60-99%; something the evidence has that the CV doesn't show; an add-on that would
+Apply when the person has about half of what's asked: internships, placements,
+part-time work and coursework count as evidence and experience. Overshooting is fine,
+and so is undershooting slightly. The card says how much of the must-haves is covered
+(strong counts 1, partial a half) and whether that's about half or more.
+Red: a must-have with no evidence, or a third to a half of the years asked.
+Orange: a must-have with only partial evidence; a nice-to-have with none; years from
+about half up to what's asked; something the evidence has that the CV doesn't show; an add-on that would
 help (a line in the note, a link, a certificate in progress).
 Green: the must-haves the evidence covers strongly.
 Each gap carries a fix, even one that isn't in the evidence yet, labelled:
@@ -33,7 +37,7 @@ import argparse
 import json
 import sys
 
-APPLY_AT, STRETCH_FROM = 0.6, 0.4
+APPLY_AT, STRETCH_FROM = 0.5, 0.33  # guides, not rules: about half of what is asked is enough
 CHOICES = ["Send as is", "Make suggested changes", "Make suggested changes and save to profile"]
 
 
@@ -62,20 +66,26 @@ def build(reqmap, years_need=None, years_have=None):
     if years_need and years_have is not None:
         share = float(years_have) / years_need
         if share < STRETCH_FROM:
-            gap(red, "%g years asked for %d+ (under 40%%): a long shot" % (years_have, years_need),
+            gap(red, "%g years against %d+ asked (under a third): a long shot" % (years_have, years_need),
                 "lead with the scope and results that match the level, and say why now in the note", "ready")
         elif share < APPLY_AT:
             gap(red, "%g years against %d+ asked (a stretch)" % (years_have, years_need),
                 "show the level, not the years: the biggest scope, results against target, a promotion or "
                 "early responsibility, in the top third", "ready")
         elif share < 1:
-            gap(orange, "%g years against %d+ asked (within reach: advisers say apply at about 60%%)" % (
-                years_have, years_need), "put the most senior-level result first; never inflate the dates", "ready")
+            gap(orange, "%g years against %d+ asked (within reach: apply)" % (years_have, years_need),
+                "count relevant internships, part-time work and coursework; put the most senior-level result "
+                "first; never inflate the dates", "ready")
     for a in reqmap.get("add_ons", []):
         gap(orange, a["text"], a.get("fix"), a.get("fix_kind"))
+    musts = [r for r in reqmap.get("requirements", []) if r.get("must")]
+    got = sum(1.0 if (r.get("evidence") or "").lower() == "strong" else 0.5 if (r.get("evidence") or "").lower()
+              == "partial" else 0 for r in musts)
+    cover = round(got / len(musts), 2) if musts else 1.0
     colour = "red" if red else "orange" if orange else "green"
     return {"job": reqmap.get("job", ""), "colour": colour, "red": red, "orange": orange, "green": green,
-            "no_gaps": not red and not orange,
+            "no_gaps": not red and not orange, "must_have_cover": cover,
+            "advice": "apply" if cover >= 0.5 else "a long shot: apply if you want this one",
             "choices": ["Send as is"] if not red and not orange else CHOICES,
             "needs_you": [g for g in red + orange if g["fix_kind"] == "needs you"]}
 
@@ -83,7 +93,8 @@ def build(reqmap, years_need=None, years_have=None):
 def text(card):
     if card["no_gaps"]:
         return "%s: no gaps. Sending as it is." % card["job"]
-    out = ["%s: %s" % (card["job"], card["colour"].upper())]
+    out = ["%s: %s. You have about %d%% of the must-haves: %s." % (
+        card["job"], card["colour"].upper(), round(100 * card["must_have_cover"]), card["advice"])]
     for name, items in (("Red", card["red"]), ("Orange", card["orange"])):
         if items:
             out.append(name + ":")

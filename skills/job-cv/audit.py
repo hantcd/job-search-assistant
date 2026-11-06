@@ -71,10 +71,10 @@ def audit(ad, cv, role="", terms=None, bank=None, this_year=2026, graduate=False
         nxt.append("Ask: is '%s' true for you? Yes: add it in the ad's words. No: it stays a gap." % t)
     if whole["reword"]:
         nxt.append("Use the ad's wording where true: " + ", ".join("%s (CV says %s)" % x for x in whole["reword"][:5]))
-    worth = 60 if graduate else 70  # graduate schemes hire for potential: apply at about 60-70% of requirements
+    worth = 50  # about half of what's asked is enough to apply (a guide, not a rule; graduate schemes included)
     if score >= worth and s["pile"] != "NO":
         nxt.append("Worth a tailored CV: start job-cv's tailored CV steps.")
-    elif score >= 40:
+    elif score >= 33:
         nxt.append("A stretch: tailor only if the person confirms some missing terms, and name the biggest gap in the letter.")
     else:
         nxt.append("A long shot on this CV: say so plainly, and check whether the missing terms are real gaps.")
@@ -89,7 +89,7 @@ def main(argv=None):
     p.add_argument("--role", default="")
     p.add_argument("--bank", help="JSON list of extra terms (your keyword bank)")
     p.add_argument("--year", type=int, default=2026)
-    p.add_argument("--graduate", action="store_true", help="a graduate scheme: worth tailoring from 60")
+    p.add_argument("--graduate", action="store_true", help="kept for older calls: every job is now worth tailoring from about half")
     p.add_argument("--json", action="store_true")
     a = p.parse_args(argv)
     bank = json.load(open(a.bank, encoding="utf-8")) if a.bank else None

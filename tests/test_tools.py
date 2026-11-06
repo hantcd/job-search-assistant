@@ -685,7 +685,8 @@ class Gates(unittest.TestCase):
         self.assertTrue(found["SPONSORSHIP"])
         self.assertTrue(found["NOT-GRAD"])
         self.assertTrue(found["PAY"])
-        self.assertTrue(any("6+ years" in s for s in skip))
+        self.assertEqual(found["YEARS_FIT"][0]["verdict"], "STRETCH")  # 2 against 6+: a third, kept and flagged
+        self.assertFalse(any("years" in s for s in skip))
 
     def test_post_grad_and_scale(self):
         found, _ = self.g.scan("Early Career: 1-3 years of full-time work experience post-graduation. "
@@ -1636,7 +1637,7 @@ class Release220(unittest.TestCase):
         grad = self.au.audit(ad, cv, "Data Analyst", graduate=True)
         self.assertEqual(plain["match"], 60)
         self.assertIn("Worth a tailored CV", grad["next"][-1])
-        self.assertNotIn("Worth a tailored CV", plain["next"][-1])
+        self.assertIn("Worth a tailored CV", plain["next"][-1])  # about half is enough for everyone now
 
 
 class Release230(unittest.TestCase):
@@ -1966,8 +1967,9 @@ class Release360(unittest.TestCase):
 
     def test_sixty_percent_of_the_years(self):
         cases = {"Requires 4-5 years of experience in sales.": ("IN", []),
-                 "5+ years of B2B sales.": ("STRETCH", []),
-                 "7+ years in enterprise sales.": ("SKIP", ["needs 7+ years; 2.5 is under 40% of that"]),
+                 "5+ years of B2B sales.": ("IN", []),
+                 "7+ years in enterprise sales.": ("STRETCH", []),
+                 "8+ years in enterprise sales.": ("SKIP", ["needs 8+ years; 2.5 is under a third of that"]),
                  "3 years in SaaS.": ("IN", [])}
         for ad, (verdict, skip) in cases.items():
             found, got = self.g.scan(ad, years_have=2.5)
@@ -1993,8 +1995,14 @@ class Release360(unittest.TestCase):
         self.assertEqual(c["choices"], ["Send as is", "Make suggested changes",
                                         "Make suggested changes and save to profile"])
         self.assertEqual(len(c["needs_you"]), 1)
-        stretch = self.rd.build({"job": "x", "requirements": []}, 5, 2.5)
-        self.assertEqual(stretch["colour"], "red")  # 50% of the years: a stretch, flagged in red
+        stretch = self.rd.build({"job": "x", "requirements": []}, 7, 2.5)
+        self.assertEqual(stretch["colour"], "red")  # about a third of the years: a stretch, flagged in red
+        self.assertEqual(self.rd.build({"job": "x", "requirements": []}, 5, 2.5)["colour"], "orange")
+        self.assertEqual(c["must_have_cover"], 0.67)  # 2 strong of 3 must-haves
+        self.assertEqual(c["advice"], "apply")
+        half = self.rd.build({"job": "y", "requirements": [
+            {"text": "a", "must": True, "evidence": "partial"}, {"text": "b", "must": True, "evidence": "none"}]})
+        self.assertEqual(half["advice"], "a long shot: apply if you want this one")  # a quarter covered
 
     def test_no_gaps_goes_as_it_is(self):
         c = self.rd.build({"job": "Acme, SDR", "requirements": [

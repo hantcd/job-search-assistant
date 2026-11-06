@@ -3,6 +3,16 @@
 Versions of the pack. Update to a version, not to whatever is newest, and read
 what changed first.
 
+## 3.6.1 (2026-11-06)
+- Years, skills and education are a guide, not a rule: about half of what's
+  asked is enough to apply, counting relevant internships, placements,
+  part-time work and coursework; overshooting is fine, and so is undershooting
+  slightly. gates.py: in from about half the minimum years ("5+" with 2.5
+  years is in), a stretch from a third, skipped only under a third.
+  readiness.py: shows how much of the must-haves is covered (strong 1,
+  partial a half) and advises applying from about half. audit.py: worth a
+  tailored CV from a 50 match for every job.
+
 ## 3.6.0 (2026-11-06)
 - job-scout `gates.py --years-have`: years are a guide, not a wall. From 60%
   of the minimum asked the job is in (2.5 years against "4-5 years": in), 40-60%

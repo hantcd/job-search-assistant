@@ -1,7 +1,17 @@
 {
  "about": "Read by job-weekly's update_check.py to tell people a newer version exists. Information only: nothing here is run.",
- "latest": "3.6.0",
+ "latest": "3.6.1",
  "versions": [
+  {
+   "version": "3.6.1",
+   "date": "2026-11-06",
+   "summary": "Apply when you have about half of what's asked, counting internships, part-time work and coursework; a level above or a little below is fine.",
+   "helps": [
+    "2.5 years: jobs asking 5+ years are in; only 8+ is skipped",
+    "each application says how much of the must-haves you cover, and advises applying from about half"
+   ],
+   "install_minutes": 0
+  },
   {
    "version": "3.6.0",
    "date": "2026-11-06",

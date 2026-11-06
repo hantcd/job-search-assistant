@@ -45,7 +45,7 @@ family uses; the route and the stop rules still apply on top.
 
 ## Graduate schemes in Ireland and the UK (Sinéad Brady, UCC Careers, ISE, Prospects)
 
-- Apply when about 60-70% of the requirements are met: schemes hire for
+- Apply when about half of the requirements are met (internships, part-time work and coursework count): schemes hire for
   potential, not track record. job-cv's audit treats 60+ as worth tailoring
   for graduate schemes.
 - Map experience (part-time jobs, societies, study abroad, managing

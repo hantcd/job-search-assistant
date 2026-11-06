@@ -26,12 +26,15 @@ lists, with the surrounding words so a person can judge:
                level than theirs ("fluent", "native", "C1") is a FLAG for them to decide.
                The language the ad is written in is not a requirement.
 
-Years are a guide, not a wall. Careers advisers and recruiters agree: apply when you
-meet about 60% of what's asked, because ads list a wish list and hire people who are
-close. With --years-have (the person's relevant years, e.g. 2.5), an ad asking for
-up to 1/0.6 of that is in (2.5 years: ads asking 4 years pass, and "4-5 years" counts
-from its lower end); 40-60% is a STRETCH, kept and flagged for the readiness check;
-under 40% (2.5 against 7+) is a skip. --years-max is the older name, read the same way.
+Years are a guide, not a wall, and so are skills and education: if the person has
+about half of what's asked, apply. Count relevant internships, placements, part-time
+work and coursework or projects as experience (--years-have is that total, e.g. 2.5).
+Overshooting is fine (ads are wish lists, and people a step short get hired), and so is
+undershooting slightly: a role a level below isn't excluded for being junior. As a
+rough guide, from about half the minimum asked a job is in (2.5 years: "4-5 years"
+is in, and so is "5+"); a third to a half is a STRETCH, kept and flagged for the
+readiness card; under a third (2.5 against 8+) is skipped. --years-max is the older
+name, read the same way.
 
 With --years-have or --needs-sponsorship, a hard mismatch is marked SKIP (no fact
 could make the person eligible), which is different from a missing detail the
@@ -132,11 +135,11 @@ def languages(text, mine=None):
     return found
 
 
-APPLY_AT, STRETCH_FROM = 0.6, 0.4  # share of the asked-for years: apply from 60%, a flagged stretch from 40%
+APPLY_AT, STRETCH_FROM = 0.5, 0.33  # a guide: about half of the asked-for years is in; a third to a half is a stretch
 
 
 def years_verdict(need, have):
-    """IN (have at least 60% of the minimum asked), STRETCH (40-60%) or SKIP (under 40%)."""
+    """IN (about half the minimum asked or more), STRETCH (a third to a half) or SKIP (under a third)."""
     if not need or have is None:
         return "IN", 1.0
     ratio = float(have) / need
@@ -172,7 +175,7 @@ def scan(text, years_max=None, needs_sponsorship=False, my_languages=None, not_c
         verdict, ratio = years_verdict(need, years_have)
         found["YEARS_FIT"] = [{"need": need, "have": years_have, "share": ratio, "verdict": verdict}]
         if verdict == "SKIP":
-            skip.append("needs %d+ years; %s is under 40%% of that" % (need, ("%g" % years_have)))
+            skip.append("needs %d+ years; %s is under a third of that" % (need, ("%g" % years_have)))
     if needs_sponsorship and found["SPONSORSHIP"]:
         skip.append("this role offers no visa sponsorship")
     if found["NOT-GRAD"] and years_have is not None and years_have <= 1:
